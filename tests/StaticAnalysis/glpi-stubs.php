@@ -73,8 +73,9 @@ class GLPIKey
     public function decrypt(?string $value): ?string {}
 }
 
-class Config
+class Config extends CommonDBTM
 {
+    public static function getFormURL($full = true): string {}
     public static function getConfigurationValues(string $context): array {}
     public static function setConfigurationValues(string $context, array $values): void {}
 }

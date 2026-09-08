@@ -59,7 +59,7 @@ final class Profile extends \Profile
             return '';
         }
 
-        return self::createTabEntry(__('Secret', 'secret'), 0, $item::getType(), 'ti ti-key');
+        return self::createTabEntry(_n('Secret', 'Secrets', 1, 'secret'), 0, $item::getType(), 'ti ti-key');
     }
 
     /**
@@ -78,7 +78,7 @@ final class Profile extends \Profile
         }
         $item->displayRightsChoiceMatrix(self::rights(), [
             'canedit' => $canEdit,
-            'title' => __('Secret', 'secret'),
+            'title' => _n('Secret', 'Secrets', 1, 'secret'),
         ]);
         if ($canEdit) {
             echo "<div class='center'>";

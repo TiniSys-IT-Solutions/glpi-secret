@@ -30,20 +30,26 @@ final class TimelineActionProvider
             return [];
         }
 
+        // GLPI only hands this value back to our Twig template as `subitem`.
+        // A data holder avoids pretending that an unsaved secret already exists.
+        $subitem = (object) ['fields' => [
+            'itemtype' => $item->getType(),
+            'items_id' => (int) $item->getID(),
+            'entities_id' => (int) ($item->fields['entities_id'] ?? 0),
+            'config' => $config,
+        ]];
+
         return [
-            'secret' => [
-                'type' => 'PluginSecretSecret',
+            // Stable key and backslash-free class: GLPI uses the class to build
+            // the Bootstrap target id `new-PluginSecretSecret-block`.
+            'PluginSecretSecret' => [
+                'type' => 'ITILFollowup',
                 'class' => 'PluginSecretSecret',
                 'icon' => 'ti ti-key',
                 'label' => __('Add a secret', 'secret'),
-                'short_label' => __('Secret', 'secret'),
+                'short_label' => _n('Secret', 'Secrets', 1, 'secret'),
                 'template' => '@secret/timeline_form.html.twig',
-                'item' => (object) [
-                    'itemtype' => $item->getType(),
-                    'items_id' => (int) $item->getID(),
-                    'entities_id' => (int) ($item->fields['entities_id'] ?? 0),
-                    'config' => $config,
-                ],
+                'item' => $subitem,
                 'hide_in_menu' => false,
             ],
         ];

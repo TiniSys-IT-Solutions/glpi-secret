@@ -12,7 +12,11 @@ ACL decision made by `AclPolicy`; callers must never reproduce that decision.
 Ticket and asset integrations will supply contextual actor facts to the same ACL
 engine. They will never duplicate encryption, audit, or authorization logic.
 
-The 0.0.2 ITIL integration uses controllers discovered from `src/Controller/`.
+The 0.0.4 ITIL integration uses controllers discovered from `src/Controller/`.
+User-facing plugin strings use the `secret` gettext domain and GLPI's native
+`locales/<language>.mo` loading mechanism.
 GLPI's controller listener authenticates the route and validates CSRF for POST
 requests. `TimelineActionProvider` contributes the native answer action, while
 `TicketSecretRepository` sends only authorized metadata to Twig.
+The provider uses a plain form-context object and a stable HTML-safe action key;
+it never instantiates an unsaved secret or embeds plaintext in the initial page.

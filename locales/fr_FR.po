@@ -1,0 +1,252 @@
+# Traductions françaises de GLPI Secret.
+# Copyright (C) 2026 TiniSys IT Solutions
+# Ce fichier est distribué sous la même licence que GLPI Secret.
+# TiniSys IT Solutions, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: GLPI Secret 0.0.4\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-08 17:02+0530\n"
+"PO-Revision-Date: 2026-09-08 16:38+0530\n"
+"Last-Translator: TiniSys IT Solutions\n"
+"Language-Team: Français\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: templates/config_form.html.twig
+msgid "Ticket and ITIL integration"
+msgstr "Intégration aux tickets et à ITIL"
+
+#: templates/config_form.html.twig
+msgid "Enable the Secret timeline action"
+msgstr "Activer l’action Secret dans la chronologie"
+
+#: templates/config_form.html.twig
+msgid "Default visibility"
+msgstr "Visibilité par défaut"
+
+#: templates/config_form.html.twig templates/timeline_form.html.twig
+msgid "Me only"
+msgstr "Moi uniquement"
+
+#: templates/config_form.html.twig templates/timeline_form.html.twig
+msgid "Assigned technicians"
+msgstr "Techniciens attribués"
+
+#: templates/config_form.html.twig templates/timeline_form.html.twig
+msgid "Requester and technicians"
+msgstr "Demandeur et techniciens"
+
+#: templates/config_form.html.twig
+msgid "Default expiration"
+msgstr "Expiration par défaut"
+
+#: templates/config_form.html.twig templates/timeline_form.html.twig
+msgid "When the ITIL object is closed"
+msgstr "À la clôture de l’objet ITIL"
+
+#: templates/config_form.html.twig templates/timeline_form.html.twig
+msgid "1 day"
+msgstr "1 jour"
+
+#: templates/config_form.html.twig templates/timeline_form.html.twig
+msgid "7 days"
+msgstr "7 jours"
+
+#: templates/config_form.html.twig templates/timeline_form.html.twig
+msgid "30 days"
+msgstr "30 jours"
+
+#: templates/config_form.html.twig templates/timeline_form.html.twig
+msgid "Custom date"
+msgstr "Date personnalisée"
+
+#: templates/config_form.html.twig
+msgid "Maximum secret length"
+msgstr "Longueur maximale du secret"
+
+#: templates/config_form.html.twig
+msgid "Password generator"
+msgstr "Générateur de mots de passe"
+
+#: templates/config_form.html.twig
+msgid "Default length"
+msgstr "Longueur par défaut"
+
+#: templates/config_form.html.twig templates/timeline_form.html.twig
+msgid "Lowercase"
+msgstr "Minuscules"
+
+#: templates/config_form.html.twig templates/timeline_form.html.twig
+msgid "Uppercase"
+msgstr "Majuscules"
+
+#: templates/config_form.html.twig templates/timeline_form.html.twig
+msgid "Digits"
+msgstr "Chiffres"
+
+#: templates/config_form.html.twig templates/timeline_form.html.twig
+msgid "Special characters"
+msgstr "Caractères spéciaux"
+
+#: templates/config_form.html.twig templates/timeline_form.html.twig
+msgid "Exclude ambiguous characters"
+msgstr "Exclure les caractères ambigus"
+
+#: templates/timeline_form.html.twig
+msgid "Protect sensitive information"
+msgstr "Protéger les informations sensibles"
+
+#: templates/timeline_form.html.twig
+msgid ""
+"The value is encrypted and never added to the ticket timeline or "
+"notifications."
+msgstr ""
+"La valeur est chiffrée et n’est jamais ajoutée à la chronologie du ticket ni "
+"aux notifications."
+
+#: templates/timeline_form.html.twig
+msgid "Secret details"
+msgstr "Détails du secret"
+
+#: templates/timeline_form.html.twig
+msgid "Password"
+msgstr "Mot de passe"
+
+#: templates/timeline_form.html.twig
+msgid "Credential"
+msgstr "Identifiant"
+
+#: templates/timeline_form.html.twig
+msgid "Token"
+msgstr "Jeton"
+
+#: templates/timeline_form.html.twig templates/itil_tab.html.twig
+#: src/Secret.php:109
+msgid "Username"
+msgstr "Nom d’utilisateur"
+
+#: templates/timeline_form.html.twig templates/itil_tab.html.twig
+#: src/Secret.php:32 src/Service/TimelineActionProvider.php:50
+#: src/Profile.php:62 src/Profile.php:81 src/SecretItem.php:51
+#: src/Config.php:42 setup.php:72
+msgid "Secret"
+msgid_plural "Secrets"
+msgstr[0] "Secret"
+msgstr[1] "Secrets"
+
+#: templates/timeline_form.html.twig
+msgid "Show or hide"
+msgstr "Afficher ou masquer"
+
+#: templates/timeline_form.html.twig
+msgid "Generate"
+msgstr "Générer"
+
+#: templates/timeline_form.html.twig
+msgid "Password generator options"
+msgstr "Options du générateur de mots de passe"
+
+#: templates/timeline_form.html.twig
+msgid "Length"
+msgstr "Longueur"
+
+#: templates/timeline_form.html.twig
+msgid "Access and lifetime"
+msgstr "Accès et durée de vie"
+
+#: templates/timeline_form.html.twig templates/itil_tab.html.twig
+msgid "Visibility"
+msgstr "Visibilité"
+
+#: templates/timeline_form.html.twig
+msgid "Custom expiration"
+msgstr "Expiration personnalisée"
+
+#: templates/timeline_form.html.twig
+msgid "Access is controlled and every reveal or copy is audited."
+msgstr "L’accès est contrôlé et chaque affichage ou copie est audité."
+
+#: templates/timeline_form.html.twig
+msgid "Encrypt and add"
+msgstr "Chiffrer et ajouter"
+
+#: templates/itil_tab.html.twig src/Profile.php:100
+msgid "Reveal"
+msgstr "Révéler"
+
+#: templates/itil_tab.html.twig
+msgid "Not available"
+msgstr "Indisponible"
+
+#: templates/itil_tab.html.twig
+msgid "No visible secret."
+msgstr "Aucun secret visible."
+
+#: src/Service/TimelineActionProvider.php:49
+msgid "Add a secret"
+msgstr "Ajouter un secret"
+
+#: src/Profile.php:98
+msgid "Read secret metadata"
+msgstr "Lire les métadonnées des secrets"
+
+#: src/Profile.php:99
+msgid "Create secrets"
+msgstr "Créer des secrets"
+
+#: src/Profile.php:100
+msgid "Reveal secrets"
+msgstr "Révéler les secrets"
+
+#: src/Profile.php:101
+msgid "Update secrets"
+msgstr "Modifier les secrets"
+
+#: src/Profile.php:102
+msgid "Delete secrets"
+msgstr "Supprimer les secrets"
+
+#: src/Profile.php:103
+msgid "View secret audit"
+msgstr "Consulter l’audit des secrets"
+
+#: src/Profile.php:104
+msgid "Administer Secret"
+msgstr "Administrer Secret"
+
+#: src/Controller/RevealSecretController.php:29
+msgid "Unknown secret."
+msgstr "Secret inconnu."
+
+#: src/Controller/RevealSecretController.php:35
+#: src/Controller/CreateItilSecretController.php:34
+msgid "Unsupported ITIL object."
+msgstr "Objet ITIL non pris en charge."
+
+#: src/Controller/RevealSecretController.php:51
+msgid "Unsupported reveal action."
+msgstr "Action d’affichage non prise en charge."
+
+#: src/Controller/CreateItilSecretController.php:46
+msgid "The secret could not be created."
+msgstr "Le secret n’a pas pu être créé."
+
+#: src/Controller/CreateItilSecretController.php:49
+msgid "Secret created."
+msgstr "Secret créé."
+
+#: src/Config.php:22
+msgid "Secret settings"
+msgstr "Paramètres de Secret"
+
+#: front/config.php:19
+msgid "Secret settings saved."
+msgstr "Paramètres de Secret enregistrés."
+
+#~ msgid "Secrets"
+#~ msgstr "Secrets"

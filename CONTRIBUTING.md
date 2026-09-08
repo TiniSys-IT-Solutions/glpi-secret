@@ -1,7 +1,9 @@
 # Contributing
 
 Use a focused branch and submit changes through a pull request. Every change
-must preserve the invariants in `AGENTS.md` and pass:
+must preserve the invariants in `AGENTS.md` and pass. Install GNU gettext
+before running the release build so both maintained catalogs are regenerated
+and checked:
 
 ```bash
 composer install

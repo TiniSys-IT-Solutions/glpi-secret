@@ -4,11 +4,17 @@ declare(strict_types=1);
 
 namespace GlpiPlugin\Secret;
 
+use CommonGLPI;
+use Glpi\Application\View\TemplateRenderer;
 use GlpiPlugin\Secret\Security\Visibility;
+use Session;
 
 final class Config extends \CommonGLPI
 {
     public const CONTEXT = 'plugin:secret';
+
+    /** @var string */
+    public static $rightname = Profile::RIGHT_ADMIN;
 
     /** @param int $nb */
     public static function getTypeName($nb = 0): string
@@ -19,6 +25,55 @@ final class Config extends \CommonGLPI
     public static function getIcon(): string
     {
         return 'ti ti-key';
+    }
+
+    public static function canManage(): bool
+    {
+        return Profile::canAdminister() || Session::haveRight('config', UPDATE);
+    }
+
+    /** @param bool|int $withtemplate */
+    public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0): string
+    {
+        if (!$item instanceof \Config || !self::canManage()) {
+            return '';
+        }
+
+        return self::createTabEntry(_n('Secret', 'Secrets', 1, 'secret'), 0, $item::getType(), self::getIcon());
+    }
+
+    /**
+     * @param int $tabnum
+     * @param bool|int $withtemplate
+     */
+    public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0): bool
+    {
+        if (!$item instanceof \Config || !self::canManage()) {
+            return false;
+        }
+
+        self::renderForm(self::frontUrl());
+        return true;
+    }
+
+    public static function renderForm(?string $action = null): void
+    {
+        TemplateRenderer::getInstance()->display('@secret/config_form.html.twig', [
+            'config' => self::values(),
+            'action' => $action ?? self::frontUrl(),
+        ]);
+    }
+
+    public static function frontUrl(): string
+    {
+        global $CFG_GLPI;
+
+        return rtrim((string) ($CFG_GLPI['root_doc'] ?? ''), '/') . '/plugins/secret/front/config.php';
+    }
+
+    public static function globalConfigUrl(): string
+    {
+        return \Config::getFormURL() . '?forcetab=' . rawurlencode(self::getType() . '$1');
     }
 
     /** @return array<string, string> */

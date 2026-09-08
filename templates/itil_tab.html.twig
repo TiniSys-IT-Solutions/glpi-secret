@@ -1,6 +1,6 @@
 <div class="card">
    <div class="card-header d-flex align-items-center">
-      <h3 class="card-title"><i class="ti ti-key me-2"></i>{{ __('Secrets', 'secret') }}</h3>
+      <h3 class="card-title"><i class="ti ti-key me-2"></i>{{ _n('Secret', 'Secrets', 2, 'secret') }}</h3>
    </div>
    <div class="table-responsive">
       <table class="table table-hover card-table">
@@ -19,11 +19,11 @@
                <td>
                   {% if secret.can_reveal %}
                      <button type="button" class="btn btn-sm btn-outline-primary plugin-secret-action"
-                             data-action="view" data-url="{{ path('secret_reveal', {'id': secret.id}) }}"
+                             data-action="view" data-url="{{ path('@secret:secret_reveal', {'id': secret.id}) }}"
                              data-itemtype="{{ item.getType() }}" data-items-id="{{ item.getID() }}"
                              data-csrf="{{ csrf_token() }}"><i class="ti ti-eye me-1"></i>{{ __('Reveal', 'secret') }}</button>
                      <button type="button" class="btn btn-sm btn-outline-secondary plugin-secret-action"
-                             data-action="copy" data-url="{{ path('secret_reveal', {'id': secret.id}) }}"
+                             data-action="copy" data-url="{{ path('@secret:secret_reveal', {'id': secret.id}) }}"
                              data-itemtype="{{ item.getType() }}" data-items-id="{{ item.getID() }}"
                              data-csrf="{{ csrf_token() }}"><i class="ti ti-copy me-1"></i>{{ __('Copy') }}</button>
                   {% else %}
@@ -39,4 +39,3 @@
       </table>
    </div>
 </div>
-

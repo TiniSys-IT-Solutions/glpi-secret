@@ -2,7 +2,33 @@
 
 All notable changes are documented here.
 
-## 0.0.2 - Unreleased
+## 0.0.4 - Unreleased
+
+### Added
+
+- Native GLPI gettext catalogs for fully maintained British English and French
+  interfaces.
+
+### Changed
+
+- Align plugin configuration, assets, and ITIL timeline hooks with
+  the native GLPI 11 plugin integration points.
+- Keep global settings in the native GLPI general configuration form; reserve
+  a future Tools menu entry for secret centralization features.
+
+### Fixed
+
+- Restore the configuration wrench on the GLPI plugins page.
+- Add the Secret tab in general setup and redirect the plugin wrench to it.
+- Register public JavaScript and CSS assets with GLPI 11's public-directory
+  path convention.
+- Use GLPI-prefixed Symfony route names for secret creation and reveal actions.
+- Match the native timeline answer-action contract with a stable action key,
+  followup grouping, and a dedicated secure creation panel.
+- Refresh the active profile's plugin rights after installation or upgrade so
+  the Secret action is available without a logout/login cycle.
+
+## 0.0.2 - 2026-09-08
 
 ### Added
 

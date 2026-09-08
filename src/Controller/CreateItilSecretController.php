@@ -31,7 +31,7 @@ final class CreateItilSecretController extends AbstractController
         $itemtype = $request->request->getString('itemtype');
         $itemsId = $request->request->getInt('items_id');
         if (!in_array($itemtype, SecretItem::supportedItemtypes(), true) || $itemsId <= 0) {
-            throw new BadRequestHttpException('Unsupported ITIL object.');
+            throw new BadRequestHttpException(__('Unsupported ITIL object.', 'secret'));
         }
         $item = getItemForItemtype($itemtype);
         if (!$item instanceof CommonITILObject || !$item->getFromDB($itemsId) || !$item->canViewItem()) {

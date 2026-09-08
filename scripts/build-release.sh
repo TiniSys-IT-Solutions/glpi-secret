@@ -20,7 +20,7 @@ VERSION="${TAG_NAME#v}"
 }
 ARCHIVE="${DIST_DIR}/${REPOSITORY_NAME}-${VERSION}.zip"
 
-for command in composer node php rsync python3; do
+for command in composer node php rg rsync python3 xgettext msginit msgmerge msgfmt msgattrib; do
   command -v "${command}" >/dev/null 2>&1 || { echo "Missing command: ${command}" >&2; exit 1; }
 done
 
@@ -32,6 +32,23 @@ node --check public/js/secret.js
 php -r '$xml = simplexml_load_file("secret.xml"); exit($xml === false ? 1 : 0);'
 
 rm -rf "${DIST_DIR}"
+
+# Maintain the native GLPI gettext catalogs before packaging. English is the
+# source language; the French catalog must remain fully translated.
+vendor/bin/extract-locales
+sed -i "s/Project-Id-Version: PACKAGE VERSION/Project-Id-Version: GLPI Secret ${VERSION}/" locales/en_GB.po
+msgattrib --clear-fuzzy --output-file=locales/en_GB.po locales/en_GB.po
+msgmerge --no-fuzzy-matching locales/fr_FR.po locales/secret.pot -o locales/fr_FR.po.new
+mv locales/fr_FR.po.new locales/fr_FR.po
+msgfmt --check --check-format --statistics -o locales/en_GB.mo locales/en_GB.po
+msgfmt --check --check-format --statistics -o locales/fr_FR.mo locales/fr_FR.po
+for locale in en_GB fr_FR; do
+  if msgattrib --untranslated "locales/${locale}.po" | rg -q '^msgid '; then
+    echo "${locale} catalog contains untranslated messages" >&2
+    exit 1
+  fi
+done
+
 mkdir -p "${PACKAGE_DIR}"
 rsync -a ./ "${PACKAGE_DIR}/" \
   --exclude '.git/' --exclude '.github/' --exclude '.local/' \
@@ -70,6 +87,13 @@ with zipfile.ZipFile(archive) as package:
         'secret/setup.php',
         'secret/hook.php',
         'secret/composer.json',
+        'secret/front/config.php',
+        'secret/logo.png',
+        'secret/locales/en_GB.mo',
+        'secret/locales/fr_FR.mo',
+        'secret/locales/secret.pot',
+        'secret/public/css/secret.css',
+        'secret/public/js/secret.js',
         'secret/vendor/autoload.php',
     }
     missing = required - names

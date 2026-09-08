@@ -26,13 +26,13 @@ final class RevealSecretController extends AbstractController
         Session::checkLoginUser();
         $secret = new Secret();
         if ($id <= 0 || !$secret->getFromDB($id)) {
-            throw new BadRequestHttpException('Unknown secret.');
+            throw new BadRequestHttpException(__('Unknown secret.', 'secret'));
         }
 
         $itemtype = $request->request->getString('itemtype');
         $itemsId = $request->request->getInt('items_id');
         if (!in_array($itemtype, SecretItem::supportedItemtypes(), true) || $itemsId <= 0) {
-            throw new BadRequestHttpException('Unsupported ITIL object.');
+            throw new BadRequestHttpException(__('Unsupported ITIL object.', 'secret'));
         }
         if (countElementsInTable(SecretItem::getTable(), [
             'plugin_secret_secrets_id' => $id,
@@ -48,7 +48,7 @@ final class RevealSecretController extends AbstractController
 
         $action = $request->request->getString('action', 'view');
         if (!in_array($action, ['view', 'copy'], true)) {
-            throw new BadRequestHttpException('Unsupported reveal action.');
+            throw new BadRequestHttpException(__('Unsupported reveal action.', 'secret'));
         }
         $value = (new SecretValueService())->reveal(
             $secret,

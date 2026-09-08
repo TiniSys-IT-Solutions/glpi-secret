@@ -1,8 +1,10 @@
 # Ticket and ITIL workflow
 
-Version 0.0.2 supports Ticket, Change, and Problem objects.
+Version 0.0.4 supports Ticket, Change, and Problem objects.
 
-1. An authorized user opens the native **Secret** timeline action.
+1. An authorized user opens **Secret** directly from GLPI's native **Reply**
+   split button. The action is grouped as an ITIL followup so it behaves like
+   the built-in Followup, Task, Solution, Document, and Approval actions.
 2. The user enters or generates a value, selects visibility and expiration, and
    submits the form.
 3. A GLPI 11 POST controller validates CSRF, object access, profile rights, input,
@@ -26,3 +28,6 @@ and the maximum accepted secret length.
 No followup or notification contains the value. Adding a secret produces only
 the protected plugin record and its relation to the ITIL object.
 
+GLPI serves the plugin stylesheet and JavaScript from `public/`; hook paths are
+therefore registered as `css/secret.css` and `js/secret.js` without a duplicate
+`public/` prefix.

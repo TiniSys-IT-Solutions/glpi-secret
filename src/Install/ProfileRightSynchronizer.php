@@ -37,6 +37,21 @@ final class ProfileRightSynchronizer
             }
         }
 
+        // GLPI caches the active profile rights in the session. Refresh the
+        // plugin values immediately so a freshly installed or upgraded plugin
+        // exposes its timeline action without forcing a logout/login cycle.
+        $activeProfile = $_SESSION['glpiactiveprofile'] ?? null;
+        if (is_array($activeProfile)) {
+            $activeProfileId = (int) ($activeProfile['id'] ?? 0);
+            if ($activeProfileId > 0) {
+                $activeRights = \ProfileRight::getProfileRights($activeProfileId, $required);
+                foreach ($required as $right) {
+                    $activeProfile[$right] = (int) ($activeRights[$right] ?? 0);
+                }
+                $_SESSION['glpiactiveprofile'] = $activeProfile;
+            }
+        }
+
         if ($bootstrap && $success) {
             $success = $DB->insert('glpi_plugin_secret_configs', [
                 'name' => self::BOOTSTRAP_MARKER,

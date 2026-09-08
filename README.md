@@ -15,7 +15,7 @@ GLPI Secret provides native storage for operational credentials attached to
 GLPI workflows and assets. Its purpose is to prevent passwords and tokens from
 being pasted into unprotected ticket text or asset notes.
 
-Version 0.0.2 includes the Ticket, Change, and Problem workflow. Asset
+Version 0.0.4 includes the Ticket, Change, and Problem workflow. Asset
 integration is intentionally deferred to the next milestone.
 
 > Status: early development (`0.0.x`). Validate the plugin and its permission
@@ -39,6 +39,9 @@ integration is intentionally deferred to the next milestone.
 - PHP `>= 8.2` with Sodium;
 - a readable GLPI `glpicrypt.key`.
 
+The plugin interface is maintained in British English and French through
+GLPI's native gettext catalogs.
+
 ## Installation
 
 Install the release archive so that `setup.php` is located at
@@ -46,6 +49,9 @@ Install the release archive so that `setup.php` is located at
 management page.
 
 ## Development and tests
+
+GNU gettext (`xgettext`, `msginit`, `msgmerge`, `msgfmt`, and `msgattrib`) is
+required to maintain and validate the native GLPI language catalogs.
 
 ```bash
 composer install

@@ -149,6 +149,14 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.plugin-secret-create-form').forEach(refreshConditionalFields);
+
+        const answerBlock = document.getElementById('new-PluginSecretSecret-block');
+        if (answerBlock) {
+            answerBlock.addEventListener('shown.bs.collapse', () => {
+                answerBlock.scrollIntoView({block: 'start', behavior: 'smooth'});
+                answerBlock.querySelector('input[name="name"]')?.focus({preventScroll: true});
+            });
+        }
     });
 
     new MutationObserver((mutations) => {
