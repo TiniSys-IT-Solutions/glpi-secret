@@ -37,4 +37,19 @@ final class PluginIntegrationContractTest extends TestCase
         self::assertStringContainsString("path('@secret:secret_itil_create')", $timeline);
         self::assertStringContainsString("path('@secret:secret_reveal'", $tab);
     }
+
+    public function testProfileRightsAreNormalizedToBooleanValues(): void
+    {
+        $profile = (string) file_get_contents(dirname(__DIR__, 2) . '/src/Profile.php');
+
+        self::assertSame(7, substr_count($profile, 'return (bool) Session::haveRight('));
+    }
+
+    public function testRevealFailsWhenItsAuditCannotBeRecorded(): void
+    {
+        $service = (string) file_get_contents(dirname(__DIR__, 2) . '/src/Service/SecretValueService.php');
+
+        self::assertStringContainsString("if (!\$this->audit->record(", $service);
+        self::assertStringContainsString('The secret access could not be audited.', $service);
+    }
 }

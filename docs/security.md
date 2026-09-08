@@ -15,4 +15,5 @@ No server-generated page or generic API response may contain plaintext. A
 dedicated POST controller with session, CSRF, ACL, expiration, and audit checks
 is the only HTTP reveal path. Its JSON response is marked `no-store` and contains
 only the requested plaintext value. Copy performs a fresh authorized request so
-the server can record a distinct COPY audit event.
+the server can record a distinct COPY audit event. If the VIEW or COPY audit
+cannot be persisted, the service fails closed and does not return the value.

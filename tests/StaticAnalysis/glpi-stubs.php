@@ -55,7 +55,7 @@ class Session
 {
     public static function checkLoginUser(): void {}
     public static function addMessageAfterRedirect(string $message): void {}
-    public static function haveRight(string $right, int $level): bool {}
+    public static function haveRight(string $right, int $level): bool|int {}
     public static function haveAccessToEntity(int $entityId, bool $recursive = false): bool {}
     public static function getLoginUserID(bool $force = true): int|false {}
 }
@@ -71,6 +71,7 @@ class GLPIKey
 {
     public function encrypt(string $value): string {}
     public function decrypt(?string $value): ?string {}
+    public function hasReadErrors(): bool {}
 }
 
 class Config extends CommonDBTM
@@ -87,7 +88,7 @@ function countElementsInTable(string $table, array $criteria = []): int {}
 function getItemForItemtype(string $itemtype): ?CommonDBTM {}
 
 const READ = 1;
-const CREATE = 2;
-const UPDATE = 4;
+const UPDATE = 2;
+const CREATE = 4;
 const DELETE = 8;
 const ALLSTANDARDRIGHT = 31;

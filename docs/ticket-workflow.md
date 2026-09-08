@@ -1,6 +1,6 @@
 # Ticket and ITIL workflow
 
-Version 0.0.4 supports Ticket, Change, and Problem objects.
+Version 0.0.5 supports Ticket, Change, and Problem objects.
 
 1. An authorized user opens **Secret** directly from GLPI's native **Reply**
    split button. The action is grouped as an ITIL followup so it behaves like

@@ -24,8 +24,13 @@ final class GlpiKeyCipher implements SecretCipher
             throw new RuntimeException('The encrypted secret is empty.');
         }
 
-        $plaintext = (new \GLPIKey())->decrypt($ciphertext);
-        if ($plaintext === null) {
+        $key = new \GLPIKey();
+        if ($key->hasReadErrors()) {
+            throw new RuntimeException('The GLPI cryptographic key is unavailable.');
+        }
+
+        $plaintext = $key->decrypt($ciphertext);
+        if ($plaintext === null || $plaintext === '' || $plaintext === $ciphertext) {
             throw new RuntimeException('The secret could not be decrypted with the current GLPI key.');
         }
 

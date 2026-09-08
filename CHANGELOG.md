@@ -2,7 +2,23 @@
 
 All notable changes are documented here.
 
-## 0.0.4 - Unreleased
+## 0.0.5 - 2026-09-08
+
+### Changed
+
+- Declare the JSON and Sodium PHP extension requirements through GLPI's native
+  plugin requirement metadata.
+
+### Fixed
+
+- Normalize GLPI permission bitmasks to booleans to prevent strict return-type
+  errors when loading the plugin configuration or general setup menus.
+- Fail closed when the GLPI cryptographic key cannot be read or a ciphertext
+  cannot be authenticated during reveal.
+- Refuse to return revealed plaintext when its VIEW or COPY audit event cannot
+  be persisted.
+
+## 0.0.4 - 2026-09-08
 
 ### Added
 

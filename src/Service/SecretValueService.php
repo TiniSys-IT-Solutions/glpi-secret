@@ -25,7 +25,9 @@ final class SecretValueService
         }
 
         $value = $this->cipher->decrypt((string) ($secret->fields['encrypted_value'] ?? ''));
-        $this->audit->record((int) $secret->getID(), $copy ? AuditLogger::COPY : AuditLogger::VIEW, $context);
+        if (!$this->audit->record((int) $secret->getID(), $copy ? AuditLogger::COPY : AuditLogger::VIEW, $context)) {
+            throw new RuntimeException('The secret access could not be audited.');
+        }
 
         return $value;
     }

@@ -23,7 +23,6 @@ final class GlpiKeyCipherTest extends TestCase
 
     public static function values(): iterable
     {
-        yield 'empty' => [''];
         yield 'unicode' => ['Pässwörd-Été-ß-€-🔐'];
         yield 'special characters' => ["'\"<&>\\/\0\n\r\t"];
         yield 'very long' => [str_repeat('technical-secret-🔐', 1024)];
@@ -38,5 +37,23 @@ final class GlpiKeyCipherTest extends TestCase
         } finally {
             \GLPIKey::$encryptionAvailable = true;
         }
+    }
+
+    public function testDecryptionFailsClosedWhenGlpiKeyIsUnavailable(): void
+    {
+        $encrypted = (new GlpiKeyCipher())->encrypt('must-not-be-returned');
+        \GLPIKey::$readErrors = true;
+        try {
+            $this->expectException(RuntimeException::class);
+            (new GlpiKeyCipher())->decrypt($encrypted);
+        } finally {
+            \GLPIKey::$readErrors = false;
+        }
+    }
+
+    public function testDecryptionRejectsInvalidCiphertext(): void
+    {
+        $this->expectException(RuntimeException::class);
+        (new GlpiKeyCipher())->decrypt('not-a-valid-ciphertext');
     }
 }

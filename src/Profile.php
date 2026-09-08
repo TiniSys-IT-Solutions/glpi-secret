@@ -19,37 +19,37 @@ final class Profile extends \Profile
 
     public static function canReadMetadata(): bool
     {
-        return Session::haveRight(self::RIGHT_METADATA, READ);
+        return (bool) Session::haveRight(self::RIGHT_METADATA, READ);
     }
 
     public static function canCreateSecret(): bool
     {
-        return Session::haveRight(self::RIGHT_CREATE, CREATE);
+        return (bool) Session::haveRight(self::RIGHT_CREATE, CREATE);
     }
 
     public static function canRevealSecret(): bool
     {
-        return Session::haveRight(self::RIGHT_REVEAL, READ);
+        return (bool) Session::haveRight(self::RIGHT_REVEAL, READ);
     }
 
     public static function canUpdateSecret(): bool
     {
-        return Session::haveRight(self::RIGHT_UPDATE, UPDATE);
+        return (bool) Session::haveRight(self::RIGHT_UPDATE, UPDATE);
     }
 
     public static function canDeleteSecret(): bool
     {
-        return Session::haveRight(self::RIGHT_DELETE, DELETE);
+        return (bool) Session::haveRight(self::RIGHT_DELETE, DELETE);
     }
 
     public static function canViewAudit(): bool
     {
-        return Session::haveRight(self::RIGHT_AUDIT, READ);
+        return (bool) Session::haveRight(self::RIGHT_AUDIT, READ);
     }
 
     public static function canAdminister(): bool
     {
-        return Session::haveRight(self::RIGHT_ADMIN, UPDATE);
+        return (bool) Session::haveRight(self::RIGHT_ADMIN, UPDATE);
     }
 
     /** @param bool|int $withtemplate */
