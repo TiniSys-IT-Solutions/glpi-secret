@@ -1,0 +1,40 @@
+{
+  "name": "tinisys-it-solutions/glpi-secret",
+  "description": "Secure operational secrets for GLPI 11 tickets and assets.",
+  "type": "glpi-plugin",
+  "license": "GPL-3.0-or-later",
+  "authors": [
+    {"name": "TiniSys IT Solutions"}
+  ],
+  "require": {
+    "php": ">=8.2",
+    "ext-json": "*",
+    "ext-sodium": "*"
+  },
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "^3.80",
+    "glpi-project/tools": "^0.8",
+    "phpstan/phpstan": "^2.1",
+    "phpunit/phpunit": "^11.0",
+    "symfony/http-foundation": "^7.3",
+    "symfony/http-kernel": "^7.3",
+    "symfony/routing": "^7.3"
+  },
+  "autoload": {
+    "psr-4": {"GlpiPlugin\\Secret\\": "src/"}
+  },
+  "autoload-dev": {
+    "psr-4": {"GlpiPlugin\\Secret\\Tests\\Unit\\": "tests/Unit/"},
+    "exclude-from-classmap": ["tests/StaticAnalysis/"]
+  },
+  "scripts": {
+    "test": "phpunit",
+    "analyse": "phpstan analyse",
+    "cs:check": "php-cs-fixer check --diff",
+    "quality": ["@test", "@analyse", "@cs:check"]
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "sort-packages": true
+  }
+}

@@ -1,0 +1,54 @@
+{% extends 'layout/page_without_tabs.html.twig' %}
+
+{% block content_title %}{{ __('Secret settings', 'secret') }}{% endblock %}
+
+{% block content_body %}
+<form method="post" action="{{ path('secret_config') }}" class="card">
+   <input type="hidden" name="_glpi_csrf_token" value="{{ csrf_token() }}">
+   <div class="card-body">
+      <h3 class="card-title">{{ __('Ticket and ITIL integration', 'secret') }}</h3>
+      <label class="form-check form-switch mb-4">
+         <input class="form-check-input" type="checkbox" name="ticket_enabled" value="1" {{ config.ticket_enabled ? 'checked' : '' }}>
+         <span class="form-check-label">{{ __('Enable the Secret timeline action', 'secret') }}</span>
+      </label>
+      <div class="row g-3">
+         <div class="col-md-6">
+            <label class="form-label">{{ __('Default visibility', 'secret') }}</label>
+            <select class="form-select" name="default_visibility">
+               <option value="owner" {{ config.default_visibility == 'owner' ? 'selected' : '' }}>{{ __('Me only', 'secret') }}</option>
+               <option value="ticket_technicians" {{ config.default_visibility == 'ticket_technicians' ? 'selected' : '' }}>{{ __('Assigned technicians', 'secret') }}</option>
+               <option value="requesters_and_technicians" {{ config.default_visibility == 'requesters_and_technicians' ? 'selected' : '' }}>{{ __('Requester and technicians', 'secret') }}</option>
+               <option value="group" {{ config.default_visibility == 'group' ? 'selected' : '' }}>{{ __('Group') }}</option>
+            </select>
+         </div>
+         <div class="col-md-6">
+            <label class="form-label">{{ __('Default expiration', 'secret') }}</label>
+            <select class="form-select" name="default_expiration">
+               {% for value, label in {
+                  'never': __('Never'), 'ticket_closed': __('When the ITIL object is closed', 'secret'),
+                  'one_day': __('1 day', 'secret'), 'seven_days': __('7 days', 'secret'),
+                  'thirty_days': __('30 days', 'secret'), 'custom': __('Custom date', 'secret')
+               } %}<option value="{{ value }}" {{ config.default_expiration == value ? 'selected' : '' }}>{{ label }}</option>{% endfor %}
+            </select>
+         </div>
+         <div class="col-md-6">
+            <label class="form-label">{{ __('Maximum secret length', 'secret') }}</label>
+            <input type="number" class="form-control" name="max_secret_length" min="1024" max="1048576" value="{{ config.max_secret_length }}">
+         </div>
+      </div>
+
+      <h3 class="card-title mt-4">{{ __('Password generator', 'secret') }}</h3>
+      <div class="row g-3 align-items-end">
+         <div class="col-md-3"><label class="form-label">{{ __('Default length', 'secret') }}</label><input type="number" class="form-control" name="generator_length" min="8" max="256" value="{{ config.generator_length }}"></div>
+         {% for key, label in {
+            'lowercase': __('Lowercase', 'secret'), 'uppercase': __('Uppercase', 'secret'),
+            'digits': __('Digits', 'secret'), 'special': __('Special characters', 'secret'),
+            'exclude_ambiguous': __('Exclude ambiguous characters', 'secret')
+         } %}
+            <div class="col-md-auto"><label class="form-check"><input class="form-check-input" type="checkbox" name="generator_{{ key }}" value="1" {{ attribute(config, 'generator_' ~ key) ? 'checked' : '' }}><span class="form-check-label">{{ label }}</span></label></div>
+         {% endfor %}
+      </div>
+   </div>
+   <div class="card-footer text-end"><button class="btn btn-primary" type="submit"><i class="ti ti-device-floppy me-1"></i>{{ __('Save') }}</button></div>
+</form>
+{% endblock %}

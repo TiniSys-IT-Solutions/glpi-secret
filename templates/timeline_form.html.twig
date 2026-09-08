@@ -1,0 +1,103 @@
+{% import 'components/form/fields_macros.html.twig' as fields %}
+
+<form method="post" action="{{ path('secret_itil_create') }}" class="plugin-secret-create-form" autocomplete="off">
+   <input type="hidden" name="_glpi_csrf_token" value="{{ csrf_token() }}">
+   <input type="hidden" name="itemtype" value="{{ subitem.itemtype }}">
+   <input type="hidden" name="items_id" value="{{ subitem.items_id }}">
+
+   <div class="row g-3">
+      <div class="col-md-8">
+         <label class="form-label required" for="secret-name">{{ __('Name') }}</label>
+         <input class="form-control" id="secret-name" name="name" maxlength="255" required>
+      </div>
+      <div class="col-md-4">
+         <label class="form-label required" for="secret-type">{{ __('Type') }}</label>
+         <select class="form-select" id="secret-type" name="type" required>
+            <option value="password">{{ __('Password', 'secret') }}</option>
+            <option value="credential">{{ __('Credential', 'secret') }}</option>
+            <option value="token">{{ __('Token', 'secret') }}</option>
+            <option value="other">{{ __('Other') }}</option>
+         </select>
+      </div>
+      <div class="col-md-6">
+         <label class="form-label" for="secret-username">{{ __('Username', 'secret') }}</label>
+         <input class="form-control" id="secret-username" name="username" maxlength="255" autocomplete="off">
+      </div>
+      <div class="col-12">
+         <label class="form-label required" for="secret-value">{{ __('Secret', 'secret') }}</label>
+         <div class="input-group">
+            <input type="password" class="form-control font-monospace" id="secret-value" name="secret_value"
+                   maxlength="{{ subitem.config.max_secret_length }}" required autocomplete="new-password"
+                   spellcheck="false">
+            <button class="btn btn-outline-secondary plugin-secret-toggle" type="button" data-target="secret-value"
+                    title="{{ __('Show or hide', 'secret') }}"><i class="ti ti-eye"></i></button>
+            <button class="btn btn-outline-secondary plugin-secret-copy-input" type="button" data-target="secret-value"
+                    title="{{ __('Copy') }}"><i class="ti ti-copy"></i></button>
+            <button class="btn btn-outline-secondary plugin-secret-generate" type="button" data-target="secret-value"
+                    title="{{ __('Generate', 'secret') }}"><i class="ti ti-refresh"></i></button>
+         </div>
+      </div>
+      <div class="col-12 plugin-secret-generator-options"
+           data-length="{{ subitem.config.generator_length }}"
+           data-lowercase="{{ subitem.config.generator_lowercase ? '1' : '0' }}"
+           data-uppercase="{{ subitem.config.generator_uppercase ? '1' : '0' }}"
+           data-digits="{{ subitem.config.generator_digits ? '1' : '0' }}"
+           data-special="{{ subitem.config.generator_special ? '1' : '0' }}"
+           data-exclude-ambiguous="{{ subitem.config.generator_exclude_ambiguous ? '1' : '0' }}">
+         <details>
+            <summary>{{ __('Password generator options', 'secret') }}</summary>
+            <div class="d-flex flex-wrap gap-3 mt-2 align-items-center">
+               <label>{{ __('Length', 'secret') }} <input type="number" class="form-control form-control-sm plugin-secret-length" min="8" max="256" value="{{ subitem.config.generator_length }}"></label>
+               {% for key, label in {
+                  'lowercase': __('Lowercase', 'secret'),
+                  'uppercase': __('Uppercase', 'secret'),
+                  'digits': __('Digits', 'secret'),
+                  'special': __('Special characters', 'secret'),
+                  'exclude-ambiguous': __('Exclude ambiguous characters', 'secret')
+               } %}
+                  <label class="form-check mb-0">
+                     <input class="form-check-input plugin-secret-generator-{{ key }}" type="checkbox"
+                            {{ attribute(subitem.config, 'generator_' ~ key|replace({'-': '_'})) ? 'checked' : '' }}>
+                     <span class="form-check-label">{{ label }}</span>
+                  </label>
+               {% endfor %}
+            </div>
+         </details>
+      </div>
+      <div class="col-md-6">
+         <label class="form-label required" for="secret-visibility">{{ __('Visibility', 'secret') }}</label>
+         <select class="form-select plugin-secret-visibility" id="secret-visibility" name="visibility" required>
+            <option value="owner" {{ subitem.config.default_visibility == 'owner' ? 'selected' : '' }}>{{ __('Me only', 'secret') }}</option>
+            <option value="ticket_technicians" {{ subitem.config.default_visibility == 'ticket_technicians' ? 'selected' : '' }}>{{ __('Assigned technicians', 'secret') }}</option>
+            <option value="requesters_and_technicians" {{ subitem.config.default_visibility == 'requesters_and_technicians' ? 'selected' : '' }}>{{ __('Requester and technicians', 'secret') }}</option>
+            <option value="group" {{ subitem.config.default_visibility == 'group' ? 'selected' : '' }}>{{ __('Group') }}</option>
+         </select>
+      </div>
+      <div class="col-md-6 plugin-secret-group-field">
+         {{ fields.dropdownField('Group', 'groups_id', 0, __('Group'), {
+            entity: subitem.entities_id,
+            full_width: true,
+            condition: {'is_assign': 1}
+         }) }}
+      </div>
+      <div class="col-md-6">
+         <label class="form-label required" for="secret-expiration">{{ __('Expiration') }}</label>
+         <select class="form-select plugin-secret-expiration" id="secret-expiration" name="expiration_policy" required>
+            <option value="never" {{ subitem.config.default_expiration == 'never' ? 'selected' : '' }}>{{ __('Never') }}</option>
+            <option value="ticket_closed" {{ subitem.config.default_expiration == 'ticket_closed' ? 'selected' : '' }}>{{ __('When the ITIL object is closed', 'secret') }}</option>
+            <option value="one_day" {{ subitem.config.default_expiration == 'one_day' ? 'selected' : '' }}>{{ __('1 day', 'secret') }}</option>
+            <option value="seven_days" {{ subitem.config.default_expiration == 'seven_days' ? 'selected' : '' }}>{{ __('7 days', 'secret') }}</option>
+            <option value="thirty_days" {{ subitem.config.default_expiration == 'thirty_days' ? 'selected' : '' }}>{{ __('30 days', 'secret') }}</option>
+            <option value="custom" {{ subitem.config.default_expiration == 'custom' ? 'selected' : '' }}>{{ __('Custom date', 'secret') }}</option>
+         </select>
+      </div>
+      <div class="col-md-6 plugin-secret-custom-expiration">
+         <label class="form-label" for="secret-custom-expiration">{{ __('Custom expiration', 'secret') }}</label>
+         <input type="datetime-local" class="form-control" id="secret-custom-expiration" name="custom_expiration">
+      </div>
+   </div>
+
+   <div class="card-footer mx-n3 mb-n3 mt-3 d-flex justify-content-end">
+      <button class="btn btn-primary" type="submit"><i class="ti ti-key me-1"></i>{{ __('Add a secret', 'secret') }}</button>
+   </div>
+</form>

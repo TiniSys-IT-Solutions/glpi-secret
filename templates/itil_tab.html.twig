@@ -1,0 +1,42 @@
+<div class="card">
+   <div class="card-header d-flex align-items-center">
+      <h3 class="card-title"><i class="ti ti-key me-2"></i>{{ __('Secrets', 'secret') }}</h3>
+   </div>
+   <div class="table-responsive">
+      <table class="table table-hover card-table">
+         <thead><tr>
+            <th>{{ __('Name') }}</th><th>{{ __('Type') }}</th><th>{{ __('Username', 'secret') }}</th>
+            <th>{{ __('Visibility', 'secret') }}</th><th>{{ __('Expiration') }}</th><th>{{ __('Actions') }}</th>
+         </tr></thead>
+         <tbody>
+         {% for secret in secrets %}
+            <tr data-secret-row="{{ secret.id }}">
+               <td>{{ secret.name }}</td>
+               <td>{{ secret.type }}</td>
+               <td>{{ secret.username ?? '—' }}</td>
+               <td>{{ secret.visibility }}</td>
+               <td>{{ secret.expiration ?? secret.expiration_policy }}</td>
+               <td>
+                  {% if secret.can_reveal %}
+                     <button type="button" class="btn btn-sm btn-outline-primary plugin-secret-action"
+                             data-action="view" data-url="{{ path('secret_reveal', {'id': secret.id}) }}"
+                             data-itemtype="{{ item.getType() }}" data-items-id="{{ item.getID() }}"
+                             data-csrf="{{ csrf_token() }}"><i class="ti ti-eye me-1"></i>{{ __('Reveal', 'secret') }}</button>
+                     <button type="button" class="btn btn-sm btn-outline-secondary plugin-secret-action"
+                             data-action="copy" data-url="{{ path('secret_reveal', {'id': secret.id}) }}"
+                             data-itemtype="{{ item.getType() }}" data-items-id="{{ item.getID() }}"
+                             data-csrf="{{ csrf_token() }}"><i class="ti ti-copy me-1"></i>{{ __('Copy') }}</button>
+                  {% else %}
+                     <span class="text-secondary">{{ __('Not available', 'secret') }}</span>
+                  {% endif %}
+                  <div class="plugin-secret-revealed mt-2" hidden></div>
+               </td>
+            </tr>
+         {% else %}
+            <tr><td colspan="6" class="text-center text-secondary py-4">{{ __('No visible secret.', 'secret') }}</td></tr>
+         {% endfor %}
+         </tbody>
+      </table>
+   </div>
+</div>
+
