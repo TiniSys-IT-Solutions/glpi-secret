@@ -5,10 +5,10 @@
 <h1 align="center">GLPI Secret</h1>
 
 <p align="center">
-  <a href="https://github.com/TiniSys-IT-Solutions/glpi-secret/releases"><img src="https://img.shields.io/github/v/release/TiniSys-IT-Solutions/glpi-secret?display_name=tag&sort=semver&style=for-the-badge" alt="Latest release"></a>
-  <a href="https://github.com/TiniSys-IT-Solutions/glpi-secret/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/TiniSys-IT-Solutions/glpi-secret/ci.yml?branch=main&style=for-the-badge&label=CI" alt="CI status"></a>
-  <img src="https://img.shields.io/badge/GLPI-11.0.8%2B-0B5CAD?style=for-the-badge" alt="GLPI 11.0.8 or newer">
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/TiniSys-IT-Solutions/glpi-secret?style=for-the-badge" alt="GPL-3.0-or-later"></a>
+  <img src="https://img.shields.io/badge/GLPI-11.x-blue" alt="GLPI 11">
+  <img src="https://img.shields.io/badge/PHP-8.2%2B-777bb4" alt="PHP 8.2 or newer">
+  <img src="https://img.shields.io/badge/license-GPL--3.0--or--later-green" alt="License GPL-3.0-or-later">
+  <img src="https://img.shields.io/badge/status-early%20development-orange" alt="Status: early development">
 </p>
 
 GLPI Secret provides native storage for operational credentials attached to
@@ -17,6 +17,9 @@ being pasted into unprotected ticket text or asset notes.
 
 Version 0.0.2 includes the Ticket, Change, and Problem workflow. Asset
 integration is intentionally deferred to the next milestone.
+
+> Status: early development (`0.0.x`). Validate the plugin and its permission
+> model in a disposable GLPI environment before using it in production.
 
 ## Security foundations
 
@@ -30,10 +33,10 @@ integration is intentionally deferred to the next milestone.
 - dedicated reveal/copy requests with no-store responses and audit events;
 - configurable visibility, expiration, and password generation defaults.
 
-## Requirements
+## Compatibility
 
-- GLPI 11.0.8 through 11.0.x;
-- PHP 8.2 or newer with Sodium;
+- GLPI `>= 11.0.8` and `< 11.1.0`;
+- PHP `>= 8.2` with Sodium;
 - a readable GLPI `glpicrypt.key`.
 
 ## Installation
@@ -42,13 +45,22 @@ Install the release archive so that `setup.php` is located at
 `plugins/secret/setup.php`, then install and enable **Secret** from GLPI's plugin
 management page.
 
-For development:
+## Development and tests
 
 ```bash
 composer install
 composer quality
 ./scripts/build-release.sh
 ```
+
+Run integration tests only against a disposable GLPI instance and never use
+production credentials in tests, fixtures, issues, or pull requests. See
+[CONTRIBUTING.md](CONTRIBUTING.md) for the expected checks and security
+invariants.
+
+Installable ZIP archives are generated in the ignored local `dist/` directory.
+Tagged releases publish the matching archive as a GitHub Release asset;
+generated packages are never committed to the source repository.
 
 ## Backup
 
@@ -66,6 +78,12 @@ configuration, or application logs.
 - [Installation](docs/installation.md)
 - [Upgrade](docs/upgrade.md)
 
-## License
+## Project identity
 
-GPL-3.0-or-later. Copyright TiniSys IT Solutions.
+This plugin is independently developed and maintained by TiniSys IT Solutions.
+GLPI is a trademark of its respective owners. This project is an independent
+integration and is not an official GLPI product.
+
+## Licence
+
+GPL-3.0-or-later. See [LICENSE](LICENSE).

@@ -15,6 +15,11 @@ All notable changes are documented here.
 - Global configuration for ticket integration, defaults, limits, and generator.
 - No-store reveal responses and VIEW/COPY audit events.
 
+### Changed
+
+- Align badges, licensing, project identity, release documentation, and
+  contribution guidance with TiniSys IT Solutions plugin standards.
+
 ## 0.0.1 - 2026-09-08
 
 ### Added

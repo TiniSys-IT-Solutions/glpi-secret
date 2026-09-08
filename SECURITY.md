@@ -1,5 +1,13 @@
 # Security policy
 
+The detailed security model, trust boundaries, encryption requirements, and
+backup constraints are documented in [docs/security.md](docs/security.md).
+
+## Supported versions
+
+Security fixes are provided for the latest published release and the current
+`main` branch. Releases in the `0.0.x` series remain pre-production software.
+
 ## Reporting a vulnerability
 
 Do not open a public issue for a suspected vulnerability. Contact TiniSys IT
@@ -19,4 +27,3 @@ or after an authorized user copies a revealed value elsewhere.
 The ciphertext is explicitly excluded from generic API responses and GLPI
 history. Plaintext is decrypted only after both the profile permission and the
 secret ACL have passed. Reveal and copy are audited without recording values.
-
