@@ -1,6 +1,6 @@
 # Ticket and ITIL workflow
 
-Version 0.0.5 supports Ticket, Change, and Problem objects.
+Version 0.0.6 supports Ticket, Change, and Problem objects.
 
 1. An authorized user opens **Secret** directly from GLPI's native **Reply**
    split button. The action is grouped as an ITIL followup so it behaves like
@@ -25,9 +25,24 @@ Global administrators with the Secret administration right can enable the
 timeline action and choose default visibility, expiration, generator options,
 and the maximum accepted secret length.
 
-No followup or notification contains the value. Adding a secret produces only
-the protected plugin record and its relation to the ITIL object.
+After creation, the plugin adds a native public followup saying only that a
+secure secret is available for the relevant ticket, change, or problem and that
+the recipient must sign in to GLPI. GLPI therefore keeps control of notification
+templates and recipients. The followup never contains the value, name, username,
+reveal URL, token, or cryptographic material.
+
+Users with the corresponding profile and ACL rights may update metadata or
+replace the encrypted value, delete a secret with explicit confirmation, and
+inspect its CREATE/VIEW/COPY/UPDATE/DELETE/PURGE audit trail. Audit entries are
+retained when the encrypted record is deleted.
+
+The `purgeExpired` GLPI automatic action permanently removes expired encrypted
+records after its configurable retention (30 days by default, zero disables
+purging). It processes at most 500 records per run and does not require a
+separate system cron.
 
 GLPI serves the plugin stylesheet and JavaScript from `public/`; hook paths are
 therefore registered as `css/secret.css` and `js/secret.js` without a duplicate
 `public/` prefix.
+Controller forms use the canonical `plugins/secret/...` URL namespace, including
+when GLPI stores the plugin physically under `marketplace/secret`.

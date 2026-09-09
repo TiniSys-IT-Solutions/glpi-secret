@@ -1,6 +1,6 @@
 {% import 'components/form/fields_macros.html.twig' as fields %}
 
-<form method="post" action="{{ path('@secret:secret_itil_create') }}" class="plugin-secret-create-form" autocomplete="off">
+<form method="post" action="{{ path('plugins/secret/Itil/Secret') }}" class="plugin-secret-create-form" autocomplete="off">
    <input type="hidden" name="_glpi_csrf_token" value="{{ csrf_token() }}">
    <input type="hidden" name="itemtype" value="{{ subitem.fields.itemtype }}">
    <input type="hidden" name="items_id" value="{{ subitem.fields.items_id }}">

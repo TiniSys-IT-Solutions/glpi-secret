@@ -2,6 +2,24 @@
 
 All notable changes are documented here.
 
+## 0.0.6 - 2026-09-09
+
+### Added
+
+- Add audited update, permanent delete, and audit consultation controls to the
+  Ticket, Change, and Problem Secret tabs.
+- Add a native GLPI followup after creation so normal recipients are notified
+  with a type-specific ticket/change/problem sign-in instruction and no secret
+  metadata or value.
+- Add the configurable `purgeExpired` GLPI automatic action with bounded
+  batches and retained audit events.
+
+### Fixed
+
+- Use canonical GLPI plugin URLs for create and reveal controllers so forms do
+  not fall back to unresolved route names and return a 404 page.
+- Show the authorized secret creator and creation date in ITIL metadata tabs.
+
 ## 0.0.5 - 2026-09-08
 
 ### Changed

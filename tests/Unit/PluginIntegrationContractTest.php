@@ -28,14 +28,15 @@ final class PluginIntegrationContractTest extends TestCase
         self::assertStringContainsString("'class' => 'PluginSecretSecret'", $provider);
     }
 
-    public function testPluginTemplatesUseGlpiPrefixedRouteNames(): void
+    public function testPluginTemplatesUseCanonicalGlpiPluginPaths(): void
     {
         $root = dirname(__DIR__, 2);
         $timeline = (string) file_get_contents($root . '/templates/timeline_form.html.twig');
         $tab = (string) file_get_contents($root . '/templates/itil_tab.html.twig');
 
-        self::assertStringContainsString("path('@secret:secret_itil_create')", $timeline);
-        self::assertStringContainsString("path('@secret:secret_reveal'", $tab);
+        self::assertStringContainsString("path('plugins/secret/Itil/Secret')", $timeline);
+        self::assertStringContainsString("path('plugins/secret/Secret/' ~ secret.id ~ '/Reveal')", $tab);
+        self::assertStringNotContainsString("path('@secret:", $timeline . $tab);
     }
 
     public function testProfileRightsAreNormalizedToBooleanValues(): void
@@ -51,5 +52,22 @@ final class PluginIntegrationContractTest extends TestCase
 
         self::assertStringContainsString("if (!\$this->audit->record(", $service);
         self::assertStringContainsString('The secret access could not be audited.', $service);
+    }
+
+    public function testItilMutationsAuditAndSafeNotificationAreWired(): void
+    {
+        $root = dirname(__DIR__, 2);
+        $tab = (string) file_get_contents($root . '/templates/itil_tab.html.twig');
+        $notifier = (string) file_get_contents($root . '/src/Service/SecretAvailabilityNotifier.php');
+        $mutation = (string) file_get_contents($root . '/src/Service/SecretMutationService.php');
+
+        self::assertStringContainsString("/Mutate')", $tab);
+        self::assertStringContainsString("/Audit')", $tab);
+        self::assertStringContainsString('available for this ticket. Sign in to GLPI to view it.', $notifier);
+        self::assertStringContainsString('available for this change. Sign in to GLPI to view it.', $notifier);
+        self::assertStringContainsString('available for this problem. Sign in to GLPI to view it.', $notifier);
+        self::assertStringNotContainsString('secret_value', $notifier);
+        self::assertStringContainsString('AuditLogger::UPDATE', $mutation);
+        self::assertStringContainsString('AuditLogger::DELETE', $mutation);
     }
 }

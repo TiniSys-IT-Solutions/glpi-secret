@@ -6,7 +6,8 @@
       <table class="table table-hover card-table">
          <thead><tr>
             <th>{{ __('Name') }}</th><th>{{ __('Type') }}</th><th>{{ __('Username', 'secret') }}</th>
-            <th>{{ __('Visibility', 'secret') }}</th><th>{{ __('Expiration') }}</th><th>{{ __('Actions') }}</th>
+            <th>{{ __('Visibility', 'secret') }}</th><th>{{ __('Creator') }}</th>
+            <th>{{ __('Creation date') }}</th><th>{{ __('Expiration') }}</th><th>{{ __('Actions') }}</th>
          </tr></thead>
          <tbody>
          {% for secret in secrets %}
@@ -15,25 +16,53 @@
                <td>{{ secret.type }}</td>
                <td>{{ secret.username ?? '—' }}</td>
                <td>{{ secret.visibility }}</td>
+               <td>{{ get_item_link('User', secret.users_id_creator) }}</td>
+               <td>{{ secret.date_creation ?? '—' }}</td>
                <td>{{ secret.expiration ?? secret.expiration_policy }}</td>
                <td>
                   {% if secret.can_reveal %}
                      <button type="button" class="btn btn-sm btn-outline-primary plugin-secret-action"
-                             data-action="view" data-url="{{ path('@secret:secret_reveal', {'id': secret.id}) }}"
+                             data-action="view" data-url="{{ path('plugins/secret/Secret/' ~ secret.id ~ '/Reveal') }}"
                              data-itemtype="{{ item.getType() }}" data-items-id="{{ item.getID() }}"
                              data-csrf="{{ csrf_token() }}"><i class="ti ti-eye me-1"></i>{{ __('Reveal', 'secret') }}</button>
                      <button type="button" class="btn btn-sm btn-outline-secondary plugin-secret-action"
-                             data-action="copy" data-url="{{ path('@secret:secret_reveal', {'id': secret.id}) }}"
+                             data-action="copy" data-url="{{ path('plugins/secret/Secret/' ~ secret.id ~ '/Reveal') }}"
                              data-itemtype="{{ item.getType() }}" data-items-id="{{ item.getID() }}"
                              data-csrf="{{ csrf_token() }}"><i class="ti ti-copy me-1"></i>{{ __('Copy') }}</button>
                   {% else %}
                      <span class="text-secondary">{{ __('Not available', 'secret') }}</span>
                   {% endif %}
+                  {% if secret.can_audit %}
+                     <button type="button" class="btn btn-sm btn-outline-info plugin-secret-audit"
+                             data-url="{{ path('plugins/secret/Secret/' ~ secret.id ~ '/Audit') }}"
+                             data-csrf="{{ csrf_token() }}"><i class="ti ti-history me-1"></i>{{ __('Audit', 'secret') }}</button>
+                  {% endif %}
+                  {% if secret.can_update %}
+                     <details class="mt-2">
+                        <summary>{{ __('Edit') }}</summary>
+                        <form method="post" action="{{ path('plugins/secret/Secret/' ~ secret.id ~ '/Mutate') }}" class="mt-2">
+                           <input type="hidden" name="_glpi_csrf_token" value="{{ csrf_token() }}">
+                           <input type="hidden" name="itemtype" value="{{ item.getType() }}"><input type="hidden" name="items_id" value="{{ item.getID() }}">
+                           <div class="input-group input-group-sm mb-1"><span class="input-group-text">{{ __('Name') }}</span><input class="form-control" name="name" value="{{ secret.name }}" required></div>
+                           <div class="input-group input-group-sm mb-1"><span class="input-group-text">{{ __('Username', 'secret') }}</span><input class="form-control" name="username" value="{{ secret.username }}"></div>
+                           <div class="input-group input-group-sm mb-1"><span class="input-group-text">{{ __('New secret value', 'secret') }}</span><input class="form-control" type="password" name="secret_value" autocomplete="new-password"></div>
+                           <input type="hidden" name="type" value="{{ secret.type }}"><button class="btn btn-sm btn-primary" type="submit">{{ __('Save') }}</button>
+                        </form>
+                     </details>
+                  {% endif %}
+                  {% if secret.can_delete %}
+                     <form method="post" action="{{ path('plugins/secret/Secret/' ~ secret.id ~ '/Mutate') }}" class="d-inline plugin-secret-delete-form">
+                        <input type="hidden" name="_glpi_csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="operation" value="delete">
+                        <input type="hidden" name="itemtype" value="{{ item.getType() }}"><input type="hidden" name="items_id" value="{{ item.getID() }}">
+                        <button class="btn btn-sm btn-outline-danger mt-2" type="submit">{{ __('Delete permanently') }}</button>
+                     </form>
+                  {% endif %}
                   <div class="plugin-secret-revealed mt-2" hidden></div>
+                  <div class="plugin-secret-audit-result mt-2" hidden></div>
                </td>
             </tr>
          {% else %}
-            <tr><td colspan="6" class="text-center text-secondary py-4">{{ __('No visible secret.', 'secret') }}</td></tr>
+            <tr><td colspan="8" class="text-center text-secondary py-4">{{ __('No visible secret.', 'secret') }}</td></tr>
          {% endfor %}
          </tbody>
       </table>

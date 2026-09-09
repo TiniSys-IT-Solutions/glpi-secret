@@ -14,7 +14,7 @@ use GlpiPlugin\Secret\Service\TimelineActionProvider;
 
 defined('GLPI_ROOT') or die('No direct access allowed');
 
-const PLUGIN_SECRET_VERSION = '0.0.5';
+const PLUGIN_SECRET_VERSION = '0.0.6';
 const PLUGIN_SECRET_MIN_GLPI = '11.0.8';
 const PLUGIN_SECRET_MAX_GLPI = '11.1.0';
 const PLUGIN_SECRET_MIN_PHP = '8.2.0';

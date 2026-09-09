@@ -5,9 +5,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: GLPI Secret 0.0.5\n"
+"Project-Id-Version: GLPI Secret 0.0.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-08 17:02+0530\n"
+"POT-Creation-Date: 2026-09-09 09:51+0530\n"
 "PO-Revision-Date: 2026-09-08 16:38+0530\n"
 "Last-Translator: TiniSys IT Solutions\n"
 "Language-Team: Français\n"
@@ -126,12 +126,12 @@ msgid "Token"
 msgstr "Jeton"
 
 #: templates/timeline_form.html.twig templates/itil_tab.html.twig
-#: src/Secret.php:109
+#: src/Secret.php:149
 msgid "Username"
 msgstr "Nom d’utilisateur"
 
 #: templates/timeline_form.html.twig templates/itil_tab.html.twig
-#: src/Secret.php:32 src/Service/TimelineActionProvider.php:50
+#: src/Secret.php:72 src/Service/TimelineActionProvider.php:50
 #: src/Profile.php:62 src/Profile.php:81 src/SecretItem.php:51
 #: src/Config.php:42 setup.php:72
 msgid "Secret"
@@ -184,12 +184,55 @@ msgid "Not available"
 msgstr "Indisponible"
 
 #: templates/itil_tab.html.twig
+msgid "Audit"
+msgstr "Audit"
+
+#: templates/itil_tab.html.twig
+msgid "New secret value"
+msgstr "Nouvelle valeur secrète"
+
+#: templates/itil_tab.html.twig
 msgid "No visible secret."
 msgstr "Aucun secret visible."
+
+#: src/Secret.php:33 src/Install/Installer.php:38
+msgid "Purge expired encrypted secrets after the configured retention"
+msgstr ""
+"Purger les secrets chiffrés expirés après la durée de conservation configurée"
+
+#: src/Secret.php:34
+msgid "Retention (days)"
+msgstr "Conservation (jours)"
 
 #: src/Service/TimelineActionProvider.php:49
 msgid "Add a secret"
 msgstr "Ajouter un secret"
+
+#: src/Service/SecretAvailabilityNotifier.php:25
+msgid ""
+"A secure secret is available for this ticket. Sign in to GLPI to view it."
+msgstr ""
+"Un secret sécurisé est disponible pour ce ticket. Connectez-vous à GLPI pour "
+"le consulter."
+
+#: src/Service/SecretAvailabilityNotifier.php:26
+msgid ""
+"A secure secret is available for this change. Sign in to GLPI to view it."
+msgstr ""
+"Un secret sécurisé est disponible pour ce changement. Connectez-vous à GLPI "
+"pour le consulter."
+
+#: src/Service/SecretAvailabilityNotifier.php:27
+msgid ""
+"A secure secret is available for this problem. Sign in to GLPI to view it."
+msgstr ""
+"Un secret sécurisé est disponible pour ce problème. Connectez-vous à GLPI "
+"pour le consulter."
+
+#: src/Service/SecretAvailabilityNotifier.php:28
+msgid "A secure secret is available. Sign in to GLPI to view it."
+msgstr ""
+"Un secret sécurisé est disponible. Connectez-vous à GLPI pour le consulter."
 
 #: src/Profile.php:98
 msgid "Read secret metadata"
@@ -220,6 +263,7 @@ msgid "Administer Secret"
 msgstr "Administrer Secret"
 
 #: src/Controller/RevealSecretController.php:29
+#: src/Controller/MutateItilSecretController.php:31
 msgid "Unknown secret."
 msgstr "Secret inconnu."
 
@@ -231,6 +275,14 @@ msgstr "Objet ITIL non pris en charge."
 #: src/Controller/RevealSecretController.php:51
 msgid "Unsupported reveal action."
 msgstr "Action d’affichage non prise en charge."
+
+#: src/Controller/MutateItilSecretController.php:41
+msgid "Secret deleted."
+msgstr "Secret supprimé."
+
+#: src/Controller/MutateItilSecretController.php:44
+msgid "Secret updated."
+msgstr "Secret mis à jour."
 
 #: src/Controller/CreateItilSecretController.php:46
 msgid "The secret could not be created."

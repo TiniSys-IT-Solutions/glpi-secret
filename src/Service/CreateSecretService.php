@@ -72,6 +72,15 @@ final class CreateSecretService
             }
 
             $DB->commit();
+            // A native follow-up lets GLPI apply the item's normal notification
+            // recipients and templates. Its deliberately generic content never
+            // contains secret metadata or a reveal URL.
+            try {
+                (new SecretAvailabilityNotifier())->notify($item);
+            } catch (\Throwable) {
+                // The secret is already safely committed. A notification
+                // failure must not invite the user to submit it a second time.
+            }
             return $secretId;
         } catch (\Throwable $exception) {
             $DB->rollBack();

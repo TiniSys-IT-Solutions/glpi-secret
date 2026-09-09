@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GlpiPlugin\Secret\Install;
 
 use GlpiPlugin\Secret\Config;
+use GlpiPlugin\Secret\Secret;
 
 final class Installer
 {
@@ -32,6 +33,12 @@ final class Installer
         }
 
         Config::installDefaults();
+
+        \CronTask::register(Secret::class, 'purgeExpired', DAY_TIMESTAMP, [
+            'comment' => __('Purge expired encrypted secrets after the configured retention', 'secret'),
+            'mode' => \CronTask::MODE_INTERNAL,
+            'param' => 30,
+        ]);
 
         $migration->executeMigration();
         unset($_SESSION['glpimenu']);

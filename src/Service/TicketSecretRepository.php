@@ -73,10 +73,14 @@ final class TicketSecretRepository
                 'username' => $row['username'] !== null ? (string) $row['username'] : null,
                 'visibility' => (string) $row['visibility'],
                 'groups_id' => (int) $row['groups_id'],
+                'users_id_creator' => (int) $row['users_id_creator'],
                 'expiration_policy' => (string) $row['expiration_policy'],
                 'expiration' => $row['expiration'] !== null ? (string) $row['expiration'] : null,
                 'date_creation' => $row['date_creation'] !== null ? (string) $row['date_creation'] : null,
                 'can_reveal' => $this->access->canReveal($secret, $context),
+                'can_update' => $this->access->canUpdate($secret),
+                'can_delete' => $this->access->canDelete($secret),
+                'can_audit' => $this->access->canAudit($secret),
             ];
         }
 

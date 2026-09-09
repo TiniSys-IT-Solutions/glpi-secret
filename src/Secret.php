@@ -26,6 +26,46 @@ final class Secret extends \CommonDBTM
     public const TYPE_TOKEN = 'token';
     public const TYPE_OTHER = 'other';
 
+    /** @return array<string, string> */
+    public static function cronInfo(string $name): array
+    {
+        return $name === 'purgeExpired' ? [
+            'description' => __('Purge expired encrypted secrets after the configured retention', 'secret'),
+            'parameter' => __('Retention (days)', 'secret'),
+        ] : [];
+    }
+
+    public static function cronPurgeExpired(?\CronTask $task = null): int
+    {
+        global $DB;
+        $days = $task instanceof \CronTask && is_numeric($task->fields['param'] ?? null)
+            ? (int) $task->fields['param'] : 0;
+        if ($days <= 0) {
+            return 0;
+        }
+        $cutoff = date('Y-m-d H:i:s', strtotime('-' . $days . ' days'));
+        $rows = $DB->request([
+            'SELECT' => ['id'], 'FROM' => self::getTable(),
+            'WHERE' => ['expiration' => ['<', $cutoff]],
+            'LIMIT' => 500,
+        ]);
+        $count = 0;
+        foreach ($rows as $row) {
+            $id = (int) $row['id'];
+            $DB->beginTransaction();
+            try {
+                (new Service\AuditLogger())->record($id, Service\AuditLogger::PURGE, ['source' => 'automatic_action']);
+                $DB->delete(SecretItem::getTable(), ['plugin_secret_secrets_id' => $id]);
+                $DB->delete(self::getTable(), ['id' => $id]);
+                $DB->commit();
+                ++$count;
+            } catch (\Throwable) {
+                $DB->rollBack();
+            }
+        }
+        return $count;
+    }
+
     /** @param int $nb */
     public static function getTypeName($nb = 0): string
     {

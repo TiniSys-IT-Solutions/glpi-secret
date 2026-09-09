@@ -112,6 +112,31 @@
         }
     }
 
+    async function audit(button) {
+        button.disabled = true;
+        try {
+            const response = await fetch(button.dataset.url, {
+                method: 'POST', credentials: 'same-origin', cache: 'no-store',
+                headers: {'X-Glpi-Csrf-Token': button.dataset.csrf, 'Accept': 'application/json'},
+            });
+            if (!response.ok) throw new Error('Audit request denied');
+            const payload = await response.json();
+            const target = button.closest('td').querySelector('.plugin-secret-audit-result');
+            target.replaceChildren();
+            const list = document.createElement('ul');
+            list.className = 'list-unstyled small mb-0';
+            (payload.entries || []).forEach((entry) => {
+                const line = document.createElement('li');
+                line.textContent = `${entry.date_creation} — ${entry.action} — utilisateur #${entry.users_id}`;
+                list.append(line);
+            });
+            target.append(list);
+            target.hidden = false;
+        } finally {
+            button.disabled = false;
+        }
+    }
+
     document.addEventListener('click', (event) => {
         const toggle = event.target.closest('.plugin-secret-toggle');
         if (toggle) {
@@ -137,6 +162,17 @@
         const action = event.target.closest('.plugin-secret-action');
         if (action) {
             reveal(action).catch(() => {});
+            return;
+        }
+        const auditButton = event.target.closest('.plugin-secret-audit');
+        if (auditButton) {
+            audit(auditButton).catch(() => {});
+        }
+    });
+
+    document.addEventListener('submit', (event) => {
+        if (event.target.matches('.plugin-secret-delete-form') && !window.confirm('Supprimer définitivement ce secret ?')) {
+            event.preventDefault();
         }
     });
 

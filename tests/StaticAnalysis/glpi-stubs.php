@@ -16,6 +16,8 @@ class CommonDBTM extends CommonGLPI
     public function rawSearchOptions(): array {}
     public function getFromDB(int $id): bool {}
     public function add(array $input): int|false {}
+    public function update(array $input, bool $history = true): bool {}
+    public function delete(array $input, bool $force = false, bool $history = true): bool {}
 }
 
 class CommonDBRelation extends CommonDBTM {}
@@ -39,6 +41,13 @@ class CommonITILObject extends CommonDBTM
 class Ticket extends CommonITILObject {}
 class Change extends CommonITILObject {}
 class Problem extends CommonITILObject {}
+
+class ITILFollowup extends CommonDBTM {}
+
+class CronTask extends CommonDBTM
+{
+    public const MODE_INTERNAL = 1;
+}
 
 class Profile extends CommonDBTM
 {

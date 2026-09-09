@@ -14,6 +14,7 @@ final class AuditLogger
     public const COPY = 'COPY';
     public const UPDATE = 'UPDATE';
     public const DELETE = 'DELETE';
+    public const PURGE = 'PURGE';
 
     private const SAFE_CONTEXT_KEYS = ['source', 'itemtype', 'items_id', 'request_id'];
 
@@ -38,7 +39,7 @@ final class AuditLogger
     /** @return list<string> */
     public static function actions(): array
     {
-        return [self::CREATE, self::VIEW, self::COPY, self::UPDATE, self::DELETE];
+        return [self::CREATE, self::VIEW, self::COPY, self::UPDATE, self::DELETE, self::PURGE];
     }
 
     /**
