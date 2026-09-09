@@ -15,7 +15,20 @@ namespace Glpi\Exception\Http {
 }
 
 namespace Glpi\Http {
+    final class Firewall
+    {
+        public const STRATEGY_AUTHENTICATED = 'authenticated';
+    }
+
     class RedirectResponse extends \Symfony\Component\HttpFoundation\RedirectResponse {}
+}
+
+namespace Glpi\Security\Attribute {
+    #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD)]
+    final class SecurityStrategy
+    {
+        public function __construct(public string $strategy) {}
+    }
 }
 
 namespace Glpi\Application\View {

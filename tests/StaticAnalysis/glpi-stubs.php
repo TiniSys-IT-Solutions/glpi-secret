@@ -64,6 +64,7 @@ class ProfileRight extends CommonDBTM
 
 class Session
 {
+    public static function getCurrentInterface(): string|false {}
     public static function checkLoginUser(): void {}
     public static function addMessageAfterRedirect(string $message): void {}
     public static function haveRight(string $right, int $level): bool|int {}

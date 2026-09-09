@@ -23,7 +23,11 @@ final class CreateSecretService
     {
         global $DB;
 
-        if (!$this->access->canCreate() || !$item->canViewItem() || !in_array($item->getType(), SecretItem::supportedItemtypes(), true)) {
+        $entityId = (int) ($item->fields['entities_id'] ?? -1);
+        if (
+            !$this->access->canCreateForItil($item)
+            || !in_array($item->getType(), SecretItem::supportedItemtypes(), true)
+        ) {
             throw new RuntimeException('Access denied.');
         }
         $config = Config::values();
@@ -43,7 +47,7 @@ final class CreateSecretService
                 '_secret_value' => $plaintext,
                 'visibility' => (string) ($input['visibility'] ?? $config['default_visibility']),
                 'groups_id' => (int) ($input['groups_id'] ?? 0),
-                'entities_id' => (int) ($item->fields['entities_id'] ?? 0),
+                'entities_id' => $entityId,
                 'is_recursive' => 0,
                 'expiration_policy' => $policy,
                 'expiration' => $this->expiration->resolve(

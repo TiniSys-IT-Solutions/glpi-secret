@@ -6,6 +6,7 @@ namespace GlpiPlugin\Secret\Service;
 
 use GlpiPlugin\Secret\Secret;
 use GlpiPlugin\Secret\SecretItem;
+use GlpiPlugin\Secret\Security\AclContext;
 use RuntimeException;
 
 final class SecretMutationService
@@ -16,10 +17,15 @@ final class SecretMutationService
     ) {}
 
     /** @param array<string, mixed> $input */
-    public function update(Secret $secret, array $input, string $itemtype, int $itemsId): void
-    {
+    public function update(
+        Secret $secret,
+        array $input,
+        string $itemtype,
+        int $itemsId,
+        ?AclContext $context = null,
+    ): void {
         global $DB;
-        if (!$this->access->canUpdate($secret)) {
+        if (!$this->access->canUpdate($secret, $context)) {
             throw new RuntimeException('Access denied.');
         }
         $update = ['id' => (int) $secret->getID()];
@@ -45,11 +51,15 @@ final class SecretMutationService
         }
     }
 
-    public function delete(Secret $secret, string $itemtype, int $itemsId): void
-    {
+    public function delete(
+        Secret $secret,
+        string $itemtype,
+        int $itemsId,
+        ?AclContext $context = null,
+    ): void {
         global $DB;
         $id = (int) $secret->getID();
-        if (!$this->access->canDelete($secret)) {
+        if (!$this->access->canDelete($secret, $context)) {
             throw new RuntimeException('Access denied.');
         }
         $DB->beginTransaction();
@@ -59,7 +69,9 @@ final class SecretMutationService
             ])) {
                 throw new RuntimeException('Delete audit failed.');
             }
-            $DB->delete(SecretItem::getTable(), ['plugin_secret_secrets_id' => $id]);
+            if (!$DB->delete(SecretItem::getTable(), ['plugin_secret_secrets_id' => $id])) {
+                throw new RuntimeException('Relation delete failed.');
+            }
             if (!$secret->delete(['id' => $id], true, false)) {
                 throw new RuntimeException('Delete failed.');
             }

@@ -13,5 +13,6 @@ final readonly class AclContext
         public bool $ticketTechnician = false,
         public bool $ticketRequester = false,
         public bool $entityTechnician = false,
+        public bool $itilItemAccess = false,
     ) {}
 }

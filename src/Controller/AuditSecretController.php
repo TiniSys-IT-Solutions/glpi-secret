@@ -6,6 +6,8 @@ namespace GlpiPlugin\Secret\Controller;
 
 use Glpi\Controller\AbstractController;
 use Glpi\Exception\Http\AccessDeniedHttpException;
+use Glpi\Http\Firewall;
+use Glpi\Security\Attribute\SecurityStrategy;
 use GlpiPlugin\Secret\Secret;
 use GlpiPlugin\Secret\SecretLog;
 use GlpiPlugin\Secret\Service\SecretAccessService;
@@ -17,6 +19,7 @@ use Symfony\Component\Routing\Attribute\Route;
 final class AuditSecretController extends AbstractController
 {
     #[Route('/Secret/{id}/Audit', name: 'secret_audit', methods: 'POST', requirements: ['id' => '\\d+'])]
+    #[SecurityStrategy(Firewall::STRATEGY_AUTHENTICATED)]
     public function __invoke(int $id): Response
     {
         global $DB;

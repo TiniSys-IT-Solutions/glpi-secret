@@ -14,7 +14,9 @@ if (!SecretConfig::canManage()) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    Session::checkCSRF($_POST);
+    // GLPI 11's controller listener validates and consumes the CSRF token
+    // before loading this legacy plugin file. Checking it a second time would
+    // reject every legitimate configuration submission.
     SecretConfig::save($_POST);
     Session::addMessageAfterRedirect(__('Secret settings saved.', 'secret'));
     Html::redirect(SecretConfig::globalConfigUrl());

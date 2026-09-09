@@ -6,7 +6,8 @@ backup constraints are documented in [docs/security.md](docs/security.md).
 ## Supported versions
 
 Security fixes are provided for the latest published release and the current
-`main` branch. Releases in the `0.0.x` series remain pre-production software.
+`main` branch. Version 0.0.19 is a stable field-test candidate; the `0.0.x`
+series remains subject to validation before production deployment.
 
 ## Reporting a vulnerability
 

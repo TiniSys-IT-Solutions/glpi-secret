@@ -39,6 +39,8 @@ final class TimelineActionProvider
             'config' => $config,
         ]];
 
+        $canCreate = (new SecretAccessService())->canCreateForItil($item);
+
         $actions = [
             'PluginSecretTimelineSecret' => [
                 'type' => 'PluginSecretTimelineSecret',
@@ -51,7 +53,7 @@ final class TimelineActionProvider
                 'hide_in_menu' => true,
             ],
         ];
-        if (!Profile::canCreateSecret()) {
+        if (!$canCreate) {
             return $actions;
         }
 

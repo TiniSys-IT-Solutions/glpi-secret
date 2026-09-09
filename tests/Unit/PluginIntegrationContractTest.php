@@ -22,6 +22,18 @@ final class PluginIntegrationContractTest extends TestCase
         self::assertStringContainsString("registerJavascriptFile('js/secret.js')", $setup);
         self::assertStringContainsString("registerCSSFile('css/secret.css')", $setup);
         self::assertStringContainsString('TimelineActionProvider::actions(...)', $setup);
+        self::assertStringContainsString('\\Profile::$helpdesk_rights', $setup);
+        self::assertStringContainsString("array_column(Profile::rights(), 'field')", $setup);
+        self::assertStringContainsString('refreshActiveProfileRights()', $setup);
+
+        $legacyConfig = (string) file_get_contents($root . '/front/config.php');
+        self::assertStringNotContainsString('Session::checkCSRF(', $legacyConfig);
+        self::assertStringContainsString('SecretConfig::save($_POST)', $legacyConfig);
+
+        foreach (['CreateItilSecretController.php', 'RevealSecretController.php', 'MutateItilSecretController.php', 'AuditSecretController.php'] as $controller) {
+            $source = (string) file_get_contents($root . '/src/Controller/' . $controller);
+            self::assertStringContainsString('#[SecurityStrategy(Firewall::STRATEGY_AUTHENTICATED)]', $source);
+        }
 
         $provider = (string) file_get_contents($root . '/src/Service/TimelineActionProvider.php');
         self::assertStringContainsString("\$actions['PluginSecretSecret']", $provider);
@@ -43,22 +55,28 @@ final class PluginIntegrationContractTest extends TestCase
         self::assertStringContainsString('/plugins/secret/Itil/Secret', $javascript);
         self::assertStringContainsString("form.method = 'post'", $javascript);
         self::assertStringContainsString('reportActionFailure', $javascript);
+        self::assertStringContainsString('csrfInput.value = csrf', $javascript);
         self::assertStringContainsString("document.execCommand('copy')", $javascript);
         self::assertStringContainsString('entry.user_login', $javascript);
-        self::assertSame(2, substr_count($javascript, "'X-Glpi-Csrf-Token': getAjaxCsrfToken()"));
+        self::assertSame(2, substr_count($javascript, "'X-Glpi-Csrf-Token': csrf"));
         self::assertSame(2, substr_count($javascript, "'X-Requested-With': 'XMLHttpRequest'"));
 
         $relation = (string) file_get_contents($root . '/src/SecretItem.php');
         self::assertStringContainsString("return 'ti ti-key'", $relation);
 
         $profiles = (string) file_get_contents($root . '/src/Install/ProfileRightSynchronizer.php');
-        self::assertStringContainsString("\$profileName === 'Self-Service'", $profiles);
+        self::assertStringContainsString("\$interface === 'helpdesk'", $profiles);
         self::assertStringContainsString("['Hotliner', 'Observer', 'Technician', 'Supervisor']", $profiles);
 
         $timelineCard = (string) file_get_contents($root . '/templates/timeline_secret.html.twig');
         self::assertStringContainsString('plugin-secret-timeline-content', $timelineCard);
         self::assertStringContainsString('data-action="view"', $timelineCard);
+        self::assertStringContainsString('csrf_token(true)', $timelineCard);
         self::assertStringNotContainsString('encrypted_value', $timelineCard);
+
+        $stylesheet = (string) file_get_contents($root . '/public/css/secret.css');
+        self::assertStringContainsString('.timeline-item.PluginSecretSecret .timeline-content', $stylesheet);
+        self::assertStringContainsString('.timeline-item.PluginSecretTimelineSecret .timeline-content', $stylesheet);
     }
 
     public function testProfileRightsAreNormalizedToBooleanValues(): void
@@ -74,6 +92,21 @@ final class PluginIntegrationContractTest extends TestCase
 
         self::assertStringContainsString("if (!\$this->audit->record(", $service);
         self::assertStringContainsString('The secret access could not be audited.', $service);
+    }
+
+    public function testAllSecretActionsUseGlpiEntityScope(): void
+    {
+        $root = dirname(__DIR__, 2);
+        $access = (string) file_get_contents($root . '/src/Service/SecretAccessService.php');
+        $creation = (string) file_get_contents($root . '/src/Service/CreateSecretService.php');
+
+        self::assertStringContainsString('Session::haveAccessToEntity(', $access);
+        self::assertStringContainsString('if (!$entityAllowed && !($context->itilItemAccess ?? false))', $access);
+        self::assertStringContainsString('canCreateForItil($item)', $creation);
+        self::assertStringContainsString("'is_recursive' => 0", $creation);
+
+        $relation = (string) file_get_contents($root . '/src/SecretItem.php');
+        self::assertStringContainsString("Session::getCurrentInterface() === 'helpdesk'", $relation);
     }
 
     public function testItilMutationsAuditAndSafeNotificationAreWired(): void

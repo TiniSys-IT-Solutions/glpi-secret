@@ -24,18 +24,18 @@
                      <button type="button" class="btn btn-sm btn-outline-primary plugin-secret-action"
                              data-action="view" data-url="{{ path('plugins/secret/Secret/' ~ secret.id ~ '/Reveal') }}"
                              data-itemtype="{{ item.getType() }}" data-items-id="{{ item.getID() }}"
-                             data-csrf="{{ csrf_token() }}"><i class="ti ti-eye me-1"></i>{{ __('Reveal', 'secret') }}</button>
+                             data-csrf="{{ csrf_token(true) }}"><i class="ti ti-eye me-1"></i>{{ __('Reveal', 'secret') }}</button>
                      <button type="button" class="btn btn-sm btn-outline-secondary plugin-secret-action"
                              data-action="copy" data-url="{{ path('plugins/secret/Secret/' ~ secret.id ~ '/Reveal') }}"
                              data-itemtype="{{ item.getType() }}" data-items-id="{{ item.getID() }}"
-                             data-csrf="{{ csrf_token() }}"><i class="ti ti-copy me-1"></i>{{ __('Copy') }}</button>
+                             data-csrf="{{ csrf_token(true) }}"><i class="ti ti-copy me-1"></i>{{ __('Copy') }}</button>
                   {% else %}
                      <span class="text-secondary">{{ __('Not available', 'secret') }}</span>
                   {% endif %}
                   {% if secret.can_audit %}
                      <button type="button" class="btn btn-sm btn-outline-info plugin-secret-audit"
                              data-url="{{ path('plugins/secret/Secret/' ~ secret.id ~ '/Audit') }}"
-                             data-csrf="{{ csrf_token() }}"><i class="ti ti-history me-1"></i>{{ __('Audit', 'secret') }}</button>
+                             data-csrf="{{ csrf_token(true) }}"><i class="ti ti-history me-1"></i>{{ __('Audit', 'secret') }}</button>
                   {% endif %}
                   {% if secret.can_update %}
                      <details class="mt-2">

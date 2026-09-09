@@ -65,7 +65,7 @@
         const copied = document.execCommand('copy');
         field.remove();
         if (!copied) {
-            throw new Error('Copie refusée par le navigateur');
+            throw new Error(__('Copy was refused by the browser.', 'secret'));
         }
     }
 
@@ -99,6 +99,13 @@
             : '';
         form.action = `${root}/plugins/secret/Itil/Secret`;
         form.method = 'post';
+        const csrf = typeof getAjaxCsrfToken === 'function' ? getAjaxCsrfToken() : null;
+        const csrfInput = form.querySelector('input[name="_glpi_csrf_token"]');
+        if (csrf && csrfInput) {
+            // The timeline can remain open while other native forms rotate
+            // their shared token. GLPI's standalone page token remains valid.
+            csrfInput.value = csrf;
+        }
     }
 
     async function reveal(button) {
@@ -108,13 +115,15 @@
             body.set('itemtype', button.dataset.itemtype);
             body.set('items_id', button.dataset.itemsId);
             body.set('action', button.dataset.action);
+            const csrf = (typeof getAjaxCsrfToken === 'function' ? getAjaxCsrfToken() : null)
+                || button.dataset.csrf;
             const response = await fetch(button.dataset.url, {
                 method: 'POST',
                 body,
                 credentials: 'same-origin',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
-                    'X-Glpi-Csrf-Token': getAjaxCsrfToken(),
+                    'X-Glpi-Csrf-Token': csrf,
                     'Accept': 'application/json',
                 },
                 cache: 'no-store',
@@ -124,20 +133,20 @@
             }
             const payload = await response.json();
             if (typeof payload.value !== 'string') {
-                throw new Error('Invalid secret response');
+                throw new Error(__('Invalid secret response.', 'secret'));
             }
 
             if (button.dataset.action === 'copy') {
                 await copyText(payload.value);
                 if (typeof glpi_toast_info === 'function') {
-                    glpi_toast_info('Secret copié dans le presse-papiers.');
+                    glpi_toast_info(__('Secret copied to the clipboard.', 'secret'));
                 }
                 return;
             }
             const container = button.closest('td, .plugin-secret-timeline-content');
             const target = container?.querySelector('.plugin-secret-revealed');
             if (!target) {
-                throw new Error('Zone de révélation introuvable');
+                throw new Error(__('Reveal area not found.', 'secret'));
             }
             target.replaceChildren();
             const group = document.createElement('div');
@@ -163,20 +172,22 @@
     }
 
     function reportActionFailure(error) {
-        const message = error instanceof Error ? error.message : 'Erreur inconnue';
+        const message = error instanceof Error ? error.message : __('Unknown error.', 'secret');
         if (typeof glpi_toast_error === 'function') {
-            glpi_toast_error(`Action Secret impossible : ${message}`);
+            glpi_toast_error(__('Secret action failed: %s', 'secret').replace('%s', message));
         }
     }
 
     async function audit(button) {
         button.disabled = true;
         try {
+            const csrf = (typeof getAjaxCsrfToken === 'function' ? getAjaxCsrfToken() : null)
+                || button.dataset.csrf;
             const response = await fetch(button.dataset.url, {
                 method: 'POST', credentials: 'same-origin', cache: 'no-store',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
-                    'X-Glpi-Csrf-Token': getAjaxCsrfToken(),
+                    'X-Glpi-Csrf-Token': csrf,
                     'Accept': 'application/json',
                 },
             });
@@ -238,7 +249,8 @@
         if (event.target.matches('.plugin-secret-create-form')) {
             enforceCreateEndpoint(event.target);
         }
-        if (event.target.matches('.plugin-secret-delete-form') && !window.confirm('Supprimer définitivement ce secret ?')) {
+        if (event.target.matches('.plugin-secret-delete-form')
+            && !window.confirm(__('Permanently delete this secret?', 'secret'))) {
             event.preventDefault();
         }
     }, true);

@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: GLPI Secret 0.0.11\n"
+"Project-Id-Version: GLPI Secret 0.0.19\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-09 11:36+0530\n"
-"PO-Revision-Date: 2026-09-09 11:36+0530\n"
+"POT-Creation-Date: 2026-09-09 12:00+0530\n"
+"PO-Revision-Date: 2026-09-09 12:00+0530\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
 "Language: en_GB\n"
@@ -300,3 +300,32 @@ msgstr "Secret settings"
 #: front/config.php:19
 msgid "Secret settings saved."
 msgstr "Secret settings saved."
+
+#: public/js/secret.js
+msgid "Copy was refused by the browser."
+msgstr "Copy was refused by the browser."
+
+#: public/js/secret.js
+msgid "Invalid secret response."
+msgstr "Invalid secret response."
+
+#: public/js/secret.js
+msgid "Secret copied to the clipboard."
+msgstr "Secret copied to the clipboard."
+
+#: public/js/secret.js
+msgid "Reveal area not found."
+msgstr "Reveal area not found."
+
+#: public/js/secret.js
+msgid "Unknown error."
+msgstr "Unknown error."
+
+#: public/js/secret.js
+#, javascript-format
+msgid "Secret action failed: %s"
+msgstr "Secret action failed: %s"
+
+#: public/js/secret.js
+msgid "Permanently delete this secret?"
+msgstr "Permanently delete this secret?"

@@ -8,7 +8,9 @@ use CommonITILObject;
 use Glpi\Controller\AbstractController;
 use Glpi\Exception\Http\AccessDeniedHttpException;
 use Glpi\Exception\Http\BadRequestHttpException;
+use Glpi\Http\Firewall;
 use Glpi\Http\RedirectResponse;
+use Glpi\Security\Attribute\SecurityStrategy;
 use GlpiPlugin\Secret\Config;
 use GlpiPlugin\Secret\Profile;
 use GlpiPlugin\Secret\SecretItem;
@@ -21,6 +23,7 @@ use Symfony\Component\Routing\Attribute\Route;
 final class CreateItilSecretController extends AbstractController
 {
     #[Route('/Itil/Secret', name: 'secret_itil_create', methods: 'POST')]
+    #[SecurityStrategy(Firewall::STRATEGY_AUTHENTICATED)]
     public function __invoke(Request $request): Response
     {
         Session::checkLoginUser();

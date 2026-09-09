@@ -54,9 +54,14 @@ final class Secret extends \CommonDBTM
             $id = (int) $row['id'];
             $DB->beginTransaction();
             try {
-                (new Service\AuditLogger())->record($id, Service\AuditLogger::PURGE, ['source' => 'automatic_action']);
-                $DB->delete(SecretItem::getTable(), ['plugin_secret_secrets_id' => $id]);
-                $DB->delete(self::getTable(), ['id' => $id]);
+                if (!(new Service\AuditLogger())->record(
+                    $id,
+                    Service\AuditLogger::PURGE,
+                    ['source' => 'automatic_action'],
+                ) || !$DB->delete(SecretItem::getTable(), ['plugin_secret_secrets_id' => $id])
+                    || !$DB->delete(self::getTable(), ['id' => $id])) {
+                    throw new \RuntimeException('Expired secret purge failed.');
+                }
                 $DB->commit();
                 ++$count;
             } catch (\Throwable) {
@@ -162,6 +167,8 @@ final class Secret extends \CommonDBTM
         $expirationPolicy = (string) ($input['expiration_policy'] ?? ExpirationPolicy::NEVER);
 
         return $name !== ''
+            && strlen($name) <= 255
+            && strlen((string) ($input['username'] ?? '')) <= 255
             && in_array($type, self::types(), true)
             && Visibility::isValid($visibility)
             && in_array($expirationPolicy, ExpirationPolicy::all(), true)

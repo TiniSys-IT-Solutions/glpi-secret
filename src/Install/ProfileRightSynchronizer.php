@@ -9,7 +9,7 @@ use GlpiPlugin\Secret\Profile as SecretProfile;
 final class ProfileRightSynchronizer
 {
     private const BOOTSTRAP_MARKER = 'profile_rights_bootstrapped_v1';
-    private const DEFAULTS_MARKER = 'profile_rights_defaults_v2';
+    private const DEFAULTS_MARKER = 'profile_rights_defaults_v3';
 
     public function synchronize(): bool
     {
@@ -20,9 +20,11 @@ final class ProfileRightSynchronizer
         $applyDefaults = !$this->hasMarker(self::DEFAULTS_MARKER);
         $success = true;
 
-        foreach ($DB->request(['SELECT' => ['id', 'name'], 'FROM' => \Profile::getTable()]) as $profile) {
+        foreach ($DB->request(['SELECT' => ['id', 'name', 'interface'], 'FROM' => \Profile::getTable()]) as $profile) {
             $profileId = (int) $profile['id'];
-            $defaults = $applyDefaults ? $this->bootstrapRights((string) $profile['name']) : [];
+            $defaults = $applyDefaults
+                ? $this->bootstrapRights((string) $profile['name'], (string) $profile['interface'])
+                : [];
             $existing = \ProfileRight::getProfileRights($profileId, $required);
             foreach (array_diff($required, array_keys($existing)) as $name) {
                 $success = $DB->insert(\ProfileRight::getTable(), [
@@ -57,17 +59,7 @@ final class ProfileRightSynchronizer
         // GLPI caches the active profile rights in the session. Refresh the
         // plugin values immediately so a freshly installed or upgraded plugin
         // exposes its timeline action without forcing a logout/login cycle.
-        $activeProfile = $_SESSION['glpiactiveprofile'] ?? null;
-        if (is_array($activeProfile)) {
-            $activeProfileId = (int) ($activeProfile['id'] ?? 0);
-            if ($activeProfileId > 0) {
-                $activeRights = \ProfileRight::getProfileRights($activeProfileId, $required);
-                foreach ($required as $right) {
-                    $activeProfile[$right] = (int) ($activeRights[$right] ?? 0);
-                }
-                $_SESSION['glpiactiveprofile'] = $activeProfile;
-            }
-        }
+        $this->refreshActiveProfileRights();
 
         if ($bootstrap && $success) {
             $success = $DB->insert('glpi_plugin_secret_configs', [
@@ -84,6 +76,25 @@ final class ProfileRightSynchronizer
 
         $GLPI_CACHE->set('all_possible_rights', []);
         return $success;
+    }
+
+    public function refreshActiveProfileRights(): void
+    {
+        $activeProfile = $_SESSION['glpiactiveprofile'] ?? null;
+        if (!is_array($activeProfile)) {
+            return;
+        }
+        $activeProfileId = (int) ($activeProfile['id'] ?? 0);
+        if ($activeProfileId <= 0) {
+            return;
+        }
+
+        $required = array_column(SecretProfile::rights(), 'field');
+        $activeRights = \ProfileRight::getProfileRights($activeProfileId, $required);
+        foreach ($required as $right) {
+            $activeProfile[$right] = (int) ($activeRights[$right] ?? 0);
+        }
+        $_SESSION['glpiactiveprofile'] = $activeProfile;
     }
 
     private function hasBootstrapMarker(): bool
@@ -103,14 +114,14 @@ final class ProfileRightSynchronizer
     }
 
     /** @return array<string, int> */
-    private function bootstrapRights(string $profileName): array
+    private function bootstrapRights(string $profileName, string $interface): array
     {
         $readCreateReveal = [
             SecretProfile::RIGHT_METADATA => READ,
             SecretProfile::RIGHT_CREATE => CREATE,
             SecretProfile::RIGHT_REVEAL => READ,
         ];
-        if ($profileName === 'Self-Service') {
+        if ($interface === 'helpdesk') {
             return $readCreateReveal;
         }
         if (in_array($profileName, ['Hotliner', 'Observer', 'Technician', 'Supervisor'], true)) {

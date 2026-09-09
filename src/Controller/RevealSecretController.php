@@ -8,6 +8,8 @@ use CommonITILObject;
 use Glpi\Controller\AbstractController;
 use Glpi\Exception\Http\AccessDeniedHttpException;
 use Glpi\Exception\Http\BadRequestHttpException;
+use Glpi\Http\Firewall;
+use Glpi\Security\Attribute\SecurityStrategy;
 use GlpiPlugin\Secret\Secret;
 use GlpiPlugin\Secret\SecretItem;
 use GlpiPlugin\Secret\Security\ItilActorResolver;
@@ -21,6 +23,7 @@ use Symfony\Component\Routing\Attribute\Route;
 final class RevealSecretController extends AbstractController
 {
     #[Route('/Secret/{id}/Reveal', name: 'secret_reveal', methods: 'POST', requirements: ['id' => '\\d+'])]
+    #[SecurityStrategy(Firewall::STRATEGY_AUTHENTICATED)]
     public function __invoke(Request $request, int $id): Response
     {
         Session::checkLoginUser();

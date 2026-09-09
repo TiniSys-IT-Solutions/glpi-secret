@@ -1,6 +1,6 @@
 # Ticket and ITIL workflow
 
-Version 0.0.11 supports Ticket, Change, and Problem objects.
+Version 0.0.19 supports Ticket, Change, and Problem objects.
 
 1. An authorized user opens **Secret** directly from GLPI's native **Reply**
    split button. The action is grouped as an ITIL followup so it behaves like
@@ -15,18 +15,23 @@ Version 0.0.11 supports Ticket, Change, and Problem objects.
 
 Visibility choices are owner only, assigned technicians, requesters plus
 technicians, or an explicitly selected group. Profile permission and this ACL
-must both pass.
+must both pass. The user must also have GLPI access to the ITIL object's entity;
+parent-to-child access is inherited only from a recursive GLPI profile/entity
+assignment. A secret created from an ITIL object is scoped to that exact entity
+and is never made recursively visible by the plugin.
 
-Self-Service requesters also need **Read secret metadata** to see the Secret tab
-and **Reveal secrets** to reveal or copy a value in their GLPI profile. Selecting
-requester-and-technician visibility does not bypass those profile permissions.
+Self-Service requesters need **Read secret metadata** to see authorized purple
+Secret cards in the timeline and **Reveal secrets** to reveal or copy a value.
+The full Secret tab stays hidden in Self-Service. Selecting requester-and-
+technician visibility does not bypass those profile permissions.
 
-On a first installation, the built-in Self-Service profile receives metadata,
-create, and reveal rights. Built-in Hotliner, Observer, Technician, and
-Supervisor profiles additionally receive update and delete rights. Profiles
-that can administer GLPI receive every Secret right; custom profiles receive no
-implicit rights. These defaults never bypass the per-secret ACL and are not
-reapplied over choices made by an administrator during later upgrades.
+On installation, every profile using GLPI's Helpdesk interface receives
+metadata, create, and reveal rights. This includes custom profiles used by the
+service catalogue. Built-in Hotliner, Observer, Technician, and Supervisor
+profiles additionally receive update and delete rights. Profiles that can
+administer GLPI receive every Secret right. These defaults never bypass the
+per-secret ACL and fill only rights that remain zero during the one-time policy
+migration.
 
 Expiration may be never, when the ITIL object is closed, after 1/7/30 days, or a
 future custom date. Expired values remain listed as metadata when authorized but
@@ -47,6 +52,10 @@ timeline. This card never participates in notifications and contains no
 plaintext until its Reveal button completes a new authorized and audited POST
 request. Operators with mutation or audit rights also receive a Manage shortcut
 to the full Secret tab.
+
+In the Self-Service interface the plugin does not add its full metadata tab;
+authorized requesters use only the purple Secret cards in the native timeline.
+GLPI's native Ticket and All navigation entries remain controlled by GLPI.
 
 Users with the corresponding profile and ACL rights may update metadata or
 replace the encrypted value, delete a secret with explicit confirmation, and

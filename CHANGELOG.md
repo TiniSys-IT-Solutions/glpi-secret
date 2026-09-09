@@ -2,6 +2,93 @@
 
 All notable changes are documented here.
 
+## 0.0.19 - 2026-09-09
+
+### Added
+
+- Add a maintained roadmap that records the completed ITIL milestone and keeps
+  asset integration explicitly paused for the next development phase.
+
+### Changed
+
+- Promote the Ticket, Change, and Problem workflow to the first stable
+  field-test candidate while retaining the cautious `0.0.x` version line.
+- Complete the British English and French interface review, including all
+  JavaScript errors, confirmations, and clipboard notifications.
+- Apply verified ITIL actor context consistently to metadata, update, delete,
+  and audit controls.
+
+### Security
+
+- Reject ITIL actor-derived ACL flags unless GLPI also authorizes access to the
+  linked Ticket, Change, or Problem.
+- Fail closed when purge auditing or either database deletion fails, and when
+  relation deletion fails during an explicit secret deletion.
+- Enforce server-side length limits for names and usernames and refuse metadata
+  repository queries for unsupported or non-viewable ITIL objects.
+
+## 0.0.17 - 2026-09-09
+
+### Fixed
+
+- Mark every modern Secret ITIL controller with GLPI's authenticated firewall
+  strategy so both Central and Self-Service profiles can reach the controller;
+  profile, item, entity, ACL, CSRF, and audit checks remain enforced inside the
+  request path.
+
+## 0.0.16 - 2026-09-09
+
+### Fixed
+
+- Refresh the ITIL creation form with GLPI's standalone page CSRF token just
+  before submission and provide explicit standalone fallback tokens for
+  reveal, copy, and audit actions rendered in dynamic timeline content.
+
+## 0.0.15 - 2026-09-09
+
+### Fixed
+
+- Treat GLPI's native ITIL `canViewItem()` result as the item-scope authority
+  for catalogue requesters, while retaining direct entity checks outside a
+  verified linked ITIL context.
+- Hide the full Secret tab in Self-Service and keep the authorized purple card
+  as the only plugin-owned secret display in that interface.
+
+## 0.0.14 - 2026-09-09
+
+### Fixed
+
+- Let GLPI 11's controller listener perform the configuration POST CSRF check
+  once, instead of checking the already-consumed token again in the legacy
+  configuration file.
+- Refresh the active session from the profile's stored Secret rights during
+  plugin initialization, including when GLPI built a Helpdesk profile before
+  loading the plugin.
+
+## 0.0.13 - 2026-09-09
+
+### Changed
+
+- Apply the purple Secret visual identity to the creation panel.
+- Enforce GLPI's active-entity scope on every metadata, reveal, copy, update,
+  delete, and audit decision, and on creation in an ITIL object's entity.
+
+### Fixed
+
+- Register Secret permissions in GLPI's native Helpdesk-right allow-list so
+  Self-Service sessions retain their configured metadata, create, and reveal
+  rights instead of silently losing them during profile loading.
+
+## 0.0.12 - 2026-09-09
+
+### Changed
+
+- Give authorized timeline Secret cards a distinct purple-tinted background
+  and remove the redundant masked-dot placeholder before Reveal.
+- Bootstrap metadata, create, and reveal rights for every Helpdesk-interface
+  profile, including custom service-catalogue profiles, while retaining the
+  per-ticket ACL requirement.
+
 ## 0.0.11 - 2026-09-09
 
 ### Added

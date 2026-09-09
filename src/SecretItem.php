@@ -7,7 +7,9 @@ namespace GlpiPlugin\Secret;
 use CommonGLPI;
 use CommonITILObject;
 use Glpi\Application\View\TemplateRenderer;
+use GlpiPlugin\Secret\Service\SecretAccessService;
 use GlpiPlugin\Secret\Service\TicketSecretRepository;
+use Session;
 
 final class SecretItem extends \CommonDBRelation
 {
@@ -43,6 +45,7 @@ final class SecretItem extends \CommonDBRelation
         if (
             $withtemplate
             || !$item instanceof CommonITILObject
+            || Session::getCurrentInterface() === 'helpdesk'
             || !in_array($item->getType(), self::supportedItemtypes(), true)
             || (!Profile::canReadMetadata() && !Profile::canCreateSecret())
         ) {
@@ -76,7 +79,7 @@ final class SecretItem extends \CommonDBRelation
             'secrets' => Profile::canReadMetadata()
                 ? (new TicketSecretRepository())->visibleMetadataForItem($item)
                 : [],
-            'can_create' => Profile::canCreateSecret(),
+            'can_create' => (new SecretAccessService())->canCreateForItil($item),
             'generator' => Config::values(),
         ]);
 

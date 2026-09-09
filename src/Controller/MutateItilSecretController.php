@@ -8,9 +8,12 @@ use CommonITILObject;
 use Glpi\Controller\AbstractController;
 use Glpi\Exception\Http\AccessDeniedHttpException;
 use Glpi\Exception\Http\BadRequestHttpException;
+use Glpi\Http\Firewall;
 use Glpi\Http\RedirectResponse;
+use Glpi\Security\Attribute\SecurityStrategy;
 use GlpiPlugin\Secret\Secret;
 use GlpiPlugin\Secret\SecretItem;
+use GlpiPlugin\Secret\Security\ItilActorResolver;
 use GlpiPlugin\Secret\Service\SecretMutationService;
 use Session;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,6 +23,7 @@ use Symfony\Component\Routing\Attribute\Route;
 final class MutateItilSecretController extends AbstractController
 {
     #[Route('/Secret/{id}/Mutate', name: 'secret_mutate', methods: 'POST', requirements: ['id' => '\\d+'])]
+    #[SecurityStrategy(Firewall::STRATEGY_AUTHENTICATED)]
     public function __invoke(Request $request, int $id): Response
     {
         Session::checkLoginUser();
@@ -35,12 +39,13 @@ final class MutateItilSecretController extends AbstractController
             throw new AccessDeniedHttpException();
         }
         $service = new SecretMutationService();
+        $context = (new ItilActorResolver())->forItem($item);
         try {
             if ($request->request->getString('operation') === 'delete') {
-                $service->delete($secret, $itemtype, $itemsId);
+                $service->delete($secret, $itemtype, $itemsId, $context);
                 Session::addMessageAfterRedirect(__('Secret deleted.', 'secret'));
             } else {
-                $service->update($secret, $request->request->all(), $itemtype, $itemsId);
+                $service->update($secret, $request->request->all(), $itemtype, $itemsId, $context);
                 Session::addMessageAfterRedirect(__('Secret updated.', 'secret'));
             }
         } catch (\RuntimeException) {

@@ -8,27 +8,29 @@
   <img src="https://img.shields.io/badge/GLPI-11.x-blue" alt="GLPI 11">
   <img src="https://img.shields.io/badge/PHP-8.2%2B-777bb4" alt="PHP 8.2 or newer">
   <img src="https://img.shields.io/badge/license-GPL--3.0--or--later-green" alt="License GPL-3.0-or-later">
-  <img src="https://img.shields.io/badge/status-early%20development-orange" alt="Status: early development">
+  <img src="https://img.shields.io/badge/status-field--test%20candidate-purple" alt="Status: field-test candidate">
 </p>
 
 GLPI Secret provides native storage for operational credentials attached to
 GLPI workflows and assets. Its purpose is to prevent passwords and tokens from
 being pasted into unprotected ticket text or asset notes.
 
-Version 0.0.11 includes the Ticket, Change, and Problem workflow. Asset
+Version 0.0.19 includes the Ticket, Change, and Problem workflow. Asset
 integration is intentionally deferred to the next milestone.
 
-> Status: early development (`0.0.x`). Validate the plugin and its permission
-> model in a disposable GLPI environment before using it in production.
+> Status: first stable field-test candidate (`0.0.x`). Validate the plugin and
+> its permission model in a non-production GLPI environment before considering
+> a production rollout.
 
 ## Security foundations
 
 - encryption through GLPI's `GLPIKey` and `glpicrypt.key`;
 - integration with GLPI key rotation through secured fields;
 - profile rights combined with per-secret ACL rules;
+- GLPI-native active-entity and recursive-profile scoping on every action;
 - ciphertext hidden from generic GLPI API responses and searches;
 - reveal and copy operations routed through one audited service;
-- no external service and no call to the GLPI REST API from inside GLPI.
+- no external service and no call to the GLPI REST API from inside GLPI;
 - native Secret timeline action and ACL-filtered ITIL tab;
 - dedicated reveal/copy requests with no-store responses and audit events;
 - configurable visibility, expiration, and password generation defaults.
@@ -83,6 +85,7 @@ configuration, or application logs.
 - [Encryption and backup](docs/encryption.md)
 - [Installation](docs/installation.md)
 - [Upgrade](docs/upgrade.md)
+- [Roadmap](ROADMAP.md)
 
 ## Project identity
 

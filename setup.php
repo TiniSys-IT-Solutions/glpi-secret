@@ -6,6 +6,7 @@ use Glpi\Http\Firewall;
 use Glpi\Plugin\HookManager;
 use Glpi\Plugin\Hooks;
 use GlpiPlugin\Secret\Config as SecretConfig;
+use GlpiPlugin\Secret\Install\ProfileRightSynchronizer;
 use GlpiPlugin\Secret\Profile;
 use GlpiPlugin\Secret\Secret;
 use GlpiPlugin\Secret\SecretItem;
@@ -15,7 +16,7 @@ use GlpiPlugin\Secret\Service\TimelineItemProvider;
 
 defined('GLPI_ROOT') or die('No direct access allowed');
 
-const PLUGIN_SECRET_VERSION = '0.0.11';
+const PLUGIN_SECRET_VERSION = '0.0.19';
 const PLUGIN_SECRET_MIN_GLPI = '11.0.8';
 const PLUGIN_SECRET_MAX_GLPI = '11.1.0';
 const PLUGIN_SECRET_MIN_PHP = '8.2.0';
@@ -34,6 +35,16 @@ function plugin_init_secret(): void
 
     plugin_secret_autoload();
     $PLUGIN_HOOKS[Hooks::CSRF_COMPLIANT]['secret'] = true;
+
+    // GLPI removes non-helpdesk rights while loading a Helpdesk-interface
+    // profile. Register every Secret right in its native allow-list so the
+    // values configured in glpi_profilerights remain available in the active
+    // Self-Service session. Authorization still combines these profile rights
+    // with entity scope and the per-secret ACL.
+    \Profile::$helpdesk_rights = array_values(array_unique([
+        ...\Profile::$helpdesk_rights,
+        ...array_column(Profile::rights(), 'field'),
+    ]));
 
     $hookManager = new HookManager('secret');
     $hookManager->registerSecureFields([
@@ -57,6 +68,10 @@ function plugin_init_secret(): void
     }
 
     if (class_exists(Plugin::class) && Plugin::isPluginActive('secret')) {
+        // The active profile may have been built before plugin_init(). Reload
+        // only the plugin's configured rights so Helpdesk sessions do not keep
+        // a filtered or stale value.
+        (new ProfileRightSynchronizer())->refreshActiveProfileRights();
         Plugin::registerClass(Profile::class, ['addtabon' => [\Profile::class]]);
         Plugin::registerClass(SecretConfig::class, ['addtabon' => [\Config::class]]);
         Plugin::registerClass(Secret::class);

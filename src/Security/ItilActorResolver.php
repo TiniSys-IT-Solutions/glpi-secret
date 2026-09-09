@@ -15,12 +15,16 @@ final class ItilActorResolver
     public function forItem(CommonITILObject $item): AclContext
     {
         $userId = (int) Session::getLoginUserID();
+        $canView = $item->canViewItem();
 
         return new AclContext(
             userId: $userId,
             groupIds: array_map('intval', $_SESSION['glpigroups'] ?? []),
-            ticketTechnician: in_array($userId, array_map('intval', $item->getAllUsers(CommonITILActor::ASSIGN)), true),
-            ticketRequester: in_array($userId, array_map('intval', $item->getAllUsers(CommonITILActor::REQUESTER)), true),
+            ticketTechnician: $canView
+                && in_array($userId, array_map('intval', $item->getAllUsers(CommonITILActor::ASSIGN)), true),
+            ticketRequester: $canView
+                && in_array($userId, array_map('intval', $item->getAllUsers(CommonITILActor::REQUESTER)), true),
+            itilItemAccess: $canView,
         );
     }
 
@@ -46,6 +50,7 @@ final class ItilActorResolver
                 groupIds: $merged->groupIds,
                 ticketTechnician: $merged->ticketTechnician || $context->ticketTechnician,
                 ticketRequester: $merged->ticketRequester || $context->ticketRequester,
+                itilItemAccess: $merged->itilItemAccess || $context->itilItemAccess,
             );
         }
 
