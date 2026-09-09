@@ -14,7 +14,7 @@ use GlpiPlugin\Secret\Service\TimelineActionProvider;
 
 defined('GLPI_ROOT') or die('No direct access allowed');
 
-const PLUGIN_SECRET_VERSION = '0.0.7';
+const PLUGIN_SECRET_VERSION = '0.0.9';
 const PLUGIN_SECRET_MIN_GLPI = '11.0.8';
 const PLUGIN_SECRET_MAX_GLPI = '11.1.0';
 const PLUGIN_SECRET_MIN_PHP = '8.2.0';
@@ -60,6 +60,11 @@ function plugin_init_secret(): void
         Plugin::registerClass(SecretConfig::class, ['addtabon' => [\Config::class]]);
         Plugin::registerClass(Secret::class);
         Plugin::registerClass(SecretItem::class, ['addtabon' => SecretItem::supportedItemtypes()]);
+        foreach (SecretItem::supportedItemtypes() as $itemtype) {
+            // GLPI appends external tabs after native tabs. A low weight puts
+            // Secret before other plugin tabs without rewriting GLPI's order.
+            CommonGLPI::registerStandardTab($itemtype, SecretItem::class, 100);
+        }
         Plugin::registerClass(SecretLog::class);
 
         $PLUGIN_HOOKS[Hooks::TIMELINE_ANSWER_ACTIONS]['secret'] = TimelineActionProvider::actions(...);

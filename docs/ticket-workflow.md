@@ -1,6 +1,6 @@
 # Ticket and ITIL workflow
 
-Version 0.0.7 supports Ticket, Change, and Problem objects.
+Version 0.0.9 supports Ticket, Change, and Problem objects.
 
 1. An authorized user opens **Secret** directly from GLPI's native **Reply**
    split button. The action is grouped as an ITIL followup so it behaves like
@@ -16,6 +16,17 @@ Version 0.0.7 supports Ticket, Change, and Problem objects.
 Visibility choices are owner only, assigned technicians, requesters plus
 technicians, or an explicitly selected group. Profile permission and this ACL
 must both pass.
+
+Self-Service requesters also need **Read secret metadata** to see the Secret tab
+and **Reveal secrets** to reveal or copy a value in their GLPI profile. Selecting
+requester-and-technician visibility does not bypass those profile permissions.
+
+On a first installation, the built-in Self-Service profile receives metadata,
+create, and reveal rights. Built-in Hotliner, Observer, Technician, and
+Supervisor profiles additionally receive update and delete rights. Profiles
+that can administer GLPI receive every Secret right; custom profiles receive no
+implicit rights. These defaults never bypass the per-secret ACL and are not
+reapplied over choices made by an administrator during later upgrades.
 
 Expiration may be never, when the ITIL object is closed, after 1/7/30 days, or a
 future custom date. Expired values remain listed as metadata when authorized but

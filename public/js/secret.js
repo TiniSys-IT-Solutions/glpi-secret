@@ -62,6 +62,17 @@
         }
     }
 
+    function enforceCreateEndpoint(form) {
+        if (!(form instanceof HTMLFormElement)) {
+            return;
+        }
+        const root = typeof CFG_GLPI === 'object' && typeof CFG_GLPI.root_doc === 'string'
+            ? CFG_GLPI.root_doc.replace(/\/$/, '')
+            : '';
+        form.action = `${root}/plugins/secret/Itil/Secret`;
+        form.method = 'post';
+    }
+
     async function reveal(button) {
         button.disabled = true;
         try {
@@ -73,11 +84,15 @@
                 method: 'POST',
                 body,
                 credentials: 'same-origin',
-                headers: {'X-Glpi-Csrf-Token': button.dataset.csrf, 'Accept': 'application/json'},
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-Glpi-Csrf-Token': getAjaxCsrfToken(),
+                    'Accept': 'application/json',
+                },
                 cache: 'no-store',
             });
             if (!response.ok) {
-                throw new Error('Secret request denied');
+                throw new Error(`HTTP ${response.status}`);
             }
             const payload = await response.json();
             if (typeof payload.value !== 'string') {
@@ -86,6 +101,9 @@
 
             if (button.dataset.action === 'copy') {
                 await navigator.clipboard.writeText(payload.value);
+                if (typeof glpi_toast_info === 'function') {
+                    glpi_toast_info('Secret copié dans le presse-papiers.');
+                }
                 return;
             }
             const target = button.closest('td').querySelector('.plugin-secret-revealed');
@@ -112,14 +130,25 @@
         }
     }
 
+    function reportActionFailure(error) {
+        const message = error instanceof Error ? error.message : 'Erreur inconnue';
+        if (typeof glpi_toast_error === 'function') {
+            glpi_toast_error(`Action Secret impossible : ${message}`);
+        }
+    }
+
     async function audit(button) {
         button.disabled = true;
         try {
             const response = await fetch(button.dataset.url, {
                 method: 'POST', credentials: 'same-origin', cache: 'no-store',
-                headers: {'X-Glpi-Csrf-Token': button.dataset.csrf, 'Accept': 'application/json'},
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-Glpi-Csrf-Token': getAjaxCsrfToken(),
+                    'Accept': 'application/json',
+                },
             });
-            if (!response.ok) throw new Error('Audit request denied');
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const payload = await response.json();
             const target = button.closest('td').querySelector('.plugin-secret-audit-result');
             target.replaceChildren();
@@ -161,20 +190,23 @@
         }
         const action = event.target.closest('.plugin-secret-action');
         if (action) {
-            reveal(action).catch(() => {});
+            reveal(action).catch(reportActionFailure);
             return;
         }
         const auditButton = event.target.closest('.plugin-secret-audit');
         if (auditButton) {
-            audit(auditButton).catch(() => {});
+            audit(auditButton).catch(reportActionFailure);
         }
     });
 
     document.addEventListener('submit', (event) => {
+        if (event.target.matches('.plugin-secret-create-form')) {
+            enforceCreateEndpoint(event.target);
+        }
         if (event.target.matches('.plugin-secret-delete-form') && !window.confirm('Supprimer définitivement ce secret ?')) {
             event.preventDefault();
         }
-    });
+    }, true);
 
     document.addEventListener('change', (event) => {
         const form = event.target.closest('.plugin-secret-create-form');
@@ -184,7 +216,10 @@
     });
 
     document.addEventListener('DOMContentLoaded', () => {
-        document.querySelectorAll('.plugin-secret-create-form').forEach(refreshConditionalFields);
+        document.querySelectorAll('.plugin-secret-create-form').forEach((form) => {
+            enforceCreateEndpoint(form);
+            refreshConditionalFields(form);
+        });
 
         const answerBlock = document.getElementById('new-PluginSecretSecret-block');
         if (answerBlock) {
@@ -203,7 +238,10 @@
             const forms = node.matches('.plugin-secret-create-form')
                 ? [node]
                 : node.querySelectorAll('.plugin-secret-create-form');
-            forms.forEach(refreshConditionalFields);
+            forms.forEach((form) => {
+                enforceCreateEndpoint(form);
+                refreshConditionalFields(form);
+            });
         }));
     }).observe(document.documentElement, {childList: true, subtree: true});
 })();

@@ -32,6 +32,11 @@ final class SecretItem extends \CommonDBRelation
         return [\Ticket::class, \Change::class, \Problem::class];
     }
 
+    public static function getIcon(): string
+    {
+        return 'ti ti-key';
+    }
+
     /** @param bool|int $withtemplate */
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0): string
     {
@@ -48,7 +53,12 @@ final class SecretItem extends \CommonDBRelation
             ? (new TicketSecretRepository())->countVisibleForItem($item)
             : 0;
 
-        return self::createTabEntry(_n('Secret', 'Secrets', 2, 'secret'), $count);
+        return self::createTabEntry(
+            _n('Secret', 'Secrets', 2, 'secret'),
+            $count,
+            $item::getType(),
+            self::getIcon(),
+        );
     }
 
     /**

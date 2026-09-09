@@ -2,6 +2,23 @@
 
 All notable changes are documented here.
 
+## 0.0.9 - 2026-09-09
+
+### Fixed
+
+- Enforce the canonical ITIL creation endpoint in the plugin JavaScript at
+  render time and submit time, including when GLPI serves stale timeline HTML
+  containing the former route alias.
+- Add the key icon and prioritize Secret among external ITIL tabs.
+- Report reveal, copy, and audit HTTP failures through a visible GLPI toast
+  instead of silently discarding them.
+- Use GLPI 11's page-level AJAX CSRF token and request marker for reveal, copy,
+  and audit calls instead of a Twig-generated button token that produced 403
+  responses from the controller listener.
+- Bootstrap least-privilege Secret rights for GLPI's built-in Self-Service and
+  ITIL operator profiles on first installation while leaving custom profiles
+  disabled and preserving later administrator choices.
+
 ## 0.0.7 - 2026-09-09
 
 ### Added

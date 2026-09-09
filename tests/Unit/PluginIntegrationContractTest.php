@@ -37,6 +37,20 @@ final class PluginIntegrationContractTest extends TestCase
         self::assertStringContainsString("path('plugins/secret/Itil/Secret')", $timeline);
         self::assertStringContainsString("path('plugins/secret/Secret/' ~ secret.id ~ '/Reveal')", $tab);
         self::assertStringNotContainsString("path('@secret:", $timeline . $tab);
+
+        $javascript = (string) file_get_contents($root . '/public/js/secret.js');
+        self::assertStringContainsString('/plugins/secret/Itil/Secret', $javascript);
+        self::assertStringContainsString("form.method = 'post'", $javascript);
+        self::assertStringContainsString('reportActionFailure', $javascript);
+        self::assertSame(2, substr_count($javascript, "'X-Glpi-Csrf-Token': getAjaxCsrfToken()"));
+        self::assertSame(2, substr_count($javascript, "'X-Requested-With': 'XMLHttpRequest'"));
+
+        $relation = (string) file_get_contents($root . '/src/SecretItem.php');
+        self::assertStringContainsString("return 'ti ti-key'", $relation);
+
+        $profiles = (string) file_get_contents($root . '/src/Install/ProfileRightSynchronizer.php');
+        self::assertStringContainsString("\$profileName === 'Self-Service'", $profiles);
+        self::assertStringContainsString("['Hotliner', 'Observer', 'Technician', 'Supervisor']", $profiles);
     }
 
     public function testProfileRightsAreNormalizedToBooleanValues(): void

@@ -18,14 +18,17 @@ final class ProfileRightSynchronizer
         $bootstrap = !$this->hasBootstrapMarker();
         $success = true;
 
-        foreach ($DB->request(['SELECT' => ['id'], 'FROM' => \Profile::getTable()]) as $profile) {
+        foreach ($DB->request(['SELECT' => ['id', 'name'], 'FROM' => \Profile::getTable()]) as $profile) {
             $profileId = (int) $profile['id'];
+            $defaults = $bootstrap ? $this->bootstrapRights((string) $profile['name']) : [];
             $existing = \ProfileRight::getProfileRights($profileId, $required);
             foreach (array_diff($required, array_keys($existing)) as $name) {
                 $success = $DB->insert(\ProfileRight::getTable(), [
                     'profiles_id' => $profileId,
                     'name' => $name,
-                    'rights' => $bootstrap && $this->canConfigureGlpi($profileId) ? ALLSTANDARDRIGHT : 0,
+                    'rights' => $bootstrap && $this->canConfigureGlpi($profileId)
+                        ? ALLSTANDARDRIGHT
+                        : ($defaults[$name] ?? 0),
                 ]) && $success;
             }
 
@@ -72,5 +75,25 @@ final class ProfileRightSynchronizer
     {
         $rights = \ProfileRight::getProfileRights($profileId, ['config']);
         return (((int) ($rights['config'] ?? 0)) & UPDATE) === UPDATE;
+    }
+
+    /** @return array<string, int> */
+    private function bootstrapRights(string $profileName): array
+    {
+        $readCreateReveal = [
+            SecretProfile::RIGHT_METADATA => READ,
+            SecretProfile::RIGHT_CREATE => CREATE,
+            SecretProfile::RIGHT_REVEAL => READ,
+        ];
+        if ($profileName === 'Self-Service') {
+            return $readCreateReveal;
+        }
+        if (in_array($profileName, ['Hotliner', 'Observer', 'Technician', 'Supervisor'], true)) {
+            return $readCreateReveal + [
+                SecretProfile::RIGHT_UPDATE => UPDATE,
+                SecretProfile::RIGHT_DELETE => DELETE,
+            ];
+        }
+        return [];
     }
 }
