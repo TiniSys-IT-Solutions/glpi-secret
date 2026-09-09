@@ -12,7 +12,7 @@ ACL decision made by `AclPolicy`; callers must never reproduce that decision.
 Ticket and asset integrations will supply contextual actor facts to the same ACL
 engine. They will never duplicate encryption, audit, or authorization logic.
 
-The 0.0.6 ITIL integration uses controllers discovered from `src/Controller/`.
+The 0.0.7 ITIL integration uses controllers discovered from `src/Controller/`.
 User-facing plugin strings use the `secret` gettext domain and GLPI's native
 `locales/<language>.mo` loading mechanism.
 GLPI's controller listener authenticates the route and validates CSRF for POST

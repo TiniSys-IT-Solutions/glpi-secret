@@ -2,7 +2,7 @@
 
 All notable changes are documented here.
 
-## 0.0.6 - 2026-09-09
+## 0.0.7 - 2026-09-09
 
 ### Added
 
@@ -18,6 +18,8 @@ All notable changes are documented here.
 
 - Use canonical GLPI plugin URLs for create and reveal controllers so forms do
   not fall back to unresolved route names and return a 404 page.
+- Ship the route correction under a distinct version so GLPI and deployment
+  tooling cannot retain the earlier 0.0.6 template cache.
 - Show the authorized secret creator and creation date in ITIL metadata tabs.
 
 ## 0.0.5 - 2026-09-08
