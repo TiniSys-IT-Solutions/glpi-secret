@@ -1,6 +1,6 @@
 # Ticket and ITIL workflow
 
-Version 0.0.9 supports Ticket, Change, and Problem objects.
+Version 0.0.11 supports Ticket, Change, and Problem objects.
 
 1. An authorized user opens **Secret** directly from GLPI's native **Reply**
    split button. The action is grouped as an ITIL followup so it behaves like
@@ -41,6 +41,12 @@ secure secret is available for the relevant ticket, change, or problem and that
 the recipient must sign in to GLPI. GLPI therefore keeps control of notification
 templates and recipients. The followup never contains the value, name, username,
 reveal URL, token, or cryptographic material.
+
+Separately, authorized users see a plugin-owned Secret card in the GLPI
+timeline. This card never participates in notifications and contains no
+plaintext until its Reveal button completes a new authorized and audited POST
+request. Operators with mutation or audit rights also receive a Manage shortcut
+to the full Secret tab.
 
 Users with the corresponding profile and ACL rights may update metadata or
 replace the encrypted value, delete a secret with explicit confirmation, and

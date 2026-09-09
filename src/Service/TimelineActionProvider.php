@@ -25,7 +25,7 @@ final class TimelineActionProvider
             || !in_array($item->getType(), SecretItem::supportedItemtypes(), true)
             || !$item->canViewItem()
             || !$config['ticket_enabled']
-            || !Profile::canCreateSecret()
+            || (!Profile::canCreateSecret() && !Profile::canReadMetadata())
         ) {
             return [];
         }
@@ -39,10 +39,26 @@ final class TimelineActionProvider
             'config' => $config,
         ]];
 
-        return [
+        $actions = [
+            'PluginSecretTimelineSecret' => [
+                'type' => 'PluginSecretTimelineSecret',
+                'class' => 'PluginSecretTimelineSecret',
+                'icon' => 'ti ti-shield-lock',
+                'label' => _n('Secret', 'Secrets', 1, 'secret'),
+                'short_label' => _n('Secret', 'Secrets', 1, 'secret'),
+                'template' => '@secret/timeline_secret.html.twig',
+                'item' => $subitem,
+                'hide_in_menu' => true,
+            ],
+        ];
+        if (!Profile::canCreateSecret()) {
+            return $actions;
+        }
+
+        $actions['PluginSecretSecret'] =
             // Stable key and backslash-free class: GLPI uses the class to build
             // the Bootstrap target id `new-PluginSecretSecret-block`.
-            'PluginSecretSecret' => [
+            [
                 'type' => 'ITILFollowup',
                 'class' => 'PluginSecretSecret',
                 'icon' => 'ti ti-key',
@@ -51,7 +67,7 @@ final class TimelineActionProvider
                 'template' => '@secret/timeline_form.html.twig',
                 'item' => $subitem,
                 'hide_in_menu' => false,
-            ],
-        ];
+            ];
+        return $actions;
     }
 }

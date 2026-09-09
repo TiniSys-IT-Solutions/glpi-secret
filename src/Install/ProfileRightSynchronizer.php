@@ -9,6 +9,7 @@ use GlpiPlugin\Secret\Profile as SecretProfile;
 final class ProfileRightSynchronizer
 {
     private const BOOTSTRAP_MARKER = 'profile_rights_bootstrapped_v1';
+    private const DEFAULTS_MARKER = 'profile_rights_defaults_v2';
 
     public function synchronize(): bool
     {
@@ -16,11 +17,12 @@ final class ProfileRightSynchronizer
 
         $required = array_column(SecretProfile::rights(), 'field');
         $bootstrap = !$this->hasBootstrapMarker();
+        $applyDefaults = !$this->hasMarker(self::DEFAULTS_MARKER);
         $success = true;
 
         foreach ($DB->request(['SELECT' => ['id', 'name'], 'FROM' => \Profile::getTable()]) as $profile) {
             $profileId = (int) $profile['id'];
-            $defaults = $bootstrap ? $this->bootstrapRights((string) $profile['name']) : [];
+            $defaults = $applyDefaults ? $this->bootstrapRights((string) $profile['name']) : [];
             $existing = \ProfileRight::getProfileRights($profileId, $required);
             foreach (array_diff($required, array_keys($existing)) as $name) {
                 $success = $DB->insert(\ProfileRight::getTable(), [
@@ -30,6 +32,18 @@ final class ProfileRightSynchronizer
                         ? ALLSTANDARDRIGHT
                         : ($defaults[$name] ?? 0),
                 ]) && $success;
+            }
+
+            // One-time upgrade of standard profiles: fill only rights that are
+            // still zero, never replace an administrator's non-zero choice.
+            foreach ($defaults as $name => $right) {
+                if ((int) ($existing[$name] ?? 0) === 0) {
+                    $success = $DB->update(\ProfileRight::getTable(), ['rights' => $right], [
+                        'profiles_id' => $profileId,
+                        'name' => $name,
+                        'rights' => 0,
+                    ]) && $success;
+                }
             }
 
             if ($bootstrap && $this->canConfigureGlpi($profileId)) {
@@ -61,6 +75,12 @@ final class ProfileRightSynchronizer
                 'value' => '1',
             ]) && $success;
         }
+        if ($applyDefaults && $success) {
+            $success = $DB->insert('glpi_plugin_secret_configs', [
+                'name' => self::DEFAULTS_MARKER,
+                'value' => '1',
+            ]) && $success;
+        }
 
         $GLPI_CACHE->set('all_possible_rights', []);
         return $success;
@@ -68,7 +88,12 @@ final class ProfileRightSynchronizer
 
     private function hasBootstrapMarker(): bool
     {
-        return countElementsInTable('glpi_plugin_secret_configs', ['name' => self::BOOTSTRAP_MARKER]) > 0;
+        return $this->hasMarker(self::BOOTSTRAP_MARKER);
+    }
+
+    private function hasMarker(string $name): bool
+    {
+        return countElementsInTable('glpi_plugin_secret_configs', ['name' => $name]) > 0;
     }
 
     private function canConfigureGlpi(int $profileId): bool

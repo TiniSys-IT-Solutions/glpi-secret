@@ -26,8 +26,21 @@ final class AuditSecretController extends AbstractController
             throw new AccessDeniedHttpException();
         }
         $rows = [];
-        foreach ($DB->request(['FROM' => SecretLog::getTable(), 'WHERE' => ['plugin_secret_secrets_id' => $id], 'ORDER' => ['date_creation DESC', 'id DESC']]) as $row) {
-            $rows[] = ['action' => (string) $row['action'], 'users_id' => (int) $row['users_id'], 'date_creation' => (string) $row['date_creation']];
+        $logsTable = SecretLog::getTable();
+        $usersTable = \User::getTable();
+        foreach ($DB->request([
+            'SELECT' => ["$logsTable.action", "$logsTable.users_id", "$logsTable.date_creation", "$usersTable.name AS user_login"],
+            'FROM' => $logsTable,
+            'LEFT JOIN' => [$usersTable => ['FKEY' => [$logsTable => 'users_id', $usersTable => 'id']]],
+            'WHERE' => ["$logsTable.plugin_secret_secrets_id" => $id],
+            'ORDER' => ["$logsTable.date_creation DESC", "$logsTable.id DESC"],
+        ]) as $row) {
+            $rows[] = [
+                'action' => (string) $row['action'],
+                'users_id' => (int) $row['users_id'],
+                'user_login' => isset($row['user_login']) ? (string) $row['user_login'] : null,
+                'date_creation' => (string) $row['date_creation'],
+            ];
         }
         $response = new JsonResponse(['entries' => $rows]);
         $response->headers->set('Cache-Control', 'no-store, private');

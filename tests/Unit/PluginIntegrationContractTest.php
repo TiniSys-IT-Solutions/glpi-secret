@@ -18,12 +18,13 @@ final class PluginIntegrationContractTest extends TestCase
         self::assertStringContainsString("[Hooks::CONFIG_PAGE]['secret'] = 'front/config.php'", $setup);
         self::assertStringNotContainsString("[Hooks::MENU_TOADD]['secret']", $setup);
         self::assertStringContainsString("[Hooks::TIMELINE_ANSWER_ACTIONS]['secret']", $setup);
+        self::assertStringContainsString("[Hooks::TIMELINE_ITEMS]['secret']", $setup);
         self::assertStringContainsString("registerJavascriptFile('js/secret.js')", $setup);
         self::assertStringContainsString("registerCSSFile('css/secret.css')", $setup);
         self::assertStringContainsString('TimelineActionProvider::actions(...)', $setup);
 
         $provider = (string) file_get_contents($root . '/src/Service/TimelineActionProvider.php');
-        self::assertStringContainsString("'PluginSecretSecret' => [", $provider);
+        self::assertStringContainsString("\$actions['PluginSecretSecret']", $provider);
         self::assertStringContainsString("'type' => 'ITILFollowup'", $provider);
         self::assertStringContainsString("'class' => 'PluginSecretSecret'", $provider);
     }
@@ -42,6 +43,8 @@ final class PluginIntegrationContractTest extends TestCase
         self::assertStringContainsString('/plugins/secret/Itil/Secret', $javascript);
         self::assertStringContainsString("form.method = 'post'", $javascript);
         self::assertStringContainsString('reportActionFailure', $javascript);
+        self::assertStringContainsString("document.execCommand('copy')", $javascript);
+        self::assertStringContainsString('entry.user_login', $javascript);
         self::assertSame(2, substr_count($javascript, "'X-Glpi-Csrf-Token': getAjaxCsrfToken()"));
         self::assertSame(2, substr_count($javascript, "'X-Requested-With': 'XMLHttpRequest'"));
 
@@ -51,6 +54,11 @@ final class PluginIntegrationContractTest extends TestCase
         $profiles = (string) file_get_contents($root . '/src/Install/ProfileRightSynchronizer.php');
         self::assertStringContainsString("\$profileName === 'Self-Service'", $profiles);
         self::assertStringContainsString("['Hotliner', 'Observer', 'Technician', 'Supervisor']", $profiles);
+
+        $timelineCard = (string) file_get_contents($root . '/templates/timeline_secret.html.twig');
+        self::assertStringContainsString('plugin-secret-timeline-content', $timelineCard);
+        self::assertStringContainsString('data-action="view"', $timelineCard);
+        self::assertStringNotContainsString('encrypted_value', $timelineCard);
     }
 
     public function testProfileRightsAreNormalizedToBooleanValues(): void

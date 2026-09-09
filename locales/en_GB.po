@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: GLPI Secret 0.0.9\n"
+"Project-Id-Version: GLPI Secret 0.0.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-09 11:13+0530\n"
-"PO-Revision-Date: 2026-09-09 11:13+0530\n"
+"POT-Creation-Date: 2026-09-09 11:36+0530\n"
+"PO-Revision-Date: 2026-09-09 11:36+0530\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
 "Language: en_GB\n"
@@ -16,6 +16,24 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: templates/timeline_secret.html.twig templates/timeline_form.html.twig
+#: templates/itil_tab.html.twig src/Secret.php:149
+msgid "Username"
+msgstr "Username"
+
+#: templates/timeline_secret.html.twig
+msgid "Manage"
+msgstr "Manage"
+
+#: templates/timeline_secret.html.twig templates/itil_tab.html.twig
+#: src/Profile.php:100
+msgid "Reveal"
+msgstr "Reveal"
+
+#: templates/timeline_secret.html.twig templates/itil_tab.html.twig
+msgid "Not available"
+msgstr "Not available"
 
 #: templates/config_form.html.twig
 msgid "Ticket and ITIL integration"
@@ -126,14 +144,10 @@ msgid "Token"
 msgstr "Token"
 
 #: templates/timeline_form.html.twig templates/itil_tab.html.twig
-#: src/Secret.php:149
-msgid "Username"
-msgstr "Username"
-
-#: templates/timeline_form.html.twig templates/itil_tab.html.twig
-#: src/Secret.php:72 src/Service/TimelineActionProvider.php:50
-#: src/Profile.php:62 src/Profile.php:81 src/SecretItem.php:57
-#: src/Config.php:42 setup.php:77
+#: src/Secret.php:72 src/Service/TimelineActionProvider.php:47
+#: src/Service/TimelineActionProvider.php:48
+#: src/Service/TimelineActionProvider.php:66 src/Profile.php:62
+#: src/Profile.php:81 src/SecretItem.php:57 src/Config.php:42 setup.php:79
 msgid "Secret"
 msgid_plural "Secrets"
 msgstr[0] "Secret"
@@ -143,7 +157,7 @@ msgstr[1] "Secrets"
 msgid "Show or hide"
 msgstr "Show or hide"
 
-#: templates/timeline_form.html.twig
+#: templates/timeline_form.html.twig templates/itil_tab.html.twig
 msgid "Generate"
 msgstr "Generate"
 
@@ -175,14 +189,6 @@ msgstr "Access is controlled and every reveal or copy is audited."
 msgid "Encrypt and add"
 msgstr "Encrypt and add"
 
-#: templates/itil_tab.html.twig src/Profile.php:100
-msgid "Reveal"
-msgstr "Reveal"
-
-#: templates/itil_tab.html.twig
-msgid "Not available"
-msgstr "Not available"
-
 #: templates/itil_tab.html.twig
 msgid "Audit"
 msgstr "Audit"
@@ -203,7 +209,7 @@ msgstr "Purge expired encrypted secrets after the configured retention"
 msgid "Retention (days)"
 msgstr "Retention (days)"
 
-#: src/Service/TimelineActionProvider.php:49
+#: src/Service/TimelineActionProvider.php:65
 msgid "Add a secret"
 msgstr "Add a secret"
 

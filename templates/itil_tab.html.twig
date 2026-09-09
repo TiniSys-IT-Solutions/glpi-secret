@@ -45,7 +45,18 @@
                            <input type="hidden" name="itemtype" value="{{ item.getType() }}"><input type="hidden" name="items_id" value="{{ item.getID() }}">
                            <div class="input-group input-group-sm mb-1"><span class="input-group-text">{{ __('Name') }}</span><input class="form-control" name="name" value="{{ secret.name }}" required></div>
                            <div class="input-group input-group-sm mb-1"><span class="input-group-text">{{ __('Username', 'secret') }}</span><input class="form-control" name="username" value="{{ secret.username }}"></div>
-                           <div class="input-group input-group-sm mb-1"><span class="input-group-text">{{ __('New secret value', 'secret') }}</span><input class="form-control" type="password" name="secret_value" autocomplete="new-password"></div>
+                           <div class="input-group input-group-sm mb-1">
+                              <span class="input-group-text">{{ __('New secret value', 'secret') }}</span>
+                              <input class="form-control plugin-secret-value-input" type="password" name="secret_value" autocomplete="new-password">
+                              <button class="btn btn-outline-secondary plugin-secret-generate" type="button" title="{{ __('Generate', 'secret') }}"><i class="ti ti-refresh"></i></button>
+                           </div>
+                           <div class="plugin-secret-generator-options d-none"
+                                data-length="{{ generator.generator_length }}"
+                                data-lowercase="{{ generator.generator_lowercase ? '1' : '0' }}"
+                                data-uppercase="{{ generator.generator_uppercase ? '1' : '0' }}"
+                                data-digits="{{ generator.generator_digits ? '1' : '0' }}"
+                                data-special="{{ generator.generator_special ? '1' : '0' }}"
+                                data-exclude-ambiguous="{{ generator.generator_exclude_ambiguous ? '1' : '0' }}"></div>
                            <input type="hidden" name="type" value="{{ secret.type }}"><button class="btn btn-sm btn-primary" type="submit">{{ __('Save') }}</button>
                         </form>
                      </details>

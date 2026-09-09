@@ -39,7 +39,7 @@
       <div class="col-12">
          <label class="form-label required" for="secret-value">{{ _n('Secret', 'Secrets', 1, 'secret') }}</label>
          <div class="input-group">
-            <input type="password" class="form-control font-monospace" id="secret-value" name="secret_value"
+            <input type="password" class="form-control font-monospace plugin-secret-value-input" id="secret-value" name="secret_value"
                    maxlength="{{ subitem.fields.config.max_secret_length }}" required autocomplete="new-password"
                    spellcheck="false">
             <button class="btn btn-outline-secondary plugin-secret-toggle" type="button" data-target="secret-value"

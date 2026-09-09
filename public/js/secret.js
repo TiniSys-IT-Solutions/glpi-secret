@@ -19,8 +19,12 @@
 
     function generate(form) {
         const options = form.querySelector('.plugin-secret-generator-options');
-        const length = Math.max(8, Math.min(256, Number(form.querySelector('.plugin-secret-length').value) || 20));
-        const enabled = Object.keys(sets).filter((key) => form.querySelector('.plugin-secret-generator-' + key)?.checked);
+        const lengthInput = form.querySelector('.plugin-secret-length');
+        const length = Math.max(8, Math.min(256, Number(lengthInput?.value || options?.dataset.length) || 20));
+        const enabled = Object.keys(sets).filter((key) => {
+            const checkbox = form.querySelector('.plugin-secret-generator-' + key);
+            return checkbox ? checkbox.checked : options?.dataset[key] === '1';
+        });
         if (enabled.length === 0) {
             return;
         }
@@ -37,8 +41,32 @@
             const swap = randomIndex(index + 1);
             [chars[index], chars[swap]] = [chars[swap], chars[index]];
         }
-        form.querySelector('#secret-value').value = chars.join('');
-        options.dataset.generated = '1';
+        const target = form.querySelector('.plugin-secret-value-input');
+        if (target) {
+            target.value = chars.join('');
+        }
+        if (options) {
+            options.dataset.generated = '1';
+        }
+    }
+
+    async function copyText(value) {
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(value);
+            return;
+        }
+        const field = document.createElement('textarea');
+        field.value = value;
+        field.readOnly = true;
+        field.style.position = 'fixed';
+        field.style.opacity = '0';
+        document.body.append(field);
+        field.select();
+        const copied = document.execCommand('copy');
+        field.remove();
+        if (!copied) {
+            throw new Error('Copie refusée par le navigateur');
+        }
     }
 
     function refreshConditionalFields(form) {
@@ -100,13 +128,17 @@
             }
 
             if (button.dataset.action === 'copy') {
-                await navigator.clipboard.writeText(payload.value);
+                await copyText(payload.value);
                 if (typeof glpi_toast_info === 'function') {
                     glpi_toast_info('Secret copié dans le presse-papiers.');
                 }
                 return;
             }
-            const target = button.closest('td').querySelector('.plugin-secret-revealed');
+            const container = button.closest('td, .plugin-secret-timeline-content');
+            const target = container?.querySelector('.plugin-secret-revealed');
+            if (!target) {
+                throw new Error('Zone de révélation introuvable');
+            }
             target.replaceChildren();
             const group = document.createElement('div');
             group.className = 'input-group input-group-sm';
@@ -156,7 +188,10 @@
             list.className = 'list-unstyled small mb-0';
             (payload.entries || []).forEach((entry) => {
                 const line = document.createElement('li');
-                line.textContent = `${entry.date_creation} — ${entry.action} — utilisateur #${entry.users_id}`;
+                const identity = entry.user_login
+                    ? `${entry.user_login} (ID ${entry.users_id})`
+                    : `ID ${entry.users_id}`;
+                line.textContent = `${entry.date_creation} — ${entry.action} — ${identity}`;
                 list.append(line);
             });
             target.append(list);
@@ -184,7 +219,7 @@
         if (copyInput) {
             const input = document.getElementById(copyInput.dataset.target);
             if (input) {
-                navigator.clipboard.writeText(input.value).catch(() => {});
+                copyText(input.value).catch(reportActionFailure);
             }
             return;
         }

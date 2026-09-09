@@ -30,6 +30,7 @@ class CommonITILActor
 
 class CommonITILObject extends CommonDBTM
 {
+    public const TIMELINE_RIGHT = 4;
     public function isNewItem(): bool {}
     public function canViewItem(): bool {}
     public function getFromDB(int $id): bool {}
@@ -41,6 +42,7 @@ class CommonITILObject extends CommonDBTM
 class Ticket extends CommonITILObject {}
 class Change extends CommonITILObject {}
 class Problem extends CommonITILObject {}
+class User extends CommonDBTM {}
 
 class ITILFollowup extends CommonDBTM {}
 

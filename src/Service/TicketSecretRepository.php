@@ -77,6 +77,7 @@ final class TicketSecretRepository
                 'expiration_policy' => (string) $row['expiration_policy'],
                 'expiration' => $row['expiration'] !== null ? (string) $row['expiration'] : null,
                 'date_creation' => $row['date_creation'] !== null ? (string) $row['date_creation'] : null,
+                'date_mod' => $row['date_mod'] !== null ? (string) $row['date_mod'] : null,
                 'can_reveal' => $this->access->canReveal($secret, $context),
                 'can_update' => $this->access->canUpdate($secret),
                 'can_delete' => $this->access->canDelete($secret),

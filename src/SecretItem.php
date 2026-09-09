@@ -77,6 +77,7 @@ final class SecretItem extends \CommonDBRelation
                 ? (new TicketSecretRepository())->visibleMetadataForItem($item)
                 : [],
             'can_create' => Profile::canCreateSecret(),
+            'generator' => Config::values(),
         ]);
 
         return true;

@@ -2,6 +2,34 @@
 
 All notable changes are documented here.
 
+## 0.0.11 - 2026-09-09
+
+### Added
+
+- Add a server-authorized Secret card to the native ITIL timeline alongside
+  the public notification followup, with Reveal and an operator-only Manage
+  shortcut to the Secret tab.
+
+### Fixed
+
+- Remove the empty timeline-state gutter that offset the creation panel.
+- Make the reveal renderer work from both the metadata table and timeline card.
+- Apply the new standard-profile defaults once to retained upgrade databases,
+  filling only rights that are still zero.
+
+## 0.0.10 - 2026-09-09
+
+### Changed
+
+- Show both the GLPI login and numeric user ID in authorized audit results.
+- Reuse the configured cryptographic password generator when replacing a
+  secret value from the ITIL tab.
+
+### Fixed
+
+- Add a short-lived legacy clipboard fallback for HTTP-only GLPI instances
+  where the secure-context Clipboard API is unavailable.
+
 ## 0.0.9 - 2026-09-09
 
 ### Fixed
