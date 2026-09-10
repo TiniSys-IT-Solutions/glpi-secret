@@ -1,40 +1,39 @@
 # Permissions
 
-Secret adds independent GLPI profile permissions for metadata, create, reveal,
-update, delete, audit, and administration. On installation, Helpdesk-interface
-profiles receive metadata, create, and reveal rights; built-in ITIL operator
-profiles additionally receive update and delete rights; profiles that can
-administer GLPI receive every Secret right. Administrators can subsequently
-change these defaults per profile.
+Secret has independent metadata, create, reveal, update, delete, audit and
+administration profile rights. Every ITIL decision also requires the secret ACL
+and access to the verified parent object. Being a GLPI administrator alone does
+not authorize reading, changing or deleting another user's private secret.
 
-The plugin declares all of its permission fields in GLPI's native Helpdesk
-rights allow-list. Consequently, a Self-Service session receives the exact
-Secret values stored for its active profile; merely declaring database rows is
-not sufficient because GLPI filters Helpdesk profiles while loading them.
-The plugin also refreshes only its own permission fields in the active profile
-during initialization, covering sessions GLPI constructed before plugin hooks
-were registered without broadening any right stored by the administrator.
+On first installation, missing rights receive these defaults: Helpdesk profiles
+receive metadata/create/reveal; built-in ITIL operator profiles also receive
+update/delete; profiles able to administer GLPI receive each dedicated Secret
+right. Existing rows, including zero (an intentional revocation), are never
+changed by default synchronization. Upgrades and retained-data reinstallations
+do not reapply the former one-time defaults to revoked rights.
 
-For linked ITIL actions, GLPI's native `canViewItem()` result is the authoritative
-item-scope check. This intentionally supports a requester who can view their
-catalogue ticket as an actor even when its processing entity is not part of
-their directly active entity set. The Secret profile right and per-secret actor
-ACL must still pass. Direct access outside a verified linked ITIL context keeps
-the stricter active-entity requirement.
+Secret registers its rights in GLPI's Helpdesk allow-list and refreshes them from
+the active profile's stored values. This repairs filtered Self-Service sessions
+without granting rights not present in the database.
 
-Possessing a profile right does not bypass either GLPI's entity scope or the
-per-secret ACL. Administrators must also be included by the selected ACL rule.
-This prevents accidental global disclosure through elevated UI access.
+For a linked Ticket, Change or Problem, GLPI's native canViewItem decision defines
+object access. A catalogue requester can therefore access their own ticket even
+when its processing entity is outside their directly active entities. This is
+not a general recursive-entity grant: profile rights and secret ACL still apply.
+Outside a verified ITIL context, native active-entity/recursive checks apply.
 
-ITIL secrets are created in the exact entity of their Ticket, Change, or
-Problem and are not themselves recursive. Access nonetheless follows the
-official GLPI profile assignment: a user assigned directly to that entity can
-act there; a user assigned to a parent can act in the child only when that GLPI
-assignment is recursive. Selecting a parent entity without recursive access
-does not expose secrets from child entities. The current active entity set is
-honoured, so switching entity can change which secrets are visible.
+Assigned-technician visibility includes direct assignees and users belonging to
+assigned groups; requester visibility likewise follows native requester users
+and groups. Owner visibility grants only the creator, and group visibility
+requires membership in the selected group. Creation does not guarantee that its
+author can later reveal a secret sent only to assigned technicians.
 
-For ITIL objects, assigned technicians include direct assignees and users in an
-assigned technician group. Requester visibility likewise includes direct
-requesters and requester-group members. Access to the Ticket, Change, or Problem
-itself is checked before listing, creation, reveal, or copy.
+Adding the generic notification followup additionally requires GLPI's own
+followup creation rights. Lack of that permission does not undo the saved secret.
+
+All generic APIs, searches and model CRUD/purge access are closed for these three
+plugin models in 0.0.20. Operator UI actions use the dedicated audited services.
+Configuration retains its deliberate recovery exception: GLPI config UPDATE or
+Secret administration UPDATE permits changing plugin defaults, but neither
+bypasses the secret ACL. The plugin configuration still resides in native GLPI
+General Setup and follows that page's own access restrictions.

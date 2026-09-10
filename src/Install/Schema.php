@@ -35,7 +35,8 @@ final class Schema
                 KEY `entity_visibility` (`entities_id`, `is_recursive`, `visibility`),
                 KEY `creator` (`users_id_creator`),
                 KEY `group_visibility` (`groups_id`, `visibility`),
-                KEY `expiration` (`expiration`)
+                KEY `expiration` (`expiration`),
+                KEY `closure_expiration` (`expiration_policy`, `expiration`, `id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
             'glpi_plugin_secret_secretitems' => "CREATE TABLE `glpi_plugin_secret_secretitems` (
                 `id` int unsigned NOT NULL AUTO_INCREMENT,

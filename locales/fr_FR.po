@@ -5,9 +5,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: GLPI Secret 0.0.19\n"
+"Project-Id-Version: GLPI Secret 0.0.20\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-09 12:00+0530\n"
+"POT-Creation-Date: 2026-09-10 13:14+0530\n"
 "PO-Revision-Date: 2026-09-08 16:38+0530\n"
 "Last-Translator: TiniSys IT Solutions\n"
 "Language-Team: Français\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: templates/timeline_secret.html.twig templates/timeline_form.html.twig
-#: templates/itil_tab.html.twig src/Secret.php:149
+#: templates/itil_tab.html.twig
 msgid "Username"
 msgstr "Nom d’utilisateur"
 
@@ -144,10 +144,10 @@ msgid "Token"
 msgstr "Jeton"
 
 #: templates/timeline_form.html.twig templates/itil_tab.html.twig
-#: src/Secret.php:72 src/Service/TimelineActionProvider.php:47
-#: src/Service/TimelineActionProvider.php:48
-#: src/Service/TimelineActionProvider.php:66 src/Profile.php:62
-#: src/Profile.php:81 src/SecretItem.php:57 src/Config.php:42 setup.php:79
+#: src/Secret.php:47 src/Service/TimelineActionProvider.php:48
+#: src/Service/TimelineActionProvider.php:49
+#: src/Service/TimelineActionProvider.php:67 src/Profile.php:62
+#: src/Profile.php:81 src/SecretItem.php:61 src/Config.php:42 setup.php:97
 msgid "Secret"
 msgid_plural "Secrets"
 msgstr[0] "Secret"
@@ -201,44 +201,59 @@ msgstr "Nouvelle valeur secrète"
 msgid "No visible secret."
 msgstr "Aucun secret visible."
 
-#: src/Secret.php:33 src/Install/Installer.php:38
+#: src/Secret.php:34 src/Install/Installer.php:39
 msgid "Purge expired encrypted secrets after the configured retention"
 msgstr ""
 "Purger les secrets chiffrés expirés après la durée de conservation configurée"
 
-#: src/Secret.php:34
+#: src/Secret.php:35
 msgid "Retention (days)"
 msgstr "Conservation (jours)"
 
-#: src/Service/TimelineActionProvider.php:65
+#: src/Service/CreateSecretService.php:97
+msgid ""
+"Secret saved. No notification followup was added; do not submit it again."
+msgstr ""
+"Secret enregistré. Aucun suivi de notification n’a été ajouté ; ne le "
+"soumettez pas à nouveau."
+
+#: src/Service/TimelineActionProvider.php:66
 msgid "Add a secret"
 msgstr "Ajouter un secret"
 
-#: src/Service/SecretAvailabilityNotifier.php:25
+#: src/Service/SecretAvailabilityNotifier.php:26
 msgid ""
 "A secure secret is available for this ticket. Sign in to GLPI to view it."
 msgstr ""
 "Un secret sécurisé est disponible pour ce ticket. Connectez-vous à GLPI pour "
 "le consulter."
 
-#: src/Service/SecretAvailabilityNotifier.php:26
+#: src/Service/SecretAvailabilityNotifier.php:27
 msgid ""
 "A secure secret is available for this change. Sign in to GLPI to view it."
 msgstr ""
 "Un secret sécurisé est disponible pour ce changement. Connectez-vous à GLPI "
 "pour le consulter."
 
-#: src/Service/SecretAvailabilityNotifier.php:27
+#: src/Service/SecretAvailabilityNotifier.php:28
 msgid ""
 "A secure secret is available for this problem. Sign in to GLPI to view it."
 msgstr ""
 "Un secret sécurisé est disponible pour ce problème. Connectez-vous à GLPI "
 "pour le consulter."
 
-#: src/Service/SecretAvailabilityNotifier.php:28
+#: src/Service/SecretAvailabilityNotifier.php:29
 msgid "A secure secret is available. Sign in to GLPI to view it."
 msgstr ""
 "Un secret sécurisé est disponible. Connectez-vous à GLPI pour le consulter."
+
+#: src/Service/ExpiredSecretPurger.php:64
+msgid ""
+"Secret maintenance failed. Some records were retained; check database "
+"availability."
+msgstr ""
+"La maintenance des secrets a échoué. Certains enregistrements ont été "
+"conservés ; vérifiez la disponibilité de la base de données."
 
 #: src/Profile.php:98
 msgid "Read secret metadata"
@@ -268,33 +283,33 @@ msgstr "Consulter l’audit des secrets"
 msgid "Administer Secret"
 msgstr "Administrer Secret"
 
-#: src/Controller/RevealSecretController.php:29
-#: src/Controller/MutateItilSecretController.php:31
+#: src/Controller/RevealSecretController.php:32
+#: src/Controller/MutateItilSecretController.php:35
 msgid "Unknown secret."
 msgstr "Secret inconnu."
 
-#: src/Controller/RevealSecretController.php:35
-#: src/Controller/CreateItilSecretController.php:34
+#: src/Controller/RevealSecretController.php:38
+#: src/Controller/CreateItilSecretController.php:37
 msgid "Unsupported ITIL object."
 msgstr "Objet ITIL non pris en charge."
 
-#: src/Controller/RevealSecretController.php:51
+#: src/Controller/RevealSecretController.php:54
 msgid "Unsupported reveal action."
 msgstr "Action d’affichage non prise en charge."
 
-#: src/Controller/MutateItilSecretController.php:41
+#: src/Controller/MutateItilSecretController.php:46
 msgid "Secret deleted."
 msgstr "Secret supprimé."
 
-#: src/Controller/MutateItilSecretController.php:44
+#: src/Controller/MutateItilSecretController.php:49
 msgid "Secret updated."
 msgstr "Secret mis à jour."
 
-#: src/Controller/CreateItilSecretController.php:46
+#: src/Controller/CreateItilSecretController.php:49
 msgid "The secret could not be created."
 msgstr "Le secret n’a pas pu être créé."
 
-#: src/Controller/CreateItilSecretController.php:49
+#: src/Controller/CreateItilSecretController.php:52
 msgid "Secret created."
 msgstr "Secret créé."
 
@@ -302,36 +317,44 @@ msgstr "Secret créé."
 msgid "Secret settings"
 msgstr "Paramètres de Secret"
 
-#: front/config.php:19
+#: front/config.php:21
 msgid "Secret settings saved."
 msgstr "Paramètres de Secret enregistrés."
 
-#: public/js/secret.js
+#: public/js/secret.js:69
 msgid "Copy was refused by the browser."
 msgstr "La copie a été refusée par le navigateur."
 
-#: public/js/secret.js
+#: public/js/secret.js:137
 msgid "Invalid secret response."
 msgstr "La réponse contenant le secret est invalide."
 
-#: public/js/secret.js
+#: public/js/secret.js:143
 msgid "Secret copied to the clipboard."
 msgstr "Secret copié dans le presse-papiers."
 
-#: public/js/secret.js
+#: public/js/secret.js:150
 msgid "Reveal area not found."
 msgstr "La zone d’affichage est introuvable."
 
-#: public/js/secret.js
+#: public/js/secret.js:170
+msgid "Hide and clear"
+msgstr "Masquer et effacer"
+
+#: public/js/secret.js:188
 msgid "Unknown error."
 msgstr "Erreur inconnue."
 
-#: public/js/secret.js
+#: public/js/secret.js:190
 #, javascript-format
 msgid "Secret action failed: %s"
 msgstr "L’action sur le secret a échoué : %s"
 
-#: public/js/secret.js
+#: public/js/secret.js:231
+msgid "Load older entries"
+msgstr "Charger les événements précédents"
+
+#: public/js/secret.js:283
 msgid "Permanently delete this secret?"
 msgstr "Supprimer définitivement ce secret ?"
 

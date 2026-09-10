@@ -35,6 +35,7 @@
                   {% if secret.can_audit %}
                      <button type="button" class="btn btn-sm btn-outline-info plugin-secret-audit"
                              data-url="{{ path('plugins/secret/Secret/' ~ secret.id ~ '/Audit') }}"
+                             data-itemtype="{{ item.getType() }}" data-items-id="{{ item.getID() }}"
                              data-csrf="{{ csrf_token(true) }}"><i class="ti ti-history me-1"></i>{{ __('Audit', 'secret') }}</button>
                   {% endif %}
                   {% if secret.can_update %}
@@ -78,4 +79,11 @@
          </tbody>
       </table>
    </div>
+   {% if total > 50 %}
+   <div class="card-footer d-flex justify-content-between">
+      {% if page > 0 %}<a class="btn btn-outline-secondary" href="{{ page_url ~ (page - 1) }}">{{ __('Previous') }}</a>{% endif %}
+      <span>{{ page + 1 }} / {{ (total / 50)|round(0, 'ceil') }}</span>
+      {% if (page + 1) * 50 < total %}<a class="btn btn-outline-secondary" href="{{ page_url ~ (page + 1) }}">{{ __('Next') }}</a>{% endif %}
+   </div>
+   {% endif %}
 </div>

@@ -13,6 +13,7 @@ use Session;
 
 final class SecretItem extends \CommonDBRelation
 {
+    use Security\ClosedGenericAccess;
     /** @var string */
     public static $rightname = Profile::RIGHT_METADATA;
     /** @var class-string<Secret> */
@@ -74,10 +75,16 @@ final class SecretItem extends \CommonDBRelation
             return false;
         }
 
+        $page = max(0, (int) ($_GET['secret_page'] ?? 0));
+        $repository = new TicketSecretRepository();
+        $total = $repository->countVisibleForItem($item);
+        $page = min($page, max(0, (int) ceil($total / 50) - 1));
         TemplateRenderer::getInstance()->display('@secret/itil_tab.html.twig', [
+            'page' => $page, 'total' => $total,
+            'page_url' => $item->getLinkURL() . '&forcetab=' . rawurlencode(self::getType() . '$1') . '&secret_page=',
             'item' => $item,
             'secrets' => Profile::canReadMetadata()
-                ? (new TicketSecretRepository())->visibleMetadataForItem($item)
+                ? $repository->visibleMetadataForItem($item, 50, $page * 50)
                 : [],
             'can_create' => (new SecretAccessService())->canCreateForItil($item),
             'generator' => Config::values(),

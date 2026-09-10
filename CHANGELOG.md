@@ -2,6 +2,41 @@
 
 All notable changes are documented here.
 
+## 0.0.20 - 2026-09-10
+
+### Security
+
+- Close generic Secret, relation, and audit model access, including API lists,
+  searches, writes, and purge. Dedicated ITIL controllers remain the only public
+  access path and retain profile, relation, object, ACL, and audit checks.
+- Respect native GLPI followup creation rights before publishing a notification.
+- Enforce identical value limits on creation and replacement, validate ITIL
+  visibility and group scope, and reject invalid dates and unsupported text.
+- Keep closure expiration irreversible, preserve it before parent removal or
+  reopening, and include it in bounded automatic maintenance.
+- Preserve explicitly revoked profile rights during upgrades.
+- Document key rotation requirements when encrypted tables are retained after
+  plugin deactivation or uninstall.
+
+### Fixed
+
+- Verify the ITIL relation and actor context when reading the audit trail.
+- Honour generator options for replacements and keep ambiguous characters inside
+  their selected categories in both PHP and JavaScript.
+- Retain existing timeline cards when new secret creation is disabled.
+- Report notification failures after a successful save without inviting a retry.
+
+### Changed
+
+- Count authorized secrets in SQL and batch closure checks instead of performing
+  them once per secret. Paginate the operator tab and the audit trail.
+- Report native cron volumes and maintenance failures, retain failed records,
+  and rotate bounded purge batches so failures cannot starve subsequent records.
+- Add audited Copy to Self-Service cards and clear revealed fields on demand,
+  after 60 seconds, or on page exit, without claiming clipboard erasure.
+- Add behavioral regression coverage and a disposable GLPI integration runner.
+- Build release packages from an explicit distribution allow-list.
+
 ## 0.0.19 - 2026-09-09
 
 ### Added

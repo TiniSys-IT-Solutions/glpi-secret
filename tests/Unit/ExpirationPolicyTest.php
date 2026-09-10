@@ -23,6 +23,21 @@ final class ExpirationPolicyTest extends TestCase
         self::assertSame('2026-10-08 12:00:00', $policy->resolve(ExpirationPolicy::THIRTY_DAYS, null, $now));
     }
 
+    public function testRejectsImpossibleCalendarDates(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        (new ExpirationPolicy())->resolve('custom', '2027-02-31T12:00', new DateTimeImmutable('2026-09-10'));
+    }
+
+    public function testMinutePrecisionDoesNotInheritCurrentSeconds(): void
+    {
+        self::assertSame('2027-02-28 12:00:00', (new ExpirationPolicy())->resolve(
+            'custom',
+            '2027-02-28T12:00',
+            new DateTimeImmutable('2026-09-10 11:00:49'),
+        ));
+    }
+
     public function testCustomDateMustBeFuture(): void
     {
         $this->expectException(InvalidArgumentException::class);

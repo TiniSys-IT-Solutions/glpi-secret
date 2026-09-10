@@ -19,3 +19,8 @@ logs.
 
 By contributing, you agree that your contribution is licensed under
 GPL-3.0-or-later, the licence of this project.
+
+Behavioral JavaScript checks run with `node --test tests/JavaScript/*.cjs` and are
+included in CI and release builds. Native GLPI integration instructions are in
+[tests/Integration/README.md](tests/Integration/README.md); no Docker is required.
+Use only an explicitly marked disposable instance and synthetic values.

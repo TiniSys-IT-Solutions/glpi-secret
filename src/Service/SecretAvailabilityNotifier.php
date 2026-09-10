@@ -11,12 +11,13 @@ final class SecretAvailabilityNotifier
     public function notify(CommonITILObject $item): bool
     {
         $followup = new \ITILFollowup();
-        return (bool) $followup->add([
+        $input = [
             'itemtype' => $item->getType(),
             'items_id' => (int) $item->getID(),
             'content' => $this->messageFor($item),
             'is_private' => 0,
-        ]);
+        ];
+        return $followup->can(-1, CREATE, $input) && (bool) $followup->add($input);
     }
 
     private function messageFor(CommonITILObject $item): string

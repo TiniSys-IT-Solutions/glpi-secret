@@ -15,7 +15,7 @@ profile assignment and its native recursive flag.
 Ticket and asset integrations will supply contextual actor facts to the same ACL
 engine. They will never duplicate encryption, audit, or authorization logic.
 
-The 0.0.19 ITIL integration uses controllers discovered from `src/Controller/`.
+The 0.0.20 ITIL integration uses controllers discovered from `src/Controller/`.
 User-facing plugin strings use the `secret` gettext domain and GLPI's native
 `locales/<language>.mo` loading mechanism.
 GLPI's controller listener authenticates the route and validates CSRF for POST
@@ -31,3 +31,24 @@ all other rights when it loads a Helpdesk-interface profile.
 Modern ITIL controllers explicitly select GLPI's authenticated firewall
 strategy instead of the default Central-only strategy. Their own authorization
 then enforces item access, profile permission, entity scope, ACL, and audit.
+
+## ITIL hardening in 0.0.20
+
+`ClosedGenericAccess` closes generic model surfaces. Internal persistence stays
+inside the application services; generic CommonDBTM permission checks are not
+used to authorize a service's already-verified operation. SQL metadata criteria
+are produced by SecretAccessService so counts and paginated lists use the same
+owner/group/actor policy as individual actions. Closure facts are batched per
+service instance, never cached across requests or users.
+
+`ExpirationLifecycle` records the first observed effective expiration in the
+existing expiration column. Hooks observe closure, an already-closed item before
+update, and parent purge. Maintenance reconciles closed or missing parents and
+orphans in bounded batches, including old rows whose expiration is NULL. Once a
+date is recorded it is never cleared on reopening. `ExpiredSecretPurger` retains
+audit entries, commits each successful purge atomically, reports native CronTask
+volume/errors and advances a cursor past failing rows.
+
+The operator metadata tab uses pages of 50 authorized entries; the audit uses an
+ID cursor and pages of 50. Timeline cards remain under native GLPI timeline
+rendering; their metadata is batched, with no per-secret parent reload.

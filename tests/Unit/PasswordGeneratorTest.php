@@ -27,6 +27,19 @@ final class PasswordGeneratorTest extends TestCase
         self::assertMatchesRegularExpression('/^[a-z]{32}$/', $password);
     }
 
+    public function testAmbiguousCharactersRespectEnabledCategories(): void
+    {
+        $generator = new PasswordGenerator();
+        foreach ([true, false] as $exclude) {
+            for ($i = 0; $i < 10; ++$i) {
+                self::assertMatchesRegularExpression('/^[0-9]{256}$/', $generator->generate(256, false, false, true, false, $exclude));
+                self::assertMatchesRegularExpression('/^[a-z]{256}$/', $generator->generate(256, true, false, false, false, $exclude));
+                self::assertMatchesRegularExpression('/^[A-Z]{256}$/', $generator->generate(256, false, true, false, false, $exclude));
+                self::assertDoesNotMatchRegularExpression('/[a-zA-Z0-9]/', $generator->generate(256, false, false, false, true, $exclude));
+            }
+        }
+    }
+
     public function testRejectsUnsafeLength(): void
     {
         $this->expectException(InvalidArgumentException::class);

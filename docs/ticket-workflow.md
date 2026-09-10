@@ -1,6 +1,6 @@
 # Ticket and ITIL workflow
 
-Version 0.0.19 supports Ticket, Change, and Problem objects.
+Version 0.0.20 supports Ticket, Change, and Problem objects.
 
 1. An authorized user opens **Secret** directly from GLPI's native **Reply**
    split button. The action is grouped as an ITIL followup so it behaves like
@@ -15,10 +15,9 @@ Version 0.0.19 supports Ticket, Change, and Problem objects.
 
 Visibility choices are owner only, assigned technicians, requesters plus
 technicians, or an explicitly selected group. Profile permission and this ACL
-must both pass. The user must also have GLPI access to the ITIL object's entity;
-parent-to-child access is inherited only from a recursive GLPI profile/entity
-assignment. A secret created from an ITIL object is scoped to that exact entity
-and is never made recursively visible by the plugin.
+must both pass. GLPI must allow access to the linked ITIL object, including its native catalogue
+requester exception. The secret belongs to the object's entity and is never made
+recursive by the plugin.
 
 Self-Service requesters need **Read secret metadata** to see authorized purple
 Secret cards in the timeline and **Reveal secrets** to reveal or copy a value.
@@ -30,8 +29,8 @@ metadata, create, and reveal rights. This includes custom profiles used by the
 service catalogue. Built-in Hotliner, Observer, Technician, and Supervisor
 profiles additionally receive update and delete rights. Profiles that can
 administer GLPI receive every Secret right. These defaults never bypass the
-per-secret ACL and fill only rights that remain zero during the one-time policy
-migration.
+per-secret ACL; only missing rights on first installation receive defaults.
+Upgrades preserve existing values, including zero.
 
 Expiration may be never, when the ITIL object is closed, after 1/7/30 days, or a
 future custom date. Expired values remain listed as metadata when authorized but
@@ -72,3 +71,33 @@ therefore registered as `css/secret.css` and `js/secret.js` without a duplicate
 `public/` prefix.
 Controller forms use the canonical `plugins/secret/...` URL namespace, including
 when GLPI stores the plugin physically under `marketplace/secret`.
+
+## Expiration and maintenance in 0.0.20
+
+Expiration at closure is irreversible once observed: reopening does not make the
+old value available again. Create a new secret when a new exchange is needed.
+A secret created on a closed item expires immediately. Removing the parent of a
+closure-bound secret expires it as well; encrypted data is not silently removed.
+The cron reconciles old closed/missing parents and purges after the configured
+retention. Zero disables deletion but still allows expiration reconciliation.
+
+Closure/reopening transitions completed entirely while the plugin was disabled
+cannot be reconstructed reliably. Maintenance reconciles current state; keep
+Secret active while using closure-based expiration. Automatic actions in GLPI
+mode depend on activity; use the existing GLPI scheduler in CLI mode when
+regular execution is required. No plugin-specific system cron is needed.
+
+Copy is available on both timeline cards and the operator tab and always makes
+a new authorized COPY request. Reveal fields are cleared after 60 seconds, on
+page exit or with Hide and clear. This does not clear the operating-system
+clipboard. Disabling ticket integration disables new creation while retaining
+access to existing authorized cards.
+
+Notification followups require native GLPI followup creation rights. If no
+followup can be added, a warning confirms that the secret is saved and must not
+be submitted again. The operator tab and audit trail provide pagination.
+
+Audit events survive deletion, but the deleted secret has no normal ITIL audit
+button. Historical recovery is an explicitly authorized administrator procedure
+on a protected backup/database; the generic audit API remains closed. A central
+historical-audit UI is outside this phase.

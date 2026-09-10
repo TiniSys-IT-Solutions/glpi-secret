@@ -29,11 +29,12 @@
             return;
         }
 
-        const chars = enabled.map((key) => sets[key][randomIndex(sets[key].length)]);
-        let pool = enabled.map((key) => sets[key]).join('');
-        if (!form.querySelector('.plugin-secret-generator-exclude-ambiguous')?.checked) {
-            pool += 'Il1O0o';
-        }
+        const excludeInput = form.querySelector('.plugin-secret-generator-exclude-ambiguous');
+        const excludeAmbiguous = excludeInput ? excludeInput.checked : options?.dataset.excludeAmbiguous === '1';
+        const ambiguous = {lowercase: 'lo', uppercase: 'IO', digits: '01', special: ''};
+        const categories = enabled.map((key) => sets[key] + (excludeAmbiguous ? '' : ambiguous[key]));
+        const chars = categories.map((set) => set[randomIndex(set.length)]);
+        const pool = categories.join('');
         while (chars.length < length) {
             chars.push(pool[randomIndex(pool.length)]);
         }
@@ -62,8 +63,8 @@
         field.style.opacity = '0';
         document.body.append(field);
         field.select();
-        const copied = document.execCommand('copy');
-        field.remove();
+        let copied;
+        try { copied = document.execCommand('copy'); } finally { field.value = ''; field.remove(); }
         if (!copied) {
             throw new Error(__('Copy was refused by the browser.', 'secret'));
         }
@@ -163,7 +164,19 @@
             toggle.addEventListener('click', () => {
                 input.type = input.type === 'password' ? 'text' : 'password';
             });
-            group.append(input, toggle);
+            const close = document.createElement('button');
+            close.type = 'button';
+            close.className = 'btn btn-outline-secondary';
+            close.textContent = __('Hide and clear', 'secret');
+            const clear = () => {
+                input.value = '';
+                group.remove();
+                if (!target.children.length) target.hidden = true;
+            };
+            const timer = window.setTimeout(clear, 60000);
+            close.addEventListener('click', () => { window.clearTimeout(timer); clear(); });
+            window.addEventListener('pagehide', clear, {once: true});
+            group.append(input, toggle, close);
             target.append(group);
             target.hidden = false;
         } finally {
@@ -183,8 +196,12 @@
         try {
             const csrf = (typeof getAjaxCsrfToken === 'function' ? getAjaxCsrfToken() : null)
                 || button.dataset.csrf;
+            const body = new FormData();
+            body.set('itemtype', button.dataset.itemtype);
+            body.set('items_id', button.dataset.itemsId);
+            body.set('before', button.dataset.before || '0');
             const response = await fetch(button.dataset.url, {
-                method: 'POST', credentials: 'same-origin', cache: 'no-store',
+                method: 'POST', body, credentials: 'same-origin', cache: 'no-store',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
                     'X-Glpi-Csrf-Token': csrf,
@@ -194,7 +211,8 @@
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const payload = await response.json();
             const target = button.closest('td').querySelector('.plugin-secret-audit-result');
-            target.replaceChildren();
+            if (!button.dataset.before) target.replaceChildren();
+            target.querySelector('.plugin-secret-audit-more')?.remove();
             const list = document.createElement('ul');
             list.className = 'list-unstyled small mb-0';
             (payload.entries || []).forEach((entry) => {
@@ -206,6 +224,17 @@
                 list.append(line);
             });
             target.append(list);
+            if (payload.next_before) {
+                const more = document.createElement('button');
+                more.type = 'button';
+                more.className = 'btn btn-sm btn-outline-secondary plugin-secret-audit-more';
+                more.textContent = __('Load older entries', 'secret');
+                more.addEventListener('click', () => {
+                    button.dataset.before = String(payload.next_before);
+                    audit(button).catch(reportActionFailure);
+                });
+                target.append(more);
+            }
             target.hidden = false;
         } finally {
             button.disabled = false;
@@ -241,6 +270,7 @@
         }
         const auditButton = event.target.closest('.plugin-secret-audit');
         if (auditButton) {
+            delete auditButton.dataset.before;
             audit(auditButton).catch(reportActionFailure);
         }
     });

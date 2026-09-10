@@ -8,7 +8,7 @@ use RuntimeException;
 
 final class GlpiKeyCipher implements SecretCipher
 {
-    public function encrypt(string $plaintext): string
+    public function encrypt(#[\SensitiveParameter] string $plaintext): string
     {
         $ciphertext = (new \GLPIKey())->encrypt($plaintext);
         if ($ciphertext === '') {

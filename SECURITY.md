@@ -6,7 +6,7 @@ backup constraints are documented in [docs/security.md](docs/security.md).
 ## Supported versions
 
 Security fixes are provided for the latest published release and the current
-`main` branch. Version 0.0.19 is a stable field-test candidate; the `0.0.x`
+`main` branch. Version 0.0.20 is a stable field-test candidate; the `0.0.x`
 series remains subject to validation before production deployment.
 
 ## Reporting a vulnerability
@@ -25,6 +25,6 @@ It cannot protect a secret after full compromise of both the GLPI server and
 its cryptographic key, from an administrator controlling the complete runtime,
 or after an authorized user copies a revealed value elsewhere.
 
-The ciphertext is explicitly excluded from generic API responses and GLPI
-history. Plaintext is decrypted only after both the profile permission and the
+Generic Secret model APIs and searches are closed. Ciphertext is also
+explicitly excluded from serialization and GLPI history. Plaintext is decrypted only after both the profile permission and the
 secret ACL have passed. Reveal and copy are audited without recording values.

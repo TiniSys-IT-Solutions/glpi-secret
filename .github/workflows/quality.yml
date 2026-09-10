@@ -31,5 +31,6 @@ jobs:
       - run: vendor/bin/phpstan analyse
       - run: vendor/bin/php-cs-fixer check --diff
       - run: node --check public/js/secret.js
+      - run: node --test tests/JavaScript/*.cjs
       - run: php -r '$xml = simplexml_load_file("secret.xml"); exit($xml === false ? 1 : 0);'
       - run: ./scripts/build-release.sh

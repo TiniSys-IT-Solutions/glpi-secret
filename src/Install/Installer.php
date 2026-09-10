@@ -28,6 +28,7 @@ final class Installer
             ]);
         }
 
+        $migration->addKey($secretsTable, ['expiration_policy', 'expiration', 'id'], 'closure_expiration');
         if (!(new ProfileRightSynchronizer())->synchronize()) {
             return false;
         }

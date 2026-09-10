@@ -15,6 +15,7 @@ class CommonDBTM extends CommonGLPI
     public static function getTable(): string {}
     public function rawSearchOptions(): array {}
     public function getFromDB(int $id): bool {}
+    public function can($id, int $right, ?array &$input = null): bool {}
     public function add(array $input): int|false {}
     public function update(array $input, bool $history = true): bool {}
     public function delete(array $input, bool $force = false, bool $history = true): bool {}
@@ -31,6 +32,7 @@ class CommonITILActor
 class CommonITILObject extends CommonDBTM
 {
     public const TIMELINE_RIGHT = 4;
+    public static function getClosedStatusArray(): array {}
     public function isNewItem(): bool {}
     public function canViewItem(): bool {}
     public function getFromDB(int $id): bool {}
@@ -43,12 +45,15 @@ class Ticket extends CommonITILObject {}
 class Change extends CommonITILObject {}
 class Problem extends CommonITILObject {}
 class User extends CommonDBTM {}
+class Group extends CommonDBTM {}
 
 class ITILFollowup extends CommonDBTM {}
 
 class CronTask extends CommonDBTM
 {
     public const MODE_INTERNAL = 1;
+    public function setVolume(int $volume): void {}
+    public function log(string $message): void {}
 }
 
 class Profile extends CommonDBTM
@@ -66,7 +71,7 @@ class Session
 {
     public static function getCurrentInterface(): string|false {}
     public static function checkLoginUser(): void {}
-    public static function addMessageAfterRedirect(string $message): void {}
+    public static function addMessageAfterRedirect(string $message, bool $checkOnce = false, int $type = 0): void {}
     public static function haveRight(string $right, int $level): bool|int {}
     public static function haveAccessToEntity(int $entityId, bool $recursive = false): bool {}
     public static function getLoginUserID(bool $force = true): int|false {}
@@ -99,6 +104,8 @@ function _sx(string $context, string $message, string $domain = 'glpi'): string 
 function countElementsInTable(string $table, array $criteria = []): int {}
 function getItemForItemtype(string $itemtype): ?CommonDBTM {}
 
+function getAncestorsOf(string $table, int $id): array {}
+const WARNING = 4;
 const READ = 1;
 const UPDATE = 2;
 const CREATE = 4;

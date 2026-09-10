@@ -32,8 +32,12 @@ final class CreateSecretService
         }
         $config = Config::values();
         $plaintext = (string) ($input['secret_value'] ?? '');
-        if ($plaintext === '' || strlen($plaintext) > (int) $config['max_secret_length']) {
+        if (!(new SecretInputValidator())->valueIsValid($plaintext)) {
             throw new RuntimeException('The secret value is empty or exceeds the configured limit.');
+        }
+        if (($input['visibility'] ?? $config['default_visibility']) === \GlpiPlugin\Secret\Security\Visibility::GROUP
+            && !(new SecretInputValidator())->groupIsValid((int) ($input['groups_id'] ?? 0), $entityId)) {
+            throw new RuntimeException('Invalid group.');
         }
         $policy = (string) ($input['expiration_policy'] ?? $config['default_expiration']);
 
@@ -75,20 +79,26 @@ final class CreateSecretService
                 throw new RuntimeException('The creation audit could not be recorded.');
             }
 
-            $DB->commit();
-            // A native follow-up lets GLPI apply the item's normal notification
-            // recipients and templates. Its deliberately generic content never
-            // contains secret metadata or a reveal URL.
-            try {
-                (new SecretAvailabilityNotifier())->notify($item);
-            } catch (\Throwable) {
-                // The secret is already safely committed. A notification
-                // failure must not invite the user to submit it a second time.
+            if ($policy === ExpirationPolicy::TICKET_CLOSED && $item->isClosed()) {
+                ExpirationLifecycle::persist((int) $secretId, date('Y-m-d H:i:s'));
             }
-            return $secretId;
+            $DB->commit();
         } catch (\Throwable $exception) {
             $DB->rollBack();
             throw $exception;
         }
+        try {
+            $notified = (new SecretAvailabilityNotifier())->notify($item);
+        } catch (\Throwable) {
+            $notified = false;
+        }
+        if (!$notified) {
+            \Session::addMessageAfterRedirect(
+                __('Secret saved. No notification followup was added; do not submit it again.', 'secret'),
+                false,
+                WARNING,
+            );
+        }
+        return $secretId;
     }
 }

@@ -38,8 +38,14 @@ final class ExpirationPolicy
 
     private function custom(?string $value, DateTimeImmutable $now): string
     {
-        $expiration = DateTimeImmutable::createFromFormat('Y-m-d\TH:i', (string) $value)
-            ?: DateTimeImmutable::createFromFormat('Y-m-d H:i:s', (string) $value);
+        $expiration = false;
+        foreach (['Y-m-d\TH:i', 'Y-m-d H:i:s'] as $format) {
+            $candidate = DateTimeImmutable::createFromFormat('!' . $format, (string) $value);
+            if ($candidate !== false && $candidate->format($format) === $value) {
+                $expiration = $candidate;
+                break;
+            }
+        }
         if (!$expiration instanceof DateTimeImmutable || $expiration <= $now) {
             throw new InvalidArgumentException('The custom expiration must be a valid future date.');
         }

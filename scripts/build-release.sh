@@ -12,6 +12,10 @@ PACKAGE_DIR="${BUILD_DIR}/${PLUGIN_KEY}"
 cd "${ROOT_DIR}"
 PLUGIN_VERSION="$(sed -n "s/^const PLUGIN_SECRET_VERSION = '\([^']*\)';/\1/p" setup.php)"
 [[ -n "${PLUGIN_VERSION}" ]] || { echo "Unable to read plugin version" >&2; exit 1; }
+if [[ -n "${TAG_NAME}" && ! "${TAG_NAME}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  echo "Expected a vX.Y.Z release tag" >&2
+  exit 1
+fi
 VERSION="${TAG_NAME#v}"
 [[ -n "${VERSION}" ]] || VERSION="${PLUGIN_VERSION}"
 [[ "${VERSION}" == "${PLUGIN_VERSION}" ]] || {
@@ -29,6 +33,7 @@ php vendor/bin/phpunit
 php vendor/bin/phpstan analyse
 php vendor/bin/php-cs-fixer check --diff
 node --check public/js/secret.js
+node --test tests/JavaScript/*.cjs
 php -r '$xml = simplexml_load_file("secret.xml"); exit($xml === false ? 1 : 0);'
 
 rm -rf "${DIST_DIR}"
@@ -50,13 +55,9 @@ for locale in en_GB fr_FR; do
 done
 
 mkdir -p "${PACKAGE_DIR}"
-rsync -a ./ "${PACKAGE_DIR}/" \
-  --exclude '.git/' --exclude '.github/' --exclude '.local/' \
-  --exclude 'dist/' --exclude 'vendor/' --exclude 'tests/' \
-  --exclude 'scripts/' --exclude '.gitignore' --exclude '.php-cs-fixer.php' \
-  --exclude '.php-cs-fixer.cache' \
-  --exclude 'phpstan.neon' --exclude 'phpunit.xml' --exclude 'AGENTS.md' \
-  --exclude '.phpunit.cache/' --exclude '.phpunit.result.cache' --exclude '*~'
+for entry in setup.php hook.php composer.json composer.lock secret.xml LICENSE README.md CHANGELOG.md SECURITY.md CONTRIBUTING.md ROADMAP.md logo.png src front templates public locales docs; do
+  rsync -a --exclude '.*' --exclude '*~' --exclude '*.bak' "${entry}" "${PACKAGE_DIR}/"
+done
 
 (
   cd "${PACKAGE_DIR}"
@@ -101,8 +102,8 @@ with zipfile.ZipFile(archive) as package:
         raise SystemExit(f'Missing required entries: {sorted(missing)}')
     if any(not name.startswith('secret/') for name in names):
         raise SystemExit('Invalid archive root')
-    forbidden = ('/.git/', '/.local/', '/tests/', '/dist/', '/scripts/')
-    if any(any(part in name for part in forbidden) for name in names):
+    forbidden = ('/.git/', '/.local/', '/.agents/', '/.codex/', '/tests/', '/dist/', '/scripts/')
+    if any(any(part in name for part in forbidden) or name.endswith(('~', '.bak')) for name in names):
         raise SystemExit('Development files found in archive')
 
 print(f'Verified {archive}: {len(names)} entries')

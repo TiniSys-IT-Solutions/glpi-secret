@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace GlpiPlugin\Secret;
 
+use GlpiPlugin\Secret\Security\ClosedGenericAccess;
 use GlpiPlugin\Secret\Security\GlpiKeyCipher;
-use GlpiPlugin\Secret\Security\Visibility;
-use GlpiPlugin\Secret\Service\ExpirationPolicy;
 use GlpiPlugin\Secret\Service\SecretAccessService;
+use GlpiPlugin\Secret\Service\SecretInputValidator;
 use Session;
 
 final class Secret extends \CommonDBTM
 {
+    use ClosedGenericAccess;
     /** @var string */
     public static $rightname = Profile::RIGHT_METADATA;
     /** @var list<string> */
@@ -37,38 +38,7 @@ final class Secret extends \CommonDBTM
 
     public static function cronPurgeExpired(?\CronTask $task = null): int
     {
-        global $DB;
-        $days = $task instanceof \CronTask && is_numeric($task->fields['param'] ?? null)
-            ? (int) $task->fields['param'] : 0;
-        if ($days <= 0) {
-            return 0;
-        }
-        $cutoff = date('Y-m-d H:i:s', strtotime('-' . $days . ' days'));
-        $rows = $DB->request([
-            'SELECT' => ['id'], 'FROM' => self::getTable(),
-            'WHERE' => ['expiration' => ['<', $cutoff]],
-            'LIMIT' => 500,
-        ]);
-        $count = 0;
-        foreach ($rows as $row) {
-            $id = (int) $row['id'];
-            $DB->beginTransaction();
-            try {
-                if (!(new Service\AuditLogger())->record(
-                    $id,
-                    Service\AuditLogger::PURGE,
-                    ['source' => 'automatic_action'],
-                ) || !$DB->delete(SecretItem::getTable(), ['plugin_secret_secrets_id' => $id])
-                    || !$DB->delete(self::getTable(), ['id' => $id])) {
-                    throw new \RuntimeException('Expired secret purge failed.');
-                }
-                $DB->commit();
-                ++$count;
-            } catch (\Throwable) {
-                $DB->rollBack();
-            }
-        }
-        return $count;
+        return (new Service\ExpiredSecretPurger())->run($task);
     }
 
     /** @param int $nb */
@@ -86,11 +56,6 @@ final class Secret extends \CommonDBTM
     public static function types(): array
     {
         return [self::TYPE_PASSWORD, self::TYPE_CREDENTIAL, self::TYPE_TOKEN, self::TYPE_OTHER];
-    }
-
-    public static function canCreate(): bool
-    {
-        return Profile::canCreateSecret();
     }
 
     public function canViewItem(): bool
@@ -116,7 +81,7 @@ final class Secret extends \CommonDBTM
     {
         $plaintext = array_key_exists('_secret_value', $input) ? (string) $input['_secret_value'] : null;
         unset($input['_secret_value'], $input['encrypted_value'], $input['users_id_creator']);
-        if ($plaintext === null || !$this->isValidInput($input)) {
+        if ($plaintext === null || !(new SecretInputValidator())->valueIsValid($plaintext) || !$this->isValidInput($input)) {
             return false;
         }
 
@@ -138,6 +103,9 @@ final class Secret extends \CommonDBTM
         if (!$this->isValidInput(array_merge($this->fields, $input))) {
             return false;
         }
+        if ($hasPlaintext && !(new SecretInputValidator())->valueIsValid($plaintext)) {
+            return false;
+        }
         if ($hasPlaintext) {
             $input['encrypted_value'] = (new GlpiKeyCipher())->encrypt($plaintext);
         }
@@ -145,33 +113,9 @@ final class Secret extends \CommonDBTM
         return $input;
     }
 
-    /** @return list<array<string, mixed>> */
-    public function rawSearchOptions(): array
-    {
-        $options = parent::rawSearchOptions();
-        $options[] = ['id' => '2', 'table' => self::getTable(), 'field' => 'name', 'name' => __('Name')];
-        $options[] = ['id' => '3', 'table' => self::getTable(), 'field' => 'type', 'name' => __('Type')];
-        $options[] = ['id' => '4', 'table' => self::getTable(), 'field' => 'username', 'name' => __('Username', 'secret')];
-        $options[] = ['id' => '5', 'table' => self::getTable(), 'field' => 'expiration', 'name' => __('Expiration')];
-
-        return $options;
-    }
-
     /** @param array<string, mixed> $input */
     private function isValidInput(array $input): bool
     {
-        $name = trim((string) ($input['name'] ?? ''));
-        $type = (string) ($input['type'] ?? '');
-        $visibility = (string) ($input['visibility'] ?? '');
-        $groupId = (int) ($input['groups_id'] ?? 0);
-        $expirationPolicy = (string) ($input['expiration_policy'] ?? ExpirationPolicy::NEVER);
-
-        return $name !== ''
-            && strlen($name) <= 255
-            && strlen((string) ($input['username'] ?? '')) <= 255
-            && in_array($type, self::types(), true)
-            && Visibility::isValid($visibility)
-            && in_array($expirationPolicy, ExpirationPolicy::all(), true)
-            && ($visibility !== Visibility::GROUP || $groupId > 0);
+        return (new SecretInputValidator())->metadataIsValid($input);
     }
 }

@@ -24,7 +24,6 @@ final class TimelineActionProvider
             || $item->isNewItem()
             || !in_array($item->getType(), SecretItem::supportedItemtypes(), true)
             || !$item->canViewItem()
-            || !$config['ticket_enabled']
             || (!Profile::canCreateSecret() && !Profile::canReadMetadata())
         ) {
             return [];
@@ -39,7 +38,7 @@ final class TimelineActionProvider
             'config' => $config,
         ]];
 
-        $canCreate = (new SecretAccessService())->canCreateForItil($item);
+        $canCreate = $config['ticket_enabled'] && (new SecretAccessService())->canCreateForItil($item);
 
         $actions = [
             'PluginSecretTimelineSecret' => [

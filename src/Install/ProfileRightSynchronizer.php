@@ -22,7 +22,7 @@ final class ProfileRightSynchronizer
 
         foreach ($DB->request(['SELECT' => ['id', 'name', 'interface'], 'FROM' => \Profile::getTable()]) as $profile) {
             $profileId = (int) $profile['id'];
-            $defaults = $applyDefaults
+            $defaults = $bootstrap
                 ? $this->bootstrapRights((string) $profile['name'], (string) $profile['interface'])
                 : [];
             $existing = \ProfileRight::getProfileRights($profileId, $required);
@@ -31,27 +31,8 @@ final class ProfileRightSynchronizer
                     'profiles_id' => $profileId,
                     'name' => $name,
                     'rights' => $bootstrap && $this->canConfigureGlpi($profileId)
-                        ? ALLSTANDARDRIGHT
+                        ? (int) array_key_first(SecretProfile::rights()[array_search($name, $required, true)]['rights'])
                         : ($defaults[$name] ?? 0),
-                ]) && $success;
-            }
-
-            // One-time upgrade of standard profiles: fill only rights that are
-            // still zero, never replace an administrator's non-zero choice.
-            foreach ($defaults as $name => $right) {
-                if ((int) ($existing[$name] ?? 0) === 0) {
-                    $success = $DB->update(\ProfileRight::getTable(), ['rights' => $right], [
-                        'profiles_id' => $profileId,
-                        'name' => $name,
-                        'rights' => 0,
-                    ]) && $success;
-                }
-            }
-
-            if ($bootstrap && $this->canConfigureGlpi($profileId)) {
-                $success = $DB->update(\ProfileRight::getTable(), ['rights' => ALLSTANDARDRIGHT], [
-                    'profiles_id' => $profileId,
-                    'name' => $required,
                 ]) && $success;
             }
         }

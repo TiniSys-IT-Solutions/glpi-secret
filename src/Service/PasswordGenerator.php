@@ -12,7 +12,6 @@ final class PasswordGenerator
     private const UPPER = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
     private const DIGITS = '23456789';
     private const SPECIAL = '!@#$%^&*()-_=+[]{}:,.?';
-    private const AMBIGUOUS = 'Il1O0o';
 
     public function generate(
         int $length = 20,
@@ -27,17 +26,13 @@ final class PasswordGenerator
         }
 
         $sets = array_values(array_filter([
-            $lowercase ? self::LOWER : null,
-            $uppercase ? self::UPPER : null,
-            $digits ? self::DIGITS : null,
+            $lowercase ? self::LOWER . ($excludeAmbiguous ? '' : 'lo') : null,
+            $uppercase ? self::UPPER . ($excludeAmbiguous ? '' : 'IO') : null,
+            $digits ? self::DIGITS . ($excludeAmbiguous ? '' : '01') : null,
             $special ? self::SPECIAL : null,
         ]));
         if ($sets === []) {
             throw new InvalidArgumentException('At least one character set must be enabled.');
-        }
-
-        if (!$excludeAmbiguous) {
-            $sets[0] .= self::AMBIGUOUS;
         }
 
         $characters = [];

@@ -15,6 +15,18 @@ use Session;
 
 final class SecretAccessService
 {
+    /** @var array<int, bool> */
+    private array $expired = [];
+
+    /** @param list<int> $ids */
+    public function primeExpirations(array $ids): void
+    {
+        $pending = (new ExpirationLifecycle())->pendingExpirations($ids, count($ids));
+        foreach ($ids as $id) {
+            $this->expired[$id] = isset($pending[$id]);
+        }
+    }
+
     public function __construct(
         private readonly AclPolicy $policy = new AclPolicy(),
         private readonly ItilActorResolver $itilActors = new ItilActorResolver(),
@@ -23,6 +35,26 @@ final class SecretAccessService
     public function canSeeMetadata(Secret $secret, ?AclContext $context = null): bool
     {
         return Profile::canReadMetadata() && $this->aclAllows($secret, $context);
+    }
+
+    /** @return array<string, mixed> */
+    public function metadataCriteriaForItil(AclContext $context): array
+    {
+        $table = Secret::getTable();
+        if (!Profile::canReadMetadata() || !$context->itilItemAccess || $context->userId <= 0) {
+            return ["$table.id" => -1];
+        }
+        $clauses = [["$table.visibility" => Visibility::OWNER, "$table.users_id_creator" => $context->userId]];
+        if ($context->groupIds !== []) {
+            $clauses[] = ["$table.visibility" => Visibility::GROUP, "$table.groups_id" => $context->groupIds];
+        }
+        if ($context->ticketTechnician) {
+            $clauses[] = ["$table.visibility" => Visibility::TICKET_TECHNICIANS];
+        }
+        if ($context->ticketRequester || $context->ticketTechnician) {
+            $clauses[] = ["$table.visibility" => Visibility::REQUESTERS_AND_TECHNICIANS];
+        }
+        return ['OR' => $clauses];
     }
 
     public function canCreate(): bool
@@ -87,7 +119,7 @@ final class SecretAccessService
             : new AclContext(
                 userId: (int) Session::getLoginUserID(),
                 groupIds: array_map('intval', $_SESSION['glpigroups'] ?? []),
-                entityTechnician: $visibility === Visibility::ENTITY_TECHNICIANS,
+                entityTechnician: false,
             );
 
         return $this->policy->allows(
@@ -100,10 +132,22 @@ final class SecretAccessService
 
     private function isExpired(Secret $secret): bool
     {
-        if (($secret->fields['expiration_policy'] ?? '') === ExpirationPolicy::TICKET_CLOSED) {
-            return $this->itilActors->hasClosedLinkedItem($secret);
-        }
         $expiration = $secret->fields['expiration'] ?? null;
-        return is_string($expiration) && $expiration !== '' && strtotime($expiration) <= time();
+        if (is_string($expiration) && $expiration !== '') {
+            return strtotime($expiration) <= time();
+        }
+        if (($secret->fields['expiration_policy'] ?? '') !== ExpirationPolicy::TICKET_CLOSED) {
+            return false;
+        }
+        $id = (int) $secret->getID();
+        if (array_key_exists($id, $this->expired)) {
+            return $this->expired[$id];
+        }
+        $pending = (new ExpirationLifecycle())->pendingExpirations([$id], 1);
+        if (isset($pending[$id])) {
+            ExpirationLifecycle::persist($id, $pending[$id]);
+            return true;
+        }
+        return false;
     }
 }

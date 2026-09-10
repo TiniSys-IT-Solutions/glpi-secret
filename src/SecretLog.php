@@ -6,27 +6,22 @@ namespace GlpiPlugin\Secret;
 
 final class SecretLog extends \CommonDBTM
 {
+    use Security\ClosedGenericAccess;
+
     /** @var string */
     public static $rightname = Profile::RIGHT_AUDIT;
     /** @var bool */
     public $dohistory = false;
 
-    public static function canCreate(): bool
+    public function canViewItem(): bool
     {
         return false;
     }
-
-    public static function canUpdate(): bool
+    public function canUpdateItem(): bool
     {
         return false;
     }
-
-    public static function canDelete(): bool
-    {
-        return false;
-    }
-
-    public static function canPurge(): bool
+    public function canDeleteItem(): bool
     {
         return false;
     }
