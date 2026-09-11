@@ -15,7 +15,7 @@ profile assignment and its native recursive flag.
 Ticket and asset integrations will supply contextual actor facts to the same ACL
 engine. They will never duplicate encryption, audit, or authorization logic.
 
-The 0.0.20 ITIL integration uses controllers discovered from `src/Controller/`.
+The 0.0.21 ITIL integration uses controllers discovered from `src/Controller/`.
 User-facing plugin strings use the `secret` gettext domain and GLPI's native
 `locales/<language>.mo` loading mechanism.
 GLPI's controller listener authenticates the route and validates CSRF for POST
@@ -32,7 +32,7 @@ Modern ITIL controllers explicitly select GLPI's authenticated firewall
 strategy instead of the default Central-only strategy. Their own authorization
 then enforces item access, profile permission, entity scope, ACL, and audit.
 
-## ITIL hardening in 0.0.20
+## ITIL hardening introduced in 0.0.20
 
 `ClosedGenericAccess` closes generic model surfaces. Internal persistence stays
 inside the application services; generic CommonDBTM permission checks are not

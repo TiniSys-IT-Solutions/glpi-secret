@@ -171,6 +171,10 @@ try {
         $_SESSION['glpiID'] = 3;
         verify(!(new SecretAccessService())->canReveal($secret, (new ItilActorResolver())->forItem($item)), "$type owner ACL denies another administrator");
         verify((new TicketSecretRepository())->countVisibleForItem($item) === 0, "$type count hides another owner's secret");
+        Config::setConfigurationValues('plugin:secret', ['admin_acl_bypass' => '1']);
+        verify((new SecretAccessService())->canReveal($secret, (new ItilActorResolver())->forItem($item)), "$type configured Secret administrator bypasses actor ACL");
+        verify((new TicketSecretRepository())->countVisibleForItem($item) === 1, "$type administrator bypass is applied to SQL metadata criteria");
+        Config::setConfigurationValues('plugin:secret', ['admin_acl_bypass' => '0']);
         verify(!$secret->can($secretId, PURGE), "$type generic PURGE denied");
         $_SESSION['glpiID'] = $owner;
         (new SecretMutationService())->update($secret, ['secret_value' => 'synthetic replacement'], $type, (int) $id, $context);

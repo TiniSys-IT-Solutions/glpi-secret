@@ -58,6 +58,17 @@ final class Secret extends \CommonDBTM
         return [self::TYPE_PASSWORD, self::TYPE_CREDENTIAL, self::TYPE_TOKEN, self::TYPE_OTHER];
     }
 
+    public static function typeLabel(string $type): string
+    {
+        return match ($type) {
+            self::TYPE_PASSWORD => __('Password', 'secret'),
+            self::TYPE_CREDENTIAL => __('Username and password', 'secret'),
+            self::TYPE_TOKEN => __('Token', 'secret'),
+            self::TYPE_OTHER => __('Sensitive information', 'secret'),
+            default => __('Unknown'),
+        };
+    }
+
     public function canViewItem(): bool
     {
         return (new SecretAccessService())->canSeeMetadata($this);

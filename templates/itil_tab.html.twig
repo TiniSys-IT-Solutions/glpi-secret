@@ -13,7 +13,7 @@
          {% for secret in secrets %}
             <tr data-secret-row="{{ secret.id }}">
                <td>{{ secret.name }}</td>
-               <td>{{ secret.type }}</td>
+               <td>{{ secret.type_label }}</td>
                <td>{{ secret.username ?? '—' }}</td>
                <td>{{ secret.visibility }}</td>
                <td>{{ get_item_link('User', secret.users_id_creator) }}</td>
@@ -23,10 +23,12 @@
                   {% if secret.can_reveal %}
                      <button type="button" class="btn btn-sm btn-outline-primary plugin-secret-action"
                              data-action="view" data-url="{{ path('plugins/secret/Secret/' ~ secret.id ~ '/Reveal') }}"
+                             data-secret-type="{{ secret.type }}"
                              data-itemtype="{{ item.getType() }}" data-items-id="{{ item.getID() }}"
                              data-csrf="{{ csrf_token(true) }}"><i class="ti ti-eye me-1"></i>{{ __('Reveal', 'secret') }}</button>
                      <button type="button" class="btn btn-sm btn-outline-secondary plugin-secret-action"
                              data-action="copy" data-url="{{ path('plugins/secret/Secret/' ~ secret.id ~ '/Reveal') }}"
+                             data-secret-type="{{ secret.type }}"
                              data-itemtype="{{ item.getType() }}" data-items-id="{{ item.getID() }}"
                              data-csrf="{{ csrf_token(true) }}"><i class="ti ti-copy me-1"></i>{{ __('Copy') }}</button>
                   {% else %}
@@ -45,7 +47,13 @@
                            <input type="hidden" name="_glpi_csrf_token" value="{{ csrf_token() }}">
                            <input type="hidden" name="itemtype" value="{{ item.getType() }}"><input type="hidden" name="items_id" value="{{ item.getID() }}">
                            <div class="input-group input-group-sm mb-1"><span class="input-group-text">{{ __('Name') }}</span><input class="form-control" name="name" value="{{ secret.name }}" required></div>
+                           {% if secret.type == 'credential' %}
                            <div class="input-group input-group-sm mb-1"><span class="input-group-text">{{ __('Username', 'secret') }}</span><input class="form-control" name="username" value="{{ secret.username }}"></div>
+                           {% endif %}
+                           {% if secret.type == 'other' %}
+                           <textarea class="form-control form-control-sm font-monospace mb-1" name="secret_value" rows="5"
+                                     autocomplete="off" spellcheck="false" placeholder="{{ __('New sensitive information', 'secret') }}"></textarea>
+                           {% else %}
                            <div class="input-group input-group-sm mb-1">
                               <span class="input-group-text">{{ __('New secret value', 'secret') }}</span>
                               <input class="form-control plugin-secret-value-input" type="password" name="secret_value" autocomplete="new-password">
@@ -58,6 +66,7 @@
                                 data-digits="{{ generator.generator_digits ? '1' : '0' }}"
                                 data-special="{{ generator.generator_special ? '1' : '0' }}"
                                 data-exclude-ambiguous="{{ generator.generator_exclude_ambiguous ? '1' : '0' }}"></div>
+                           {% endif %}
                            <input type="hidden" name="type" value="{{ secret.type }}"><button class="btn btn-sm btn-primary" type="submit">{{ __('Save') }}</button>
                         </form>
                      </details>

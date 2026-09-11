@@ -5,7 +5,7 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: GLPI Secret 0.0.20\n"
+"Project-Id-Version: GLPI Secret 0.0.21\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-09-10 13:14+0530\n"
 "PO-Revision-Date: 2026-09-08 16:38+0530\n"
@@ -357,6 +357,26 @@ msgstr "Charger les événements précédents"
 #: public/js/secret.js:283
 msgid "Permanently delete this secret?"
 msgstr "Supprimer définitivement ce secret ?"
+
+#: templates/config_form.html.twig
+msgid "Allow Secret administrators to access all secrets"
+msgstr "Autoriser les administrateurs de Secret à accéder à tous les secrets"
+
+#: templates/config_form.html.twig
+msgid "Administrators must still have access to the linked ITIL object and the profile right required for each action."
+msgstr "Les administrateurs doivent toujours avoir accès à l’objet ITIL associé et disposer du droit de profil requis pour chaque action."
+
+#: src/Secret.php templates/timeline_form.html.twig
+msgid "Username and password"
+msgstr "Identifiant et mot de passe"
+
+#: src/Secret.php templates/timeline_form.html.twig
+msgid "Sensitive information"
+msgstr "Information sensible"
+
+#: templates/itil_tab.html.twig
+msgid "New sensitive information"
+msgstr "Nouvelle information sensible"
 
 #~ msgid "Secrets"
 #~ msgstr "Secrets"

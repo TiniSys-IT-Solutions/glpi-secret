@@ -1,6 +1,6 @@
 # Ticket and ITIL workflow
 
-Version 0.0.20 supports Ticket, Change, and Problem objects.
+Version 0.0.21 supports Ticket, Change, and Problem objects.
 
 1. An authorized user opens **Secret** directly from GLPI's native **Reply**
    split button. The action is grouped as an ITIL followup so it behaves like
@@ -12,6 +12,16 @@ Version 0.0.20 supports Ticket, Change, and Problem objects.
 4. Authorized metadata appears in the object's **Secrets (N)** tab.
 5. Reveal and Copy each perform a new POST request and a complete authorization
    decision. Plaintext is never part of the initial HTML.
+
+The type controls the entry and reveal interface without changing encryption:
+
+- **Password** uses a masked field with show, copy, and generator controls.
+- **Username and password** additionally enables the username field.
+- **Token** uses the protected single-line value controls without a username.
+- **Sensitive information** uses a visible multiline entry field without
+  password-generator controls. After saving, it is encrypted like every other
+  type and can only be returned by the authorized reveal endpoint; its revealed
+  read-only textarea is cleared using the normal timeout.
 
 Visibility choices are owner only, assigned technicians, requesters plus
 technicians, or an explicitly selected group. Profile permission and this ACL
@@ -72,7 +82,7 @@ therefore registered as `css/secret.css` and `js/secret.js` without a duplicate
 Controller forms use the canonical `plugins/secret/...` URL namespace, including
 when GLPI stores the plugin physically under `marketplace/secret`.
 
-## Expiration and maintenance in 0.0.20
+## Expiration and maintenance since 0.0.20
 
 Expiration at closure is irreversible once observed: reopening does not make the
 old value available again. Create a new secret when a new exchange is needed.
@@ -96,6 +106,13 @@ access to existing authorized cards.
 Notification followups require native GLPI followup creation rights. If no
 followup can be added, a warning confirms that the secret is saved and must not
 be submitted again. The operator tab and audit trail provide pagination.
+
+Administrators who must supervise tickets outside the selected secret actor ACL
+can use the disabled-by-default global administrator override. Their profile
+must hold **Administrer Secret**, the right for the requested action, and native
+access to the linked ITIL object. Enabling this option makes authorized cards
+visible without turning Admin or Super-Admin into an unrestricted database/API
+reader.
 
 Audit events survive deletion, but the deleted secret has no normal ITIL audit
 button. Historical recovery is an explicitly authorized administrator procedure

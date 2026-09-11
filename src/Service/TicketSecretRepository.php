@@ -77,6 +77,7 @@ final class TicketSecretRepository
                 'id' => (int) $row['id'],
                 'name' => (string) $row['name'],
                 'type' => (string) $row['type'],
+                'type_label' => Secret::typeLabel((string) $row['type']),
                 'username' => $row['username'] !== null ? (string) $row['username'] : null,
                 'visibility' => (string) $row['visibility'],
                 'groups_id' => (int) $row['groups_id'],

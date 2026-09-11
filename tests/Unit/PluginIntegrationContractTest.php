@@ -109,6 +109,36 @@ final class PluginIntegrationContractTest extends TestCase
         self::assertStringContainsString("Session::getCurrentInterface() === 'helpdesk'", $relation);
     }
 
+    public function testAdministratorOverrideKeepsLayeredAuthorization(): void
+    {
+        $root = dirname(__DIR__, 2);
+        $config = (string) file_get_contents($root . '/src/Config.php');
+        $access = (string) file_get_contents($root . '/src/Service/SecretAccessService.php');
+        $template = (string) file_get_contents($root . '/templates/config_form.html.twig');
+
+        self::assertStringContainsString("'admin_acl_bypass' => '0'", $config);
+        self::assertStringContainsString("'admin_acl_bypass' => !empty(\$input['admin_acl_bypass'])", $config);
+        self::assertStringContainsString('Profile::canAdminister()', $access);
+        self::assertStringContainsString("Config::values()['admin_acl_bypass']", $access);
+        self::assertStringContainsString('admin_acl_bypass', $template);
+    }
+
+    public function testSecretTypesDriveDedicatedSafeInterfaces(): void
+    {
+        $root = dirname(__DIR__, 2);
+        $secret = (string) file_get_contents($root . '/src/Secret.php');
+        $form = (string) file_get_contents($root . '/templates/timeline_form.html.twig');
+        $tab = (string) file_get_contents($root . '/templates/itil_tab.html.twig');
+        $javascript = (string) file_get_contents($root . '/public/js/secret.js');
+
+        self::assertStringContainsString("self::TYPE_OTHER => __('Sensitive information', 'secret')", $secret);
+        self::assertStringContainsString('plugin-secret-username-field', $form);
+        self::assertStringContainsString('plugin-secret-sensitive-value', $form);
+        self::assertStringContainsString("type === 'other'", $javascript);
+        self::assertStringContainsString("secret.type == 'other'", $tab);
+        self::assertStringNotContainsString('value="{{ secret.', $form);
+    }
+
     public function testItilMutationsAuditAndSafeNotificationAreWired(): void
     {
         $root = dirname(__DIR__, 2);

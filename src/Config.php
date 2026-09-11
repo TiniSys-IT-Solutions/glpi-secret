@@ -81,6 +81,7 @@ final class Config extends \CommonGLPI
     {
         return [
             'ticket_enabled' => '1',
+            'admin_acl_bypass' => '0',
             'default_visibility' => Visibility::TICKET_TECHNICIANS,
             'default_expiration' => 'never',
             'generator_length' => '20',
@@ -108,7 +109,7 @@ final class Config extends \CommonGLPI
         $current = \Config::getConfigurationValues(self::CONTEXT);
         $values = array_replace(self::defaults(), $current);
 
-        foreach (['ticket_enabled', 'generator_lowercase', 'generator_uppercase', 'generator_digits', 'generator_special', 'generator_exclude_ambiguous'] as $key) {
+        foreach (['ticket_enabled', 'admin_acl_bypass', 'generator_lowercase', 'generator_uppercase', 'generator_digits', 'generator_special', 'generator_exclude_ambiguous'] as $key) {
             $values[$key] = (bool) (int) $values[$key];
         }
         $values['generator_length'] = max(8, min(256, (int) $values['generator_length']));
@@ -131,6 +132,7 @@ final class Config extends \CommonGLPI
 
         \Config::setConfigurationValues(self::CONTEXT, [
             'ticket_enabled' => !empty($input['ticket_enabled']) ? '1' : '0',
+            'admin_acl_bypass' => !empty($input['admin_acl_bypass']) ? '1' : '0',
             'default_visibility' => $visibility,
             'default_expiration' => $expiration,
             'generator_length' => (string) max(8, min(256, (int) ($input['generator_length'] ?? 20))),

@@ -34,6 +34,10 @@ final class SecretMutationService
                 $update[$field] = trim((string) $input[$field]);
             }
         }
+        $resultingType = (string) ($update['type'] ?? $secret->fields['type'] ?? '');
+        if ($resultingType !== Secret::TYPE_CREDENTIAL) {
+            $update['username'] = null;
+        }
         if (($input['secret_value'] ?? '') !== '') {
             $update['_secret_value'] = (string) $input['secret_value'];
         }

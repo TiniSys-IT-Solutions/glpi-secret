@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GlpiPlugin\Secret\Service;
 
 use CommonITILObject;
+use GlpiPlugin\Secret\Config;
 use GlpiPlugin\Secret\Profile;
 use GlpiPlugin\Secret\Secret;
 use GlpiPlugin\Secret\Security\AclContext;
@@ -43,6 +44,9 @@ final class SecretAccessService
         $table = Secret::getTable();
         if (!Profile::canReadMetadata() || !$context->itilItemAccess || $context->userId <= 0) {
             return ["$table.id" => -1];
+        }
+        if ($this->administratorAclBypassEnabled()) {
+            return ["$table.id" => ['>', 0]];
         }
         $clauses = [["$table.visibility" => Visibility::OWNER, "$table.users_id_creator" => $context->userId]];
         if ($context->groupIds !== []) {
@@ -113,6 +117,9 @@ final class SecretAccessService
         if (!$entityAllowed && !($context->itilItemAccess ?? false)) {
             return false;
         }
+        if ($this->administratorAclBypassEnabled()) {
+            return true;
+        }
 
         $context ??= in_array($visibility, [Visibility::TICKET_TECHNICIANS, Visibility::REQUESTERS_AND_TECHNICIANS], true)
             ? $this->itilActors->forSecret($secret)
@@ -128,6 +135,11 @@ final class SecretAccessService
             (int) ($secret->fields['groups_id'] ?? 0),
             $context,
         );
+    }
+
+    private function administratorAclBypassEnabled(): bool
+    {
+        return (bool) Config::values()['admin_acl_bypass'] && Profile::canAdminister();
     }
 
     private function isExpired(Secret $secret): bool

@@ -20,3 +20,11 @@ Existing profile values, including deliberately revoked rights, are preserved.
 After upgrade, validate requester and technician access, a denied profile, a
 closed/reopened ticket, purge retention and notification permission in a test
 instance. Keep the database and matching key backup until this validation passes.
+
+## Upgrade to 0.0.21
+
+The administrator visibility override is disabled by default, so upgrading does
+not broaden existing access. If supervision access is required, enable it in
+the Secret settings and verify that the intended Admin, Super-Admin or custom
+profile holds **Administrer Secret** plus each required action right. Native
+access to the linked ITIL object remains mandatory.

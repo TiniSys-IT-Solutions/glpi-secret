@@ -2,6 +2,17 @@
 
 All notable changes are documented here.
 
+## 0.0.21 - 2026-09-11
+
+### Added
+
+- Add a disabled-by-default configuration option allowing profiles with the
+  dedicated Secret administration right to bypass per-secret visibility while
+  retaining ITIL object access, action rights, expiration, CSRF, and audit.
+- Give each secret type a distinct interface: password, username and password,
+  token, or multiline sensitive information, while retaining the existing
+  storage identifiers for upgrade compatibility.
+
 ## 0.0.20 - 2026-09-10
 
 ### Security

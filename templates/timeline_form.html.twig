@@ -25,20 +25,20 @@
       </div>
       <div class="col-md-4">
          <label class="form-label required" for="secret-type">{{ __('Type') }}</label>
-         <select class="form-select" id="secret-type" name="type" required>
+         <select class="form-select plugin-secret-type" id="secret-type" name="type" required>
             <option value="password">{{ __('Password', 'secret') }}</option>
-            <option value="credential">{{ __('Credential', 'secret') }}</option>
+            <option value="credential">{{ __('Username and password', 'secret') }}</option>
             <option value="token">{{ __('Token', 'secret') }}</option>
-            <option value="other">{{ __('Other') }}</option>
+            <option value="other">{{ __('Sensitive information', 'secret') }}</option>
          </select>
       </div>
-      <div class="col-md-6">
+      <div class="col-md-6 plugin-secret-username-field" hidden>
          <label class="form-label" for="secret-username">{{ __('Username', 'secret') }}</label>
          <input class="form-control" id="secret-username" name="username" maxlength="255" autocomplete="off">
       </div>
       <div class="col-12">
          <label class="form-label required" for="secret-value">{{ _n('Secret', 'Secrets', 1, 'secret') }}</label>
-         <div class="input-group">
+         <div class="input-group plugin-secret-password-value">
             <input type="password" class="form-control font-monospace plugin-secret-value-input" id="secret-value" name="secret_value"
                    maxlength="{{ subitem.fields.config.max_secret_length }}" required autocomplete="new-password"
                    spellcheck="false">
@@ -49,6 +49,10 @@
             <button class="btn btn-outline-secondary plugin-secret-generate" type="button" data-target="secret-value"
                     title="{{ __('Generate', 'secret') }}"><i class="ti ti-refresh"></i></button>
          </div>
+         <textarea class="form-control font-monospace plugin-secret-sensitive-value" name="secret_value" hidden
+                   maxlength="{{ subitem.fields.config.max_secret_length }}" rows="6" disabled
+                   autocomplete="off" spellcheck="false"
+                   aria-label="{{ __('Sensitive information', 'secret') }}"></textarea>
       </div>
       <div class="col-12 plugin-secret-generator-options"
            data-length="{{ subitem.fields.config.generator_length }}"

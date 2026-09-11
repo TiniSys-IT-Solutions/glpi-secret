@@ -7,7 +7,13 @@ with a viewable Ticket/Change/Problem, and the per-secret ACL. GLPI's native
 legitimate catalogue requesters outside their directly active entity set.
 Direct service access without verified ITIL context requires active-entity scope.
 
-Version 0.0.20 deliberately denies generic access to Secret, SecretItem and
+An optional administrator override, disabled by default, may bypass only the
+per-secret owner/group/actor ACL. It requires the dedicated Secret administration
+right as well as the action-specific right and verified GLPI access to the linked
+ITIL object. It never bypasses expiration for reveal and never relies on a
+profile name.
+
+Since version 0.0.20, generic access to Secret, SecretItem and
 SecretLog: native canView/canCreate/canUpdate/canDelete/canPurge are false, generic
 search options are empty, and system list criteria match no records. The model
 classes remain available internally for GLPIKey rotation and audited application
@@ -26,6 +32,11 @@ configured byte limit on both creation and replacement. Metadata limits use
 Unicode character counts. Only ITIL visibility choices are accepted. An explicit
 group must exist, be assignable and belong to the item's entity or a recursive
 ancestor. Entity-technician visibility remains unavailable in this phase.
+
+The sensitive-information textarea is visible only for the value actively typed
+by the user. It is never prefilled by the server. Its value follows the same
+dedicated POST validation, GLPIKey encryption, transaction and audit path as a
+password or token.
 
 A native notification followup is added only if GLPI allows the current user to
 create it. Otherwise the encrypted secret remains saved, with a generic warning.

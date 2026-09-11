@@ -37,3 +37,11 @@ Configuration retains its deliberate recovery exception: GLPI config UPDATE or
 Secret administration UPDATE permits changing plugin defaults, but neither
 bypasses the secret ACL. The plugin configuration still resides in native GLPI
 General Setup and follows that page's own access restrictions.
+
+The global **Allow Secret administrators to access all secrets** option is
+disabled by default. When enabled, it lets profiles holding **Administrer
+Secret** bypass the owner/group/ticket-actor visibility rule. It does not bypass
+GLPI access to the linked Ticket, Change or Problem, expiration, or the separate
+metadata/reveal/update/delete/audit profile right required by the requested
+action. The implementation checks the dedicated right rather than profile names,
+so it supports Admin, Super-Admin and deliberately authorized custom profiles.

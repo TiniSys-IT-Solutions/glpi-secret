@@ -6,6 +6,13 @@
          <input class="form-check-input" type="checkbox" name="ticket_enabled" value="1" {{ config.ticket_enabled ? 'checked' : '' }}>
          <span class="form-check-label">{{ __('Enable the Secret timeline action', 'secret') }}</span>
       </label>
+      <label class="form-check form-switch mb-2">
+         <input class="form-check-input" type="checkbox" name="admin_acl_bypass" value="1" {{ config.admin_acl_bypass ? 'checked' : '' }}>
+         <span class="form-check-label">{{ __('Allow Secret administrators to access all secrets', 'secret') }}</span>
+      </label>
+      <div class="form-hint mb-4">
+         {{ __('Administrators must still have access to the linked ITIL object and the profile right required for each action.', 'secret') }}
+      </div>
       <div class="row g-3">
          <div class="col-md-6">
             <label class="form-label">{{ __('Default visibility', 'secret') }}</label>

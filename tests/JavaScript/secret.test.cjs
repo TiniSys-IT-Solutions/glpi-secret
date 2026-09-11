@@ -45,3 +45,64 @@ test('visible controls override defaults without enabling other categories', () 
         {lowercase:false, uppercase:false, special:false, digits:true, 'exclude-ambiguous':false});
     assert.match(result, /^[0-9]{32}$/);
 });
+
+test('type selection switches credential and sensitive-information fields safely', () => {
+    const callbacks = {};
+    const type = {value: 'password'};
+    const username = {disabled: false, value: 'must be cleared'};
+    const usernameField = {hidden: false, querySelector() {return username;}};
+    const passwordInput = {disabled: false, required: true, value: 'password draft'};
+    const passwordValue = {hidden: false, querySelector() {return passwordInput;}};
+    const sensitiveInput = {hidden: true, disabled: true, required: false, value: ''};
+    const generator = {hidden: false};
+    class Form {
+        querySelector(q) {
+            return ({
+                '.plugin-secret-type': type,
+                '.plugin-secret-username-field': usernameField,
+                '.plugin-secret-password-value': passwordValue,
+                '.plugin-secret-sensitive-value': sensitiveInput,
+                '.plugin-secret-generator-options': generator,
+            })[q] || null;
+        }
+    }
+    const form = new Form();
+    const context = {
+        document: {
+            addEventListener(k, callback) {callbacks[k] = callback;},
+            querySelectorAll() {return [form];},
+            getElementById() {return null;},
+            documentElement: {},
+        },
+        MutationObserver: class {observe() {}},
+        HTMLFormElement: Form,
+        CFG_GLPI: {root_doc: ''},
+        window: {crypto: webcrypto},
+        Uint32Array,
+    };
+    vm.runInNewContext(source, context);
+    callbacks.DOMContentLoaded();
+    assert.equal(usernameField.hidden, true);
+    assert.equal(username.disabled, true);
+
+    type.value = 'credential';
+    callbacks.change({target: {
+        closest() {return form;},
+        matches(q) {return q === '.plugin-secret-type';},
+    }});
+    assert.equal(usernameField.hidden, false);
+    assert.equal(username.disabled, false);
+
+    type.value = 'other';
+    callbacks.change({target: {
+        closest() {return form;},
+        matches(q) {return q === '.plugin-secret-type';},
+    }});
+    assert.equal(passwordValue.hidden, true);
+    assert.equal(passwordInput.disabled, true);
+    assert.equal(passwordInput.value, '');
+    assert.equal(sensitiveInput.hidden, false);
+    assert.equal(sensitiveInput.disabled, false);
+    assert.equal(sensitiveInput.required, true);
+    assert.equal(generator.hidden, true);
+});

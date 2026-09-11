@@ -71,6 +71,33 @@
     }
 
     function refreshConditionalFields(form) {
+        const type = form.querySelector('.plugin-secret-type')?.value;
+        const usernameField = form.querySelector('.plugin-secret-username-field');
+        if (usernameField) {
+            const username = usernameField.querySelector('input');
+            usernameField.hidden = type !== 'credential';
+            if (username) {
+                username.disabled = type !== 'credential';
+                if (username.disabled) username.value = '';
+            }
+        }
+        const passwordValue = form.querySelector('.plugin-secret-password-value');
+        const passwordInput = passwordValue?.querySelector('.plugin-secret-value-input');
+        const sensitiveInput = form.querySelector('.plugin-secret-sensitive-value');
+        const generatorOptions = form.querySelector('.plugin-secret-generator-options');
+        const sensitive = type === 'other';
+        if (passwordValue && passwordInput && sensitiveInput) {
+            passwordValue.hidden = sensitive;
+            passwordInput.disabled = sensitive;
+            passwordInput.required = !sensitive;
+            sensitiveInput.hidden = !sensitive;
+            sensitiveInput.disabled = !sensitive;
+            sensitiveInput.required = sensitive;
+            if (sensitive) passwordInput.value = '';
+            else sensitiveInput.value = '';
+        }
+        if (generatorOptions) generatorOptions.hidden = sensitive;
+
         const visibility = form.querySelector('.plugin-secret-visibility')?.value;
         const groupField = form.querySelector('.plugin-secret-group-field');
         if (groupField) {
@@ -152,31 +179,37 @@
             target.replaceChildren();
             const group = document.createElement('div');
             group.className = 'input-group input-group-sm';
-            const input = document.createElement('input');
-            input.type = 'password';
-            input.readOnly = true;
-            input.className = 'form-control font-monospace';
-            input.value = payload.value;
-            const toggle = document.createElement('button');
-            toggle.type = 'button';
-            toggle.className = 'btn btn-outline-secondary';
-            toggle.textContent = '👁';
-            toggle.addEventListener('click', () => {
-                input.type = input.type === 'password' ? 'text' : 'password';
-            });
+            const sensitive = button.dataset.secretType === 'other';
+            const field = document.createElement(sensitive ? 'textarea' : 'input');
+            if (!sensitive) field.type = 'password';
+            field.readOnly = true;
+            field.className = 'form-control font-monospace';
+            field.value = payload.value;
+            if (sensitive) field.rows = 6;
             const close = document.createElement('button');
             close.type = 'button';
             close.className = 'btn btn-outline-secondary';
             close.textContent = __('Hide and clear', 'secret');
             const clear = () => {
-                input.value = '';
+                field.value = '';
                 group.remove();
                 if (!target.children.length) target.hidden = true;
             };
             const timer = window.setTimeout(clear, 60000);
             close.addEventListener('click', () => { window.clearTimeout(timer); clear(); });
             window.addEventListener('pagehide', clear, {once: true});
-            group.append(input, toggle, close);
+            group.append(field);
+            if (!sensitive) {
+                const toggle = document.createElement('button');
+                toggle.type = 'button';
+                toggle.className = 'btn btn-outline-secondary';
+                toggle.textContent = '👁';
+                toggle.addEventListener('click', () => {
+                    field.type = field.type === 'password' ? 'text' : 'password';
+                });
+                group.append(toggle);
+            }
+            group.append(close);
             target.append(group);
             target.hidden = false;
         } finally {
@@ -287,7 +320,9 @@
 
     document.addEventListener('change', (event) => {
         const form = event.target.closest('.plugin-secret-create-form');
-        if (form && (event.target.matches('.plugin-secret-visibility') || event.target.matches('.plugin-secret-expiration'))) {
+        if (form && (event.target.matches('.plugin-secret-type')
+            || event.target.matches('.plugin-secret-visibility')
+            || event.target.matches('.plugin-secret-expiration'))) {
             refreshConditionalFields(form);
         }
     });

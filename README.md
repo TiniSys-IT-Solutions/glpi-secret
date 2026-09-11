@@ -15,7 +15,7 @@ GLPI Secret provides native storage for operational credentials attached to
 GLPI workflows and assets. Its purpose is to prevent passwords and tokens from
 being pasted into unprotected ticket text or asset notes.
 
-Version 0.0.20 includes the Ticket, Change, and Problem workflow. Asset
+Version 0.0.21 includes the Ticket, Change, and Problem workflow. Asset
 integration is intentionally deferred to the next milestone.
 
 > Status: first stable field-test candidate (`0.0.x`). Validate the plugin and

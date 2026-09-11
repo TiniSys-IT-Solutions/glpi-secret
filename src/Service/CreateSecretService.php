@@ -32,6 +32,7 @@ final class CreateSecretService
         }
         $config = Config::values();
         $plaintext = (string) ($input['secret_value'] ?? '');
+        $type = (string) ($input['type'] ?? '');
         if (!(new SecretInputValidator())->valueIsValid($plaintext)) {
             throw new RuntimeException('The secret value is empty or exceeds the configured limit.');
         }
@@ -46,8 +47,10 @@ final class CreateSecretService
             $secret = new Secret();
             $secretId = $secret->add([
                 'name' => trim((string) ($input['name'] ?? '')),
-                'type' => (string) ($input['type'] ?? ''),
-                'username' => trim((string) ($input['username'] ?? '')) ?: null,
+                'type' => $type,
+                'username' => $type === Secret::TYPE_CREDENTIAL
+                    ? (trim((string) ($input['username'] ?? '')) ?: null)
+                    : null,
                 '_secret_value' => $plaintext,
                 'visibility' => (string) ($input['visibility'] ?? $config['default_visibility']),
                 'groups_id' => (int) ($input['groups_id'] ?? 0),
