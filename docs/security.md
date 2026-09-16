@@ -28,8 +28,8 @@ VIEW/COPY audit. Audit input is allow-listed; values and cryptographic material
 must never enter it. Model form retry buffers do not retain secret input.
 
 Secret values must be nonempty UTF-8 text without NUL bytes and within the
-configured byte limit on both creation and replacement. Metadata limits use
-Unicode character counts. Only ITIL visibility choices are accepted. An explicit
+configured byte limit on both creation and replacement. Metadata is also valid
+UTF-8 without NUL bytes and its limits use Unicode character counts. Only ITIL visibility choices are accepted. An explicit
 group must exist, be assignable and belong to the item's entity or a recursive
 ancestor. Entity-technician visibility remains unavailable in this phase.
 
@@ -41,6 +41,11 @@ password or token.
 A native notification followup is added only if GLPI allows the current user to
 create it. Otherwise the encrypted secret remains saved, with a generic warning.
 No notification includes a value, name, username, ciphertext or reveal URL.
+
+Reveal failures are deliberately indistinguishable to the caller. A missing
+record, invalid relation, denied ACL, unavailable key or failed audit returns no
+plaintext and no internal diagnostic detail. Operational failures remain
+observable through GLPI's normal server diagnostics.
 
 A revealed DOM field can be cleared manually and is removed after 60 seconds or
 on page exit. This reduces exposure; it cannot guarantee browser memory or

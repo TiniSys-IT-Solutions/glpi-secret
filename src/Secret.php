@@ -18,7 +18,7 @@ final class Secret extends \CommonDBTM
     /** @var list<string> */
     public static $undisclosedFields = ['encrypted_value'];
     /** @var bool */
-    public $dohistory = true;
+    public $dohistory = false;
     /** @var list<string> */
     public $history_blacklist = ['encrypted_value'];
 

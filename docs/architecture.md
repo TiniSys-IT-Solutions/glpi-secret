@@ -15,7 +15,7 @@ profile assignment and its native recursive flag.
 Ticket and asset integrations will supply contextual actor facts to the same ACL
 engine. They will never duplicate encryption, audit, or authorization logic.
 
-The 0.0.21 ITIL integration uses controllers discovered from `src/Controller/`.
+The 0.1.1 ITIL integration uses controllers discovered from `src/Controller/`.
 User-facing plugin strings use the `secret` gettext domain and GLPI's native
 `locales/<language>.mo` loading mechanism.
 GLPI's controller listener authenticates the route and validates CSRF for POST
@@ -25,6 +25,9 @@ Templates target GLPI's canonical `plugins/secret/...` web paths so controller
 URLs work identically for manual and Marketplace installations.
 The provider uses a plain form-context object and a stable HTML-safe action key;
 it never instantiates an unsaved secret or embeds plaintext in the initial page.
+Displayed Secret cards use the presentation-only `TimelineSecret` item type.
+This satisfies GLPI's notification traversal contract without giving that type
+persistence or secret access; its notification content is always empty.
 At initialization the plugin registers its permission fields in GLPI's native
 `Profile::$helpdesk_rights` allow-list. This is required because GLPI removes
 all other rights when it loads a Helpdesk-interface profile.
@@ -48,6 +51,12 @@ orphans in bounded batches, including old rows whose expiration is NULL. Once a
 date is recorded it is never cleared on reopening. `ExpiredSecretPurger` retains
 audit entries, commits each successful purge atomically, reports native CronTask
 volume/errors and advances a cursor past failing rows.
+
+Missing parents and relations without any parent are treated as closed for
+expiration purposes. Their ciphertext is retained for the configured grace
+period and then removed with its relations; dedicated audit rows remain by
+design. Plugin uninstall removes the executable cron registration but retains
+the encrypted tables, audit, configuration and profile choices.
 
 The operator metadata tab uses pages of 50 authorized entries; the audit uses an
 ID cursor and pages of 50. Timeline cards remain under native GLPI timeline

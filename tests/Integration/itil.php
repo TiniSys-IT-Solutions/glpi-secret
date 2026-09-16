@@ -37,6 +37,8 @@ use GlpiPlugin\Secret\Service\SecretAvailabilityNotifier;
 use GlpiPlugin\Secret\Service\SecretMutationService;
 use GlpiPlugin\Secret\Service\SecretValueService;
 use GlpiPlugin\Secret\Service\TicketSecretRepository;
+use GlpiPlugin\Secret\Service\TimelineItemProvider;
+use GlpiPlugin\Secret\TimelineSecret;
 
 $checks = 0;
 function verify(bool $condition, string $label): void
@@ -118,7 +120,6 @@ try {
     // Explicit zeroes must survive even an old database without the v3 marker.
     $profileId = (int) $_SESSION['glpiactiveprofile']['id'];
     $DB->update(ProfileRight::getTable(), ['rights' => 0], ['profiles_id' => $profileId, 'name' => SecretProfile::RIGHT_REVEAL]);
-    $DB->delete('glpi_plugin_secret_configs', ['name' => 'profile_rights_defaults_v3']);
     verify((new GlpiPlugin\Secret\Install\ProfileRightSynchronizer())->synchronize(), 'rights migration succeeds');
     verify(!SecretProfile::canRevealSecret(), 'upgrade preserves explicitly revoked zero');
     $DB->update(ProfileRight::getTable(), ['rights' => READ], ['profiles_id' => $profileId, 'name' => SecretProfile::RIGHT_REVEAL]);
@@ -139,6 +140,13 @@ try {
         verify(countElementsInTable(SecretLog::getTable(), ['plugin_secret_secrets_id' => $secretId]) === 3, "$type CREATE/VIEW/COPY audited");
         verify((new TicketSecretRepository())->countVisibleForItem($item) === 1, "$type native SQL count");
         verify(count((new TicketSecretRepository())->visibleMetadataForItem($item, 50)) === 1, "$type paginated metadata");
+        $timeline = [];
+        $timelineParams = ['item' => $item, 'timeline' => &$timeline];
+        TimelineItemProvider::items($timelineParams);
+        $timelineEntry = reset($timeline);
+        verify(is_array($timelineEntry) && ($timelineEntry['type'] ?? null) === TimelineSecret::class, "$type timeline uses a loadable item type");
+        verify(($timelineEntry['item']['content'] ?? null) === '', "$type timeline notification content is empty");
+        verify(TimelineSecret::getType() !== '' && TimelineSecret::getTypeName(1) !== '', "$type timeline type satisfies GLPI notification methods");
         $request = new Symfony\Component\HttpFoundation\Request([], ['itemtype' => $type, 'items_id' => $id]);
         $response = (new GlpiPlugin\Secret\Controller\AuditSecretController())($request, $secretId);
         verify(count(json_decode($response->getContent(), true)['entries']) === 3, "$type native audit controller");
@@ -185,7 +193,7 @@ try {
             $DB->update(Secret::getTable(), ['visibility' => $visibility, 'groups_id' => 123], ['id' => $secretId]);
             $secret->getFromDB($secretId);
             foreach ([[2, [], false, false], [3, [123], false, false], [3, [], true, false], [3, [], false, true], [3, [], false, false]] as [$userId, $groups, $technician, $requester]) {
-                $actor = new GlpiPlugin\Secret\Security\AclContext($userId, $groups, $technician, $requester, false, true);
+                $actor = new GlpiPlugin\Secret\Security\AclContext($userId, $groups, $technician, $requester, true);
                 $access = new SecretAccessService();
                 $sql = countElementsInTable(Secret::getTable(), ['id' => $secretId, $access->metadataCriteriaForItil($actor)]) > 0;
                 verify($sql === $access->canSeeMetadata($secret, $actor), "$type SQL ACL agrees with $visibility policy");

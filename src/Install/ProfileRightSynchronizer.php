@@ -9,7 +9,6 @@ use GlpiPlugin\Secret\Profile as SecretProfile;
 final class ProfileRightSynchronizer
 {
     private const BOOTSTRAP_MARKER = 'profile_rights_bootstrapped_v1';
-    private const DEFAULTS_MARKER = 'profile_rights_defaults_v3';
 
     public function synchronize(): bool
     {
@@ -17,7 +16,6 @@ final class ProfileRightSynchronizer
 
         $required = array_column(SecretProfile::rights(), 'field');
         $bootstrap = !$this->hasBootstrapMarker();
-        $applyDefaults = !$this->hasMarker(self::DEFAULTS_MARKER);
         $success = true;
 
         foreach ($DB->request(['SELECT' => ['id', 'name', 'interface'], 'FROM' => \Profile::getTable()]) as $profile) {
@@ -46,15 +44,8 @@ final class ProfileRightSynchronizer
             $success = $DB->insert('glpi_plugin_secret_configs', [
                 'name' => self::BOOTSTRAP_MARKER,
                 'value' => '1',
-            ]) && $success;
+            ]);
         }
-        if ($applyDefaults && $success) {
-            $success = $DB->insert('glpi_plugin_secret_configs', [
-                'name' => self::DEFAULTS_MARKER,
-                'value' => '1',
-            ]) && $success;
-        }
-
         $GLPI_CACHE->set('all_possible_rights', []);
         return $success;
     }

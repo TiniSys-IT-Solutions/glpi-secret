@@ -45,3 +45,22 @@ GLPI access to the linked Ticket, Change or Problem, expiration, or the separate
 metadata/reveal/update/delete/audit profile right required by the requested
 action. The implementation checks the dedicated right rather than profile names,
 so it supports Admin, Super-Admin and deliberately authorized custom profiles.
+
+## Profile rights assistant
+
+Version 0.1.0 adds an assistant in the native Secret settings for installations
+with several technician profiles. It requires GLPI's native profile update
+permission. The operator selects one or more profiles and must preview the full
+seven-right result before applying a Technician, Supervisor or Requester preset.
+The assistant can also copy the Secret rights of an existing profile.
+
+A preview is valid for ten minutes. Application is refused when the copied
+source or any target profile changed after the preview, preventing a stale page
+from overwriting a concurrent administrator change.
+
+Applying a preset replaces all Secret rights for the selected profiles, including
+explicit zero values. It does not store a separate list of technician profiles
+and does not participate in runtime authorization. After application, the values
+remain ordinary GLPI profile rights and can be adjusted in **Administration >
+Profiles > Secret**. Plugin upgrades never reapply the selection or overwrite
+later administrator changes.

@@ -7,6 +7,7 @@ namespace GlpiPlugin\Secret\Service;
 use CommonITILObject;
 use GlpiPlugin\Secret\Profile;
 use GlpiPlugin\Secret\SecretItem;
+use GlpiPlugin\Secret\TimelineSecret;
 
 final class TimelineItemProvider
 {
@@ -27,10 +28,15 @@ final class TimelineItemProvider
 
         foreach ((new TicketSecretRepository())->visibleMetadataForItem($item) as $secret) {
             $timeline['PluginSecretTimelineSecret_' . $secret['id']] = [
-                'type' => 'PluginSecretTimelineSecret',
+                'type' => TimelineSecret::class,
                 'class' => 'plugin-secret-timeline-item',
                 'item' => [
                     ...$secret,
+                    // GLPI notification targets expect every timeline item to
+                    // expose content. Keep it deliberately empty: notification
+                    // emails must contain no secret metadata or plaintext.
+                    'content' => '',
+                    'is_content_safe' => false,
                     'users_id' => $secret['users_id_creator'],
                     'date' => $secret['date_creation'],
                     'date_mod' => $secret['date_mod'],

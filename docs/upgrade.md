@@ -28,3 +28,20 @@ not broaden existing access. If supervision access is required, enable it in
 the Secret settings and verify that the intended Admin, Super-Admin or custom
 profile holds **Administrer Secret** plus each required action right. Native
 access to the linked ITIL object remains mandatory.
+
+## Upgrade to 0.1.0
+
+No schema or encrypted-value migration is required. The new profile rights
+assistant is an explicit administration tool and changes no profile during the
+upgrade. A user must hold GLPI's native profile update permission, select target
+profiles, preview all seven resulting Secret rights, and apply the change.
+
+## Upgrade to 0.1.1
+
+This hotfix changes no database schema or ciphertext. It corrects the Secret
+card type injected into GLPI's ITIL timeline so ticket update, resolution and
+mass-action notifications can inspect the timeline without a missing-class
+error. Notification timeline content for these cards remains explicitly empty.
+The same 0.1.1 maintenance pass removes an obsolete configuration marker and
+unregisters the automatic action on uninstall; encrypted records, dedicated
+audit rows, plugin settings and profile choices remain retained.

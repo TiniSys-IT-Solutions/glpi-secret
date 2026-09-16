@@ -5,9 +5,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: GLPI Secret 0.0.21\n"
+"Project-Id-Version: GLPI Secret 0.1.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-10 13:14+0530\n"
+"POT-Creation-Date: 2026-09-16 16:15+0530\n"
 "PO-Revision-Date: 2026-09-08 16:38+0530\n"
 "Last-Translator: TiniSys IT Solutions\n"
 "Language-Team: Français\n"
@@ -42,6 +42,18 @@ msgstr "Intégration aux tickets et à ITIL"
 #: templates/config_form.html.twig
 msgid "Enable the Secret timeline action"
 msgstr "Activer l’action Secret dans la chronologie"
+
+#: templates/config_form.html.twig
+msgid "Allow Secret administrators to access all secrets"
+msgstr "Autoriser les administrateurs de Secret à accéder à tous les secrets"
+
+#: templates/config_form.html.twig
+msgid ""
+"Administrators must still have access to the linked ITIL object and the "
+"profile right required for each action."
+msgstr ""
+"Les administrateurs doivent toujours avoir accès à l’objet ITIL associé et "
+"disposer du droit de profil requis pour chaque action."
 
 #: templates/config_form.html.twig
 msgid "Default visibility"
@@ -115,6 +127,88 @@ msgstr "Caractères spéciaux"
 msgid "Exclude ambiguous characters"
 msgstr "Exclure les caractères ambigus"
 
+#: templates/config_form.html.twig
+msgid "Profile rights assistant"
+msgstr "Assistant des droits de profil"
+
+#: templates/config_form.html.twig
+msgid ""
+"Select technician or requester profiles, preview every rights change, then "
+"apply it explicitly."
+msgstr ""
+"Sélectionnez des profils technicien ou demandeur, prévisualisez chaque "
+"changement de droit, puis appliquez-le explicitement."
+
+#: templates/config_form.html.twig
+msgid ""
+"After application, GLPI profile rights remain the authorization source and "
+"can still be edited from Administration > Profiles."
+msgstr ""
+"Après application, les droits des profils GLPI restent la source "
+"d’autorisation et peuvent toujours être modifiés depuis Administration > "
+"Profils."
+
+#: templates/config_form.html.twig
+msgid ""
+"The native GLPI permission to modify profiles is required to use this "
+"assistant."
+msgstr ""
+"Le droit natif GLPI de modifier les profils est requis pour utiliser cet "
+"assistant."
+
+#: templates/config_form.html.twig
+msgid "Target profiles"
+msgstr "Profils cibles"
+
+#: templates/config_form.html.twig
+msgid "Use Ctrl or Command to select several profiles."
+msgstr "Utilisez Ctrl ou Commande pour sélectionner plusieurs profils."
+
+#: templates/config_form.html.twig
+msgid "Rights preset"
+msgstr "Préréglage des droits"
+
+#: templates/config_form.html.twig
+msgid "Copy another profile"
+msgstr "Copier un autre profil"
+
+#: templates/config_form.html.twig
+msgid "Source profile for copy"
+msgstr "Profil source à copier"
+
+#: templates/config_form.html.twig
+msgid ""
+"Applying a preset replaces all Secret rights of the selected profiles. It "
+"never changes ticket visibility rules or access to ITIL objects."
+msgstr ""
+"L’application d’un préréglage remplace tous les droits Secret des profils "
+"sélectionnés. Elle ne modifie jamais les règles de visibilité des tickets ni "
+"l’accès aux objets ITIL."
+
+#: templates/config_form.html.twig
+msgid "Preview"
+msgstr "Aperçu"
+
+#: templates/config_form.html.twig
+msgid "Granted"
+msgstr "Accordé"
+
+#: templates/config_form.html.twig
+msgid "Not granted"
+msgstr "Non accordé"
+
+#: templates/config_form.html.twig
+msgid "Changed"
+msgstr "Modifié"
+
+#: templates/config_form.html.twig
+msgid "Preview changes"
+msgstr "Prévisualiser les changements"
+
+#: templates/config_form.html.twig
+msgid "Apply these rights"
+msgstr "Appliquer ces droits"
+
 #: templates/timeline_form.html.twig
 msgid "Protect sensitive information"
 msgstr "Protéger les informations sensibles"
@@ -131,23 +225,28 @@ msgstr ""
 msgid "Secret details"
 msgstr "Détails du secret"
 
-#: templates/timeline_form.html.twig
+#: templates/timeline_form.html.twig src/Secret.php:64
 msgid "Password"
 msgstr "Mot de passe"
 
-#: templates/timeline_form.html.twig
-msgid "Credential"
-msgstr "Identifiant"
+#: templates/timeline_form.html.twig src/Secret.php:65
+msgid "Username and password"
+msgstr "Identifiant et mot de passe"
 
-#: templates/timeline_form.html.twig
+#: templates/timeline_form.html.twig src/Secret.php:66
 msgid "Token"
 msgstr "Jeton"
 
+#: templates/timeline_form.html.twig src/Secret.php:67
+msgid "Sensitive information"
+msgstr "Information sensible"
+
 #: templates/timeline_form.html.twig templates/itil_tab.html.twig
-#: src/Secret.php:47 src/Service/TimelineActionProvider.php:48
-#: src/Service/TimelineActionProvider.php:49
-#: src/Service/TimelineActionProvider.php:67 src/Profile.php:62
-#: src/Profile.php:81 src/SecretItem.php:61 src/Config.php:42 setup.php:97
+#: src/Secret.php:47 src/Service/TimelineActionProvider.php:52
+#: src/Service/TimelineActionProvider.php:53
+#: src/Service/TimelineActionProvider.php:71 src/TimelineSecret.php:19
+#: src/Profile.php:62 src/Profile.php:81 src/SecretItem.php:61
+#: src/Config.php:43 setup.php:97
 msgid "Secret"
 msgid_plural "Secrets"
 msgstr[0] "Secret"
@@ -194,6 +293,10 @@ msgid "Audit"
 msgstr "Audit"
 
 #: templates/itil_tab.html.twig
+msgid "New sensitive information"
+msgstr "Nouvelle information sensible"
+
+#: templates/itil_tab.html.twig
 msgid "New secret value"
 msgstr "Nouvelle valeur secrète"
 
@@ -201,7 +304,7 @@ msgstr "Nouvelle valeur secrète"
 msgid "No visible secret."
 msgstr "Aucun secret visible."
 
-#: src/Secret.php:34 src/Install/Installer.php:39
+#: src/Secret.php:34 src/Install/Installer.php:44
 msgid "Purge expired encrypted secrets after the configured retention"
 msgstr ""
 "Purger les secrets chiffrés expirés après la durée de conservation configurée"
@@ -210,16 +313,78 @@ msgstr ""
 msgid "Retention (days)"
 msgstr "Conservation (jours)"
 
-#: src/Service/CreateSecretService.php:97
+#: src/Service/CreateSecretService.php:100
 msgid ""
 "Secret saved. No notification followup was added; do not submit it again."
 msgstr ""
 "Secret enregistré. Aucun suivi de notification n’a été ajouté ; ne le "
 "soumettez pas à nouveau."
 
-#: src/Service/TimelineActionProvider.php:66
+#: src/Service/TimelineActionProvider.php:70
 msgid "Add a secret"
 msgstr "Ajouter un secret"
+
+#: src/Service/ProfileRightsPresetService.php:59
+msgid "Technician"
+msgstr "Technicien"
+
+#: src/Service/ProfileRightsPresetService.php:60
+msgid "Metadata, creation, reveal, update and deletion."
+msgstr "Métadonnées, création, révélation, modification et suppression."
+
+#: src/Service/ProfileRightsPresetService.php:64
+msgid "Supervisor"
+msgstr "Superviseur"
+
+#: src/Service/ProfileRightsPresetService.php:65
+msgid "Technician rights plus audit consultation."
+msgstr "Droits Technicien avec consultation de l’audit."
+
+#: src/Service/ProfileRightsPresetService.php:69
+msgid "Requester"
+msgstr "Demandeur"
+
+#: src/Service/ProfileRightsPresetService.php:70
+msgid "Metadata, creation and reveal only."
+msgstr "Métadonnées, création et révélation uniquement."
+
+#: src/Service/ProfileRightsPresetService.php:83
+#: src/Service/ProfileRightsPresetService.php:123
+msgid "You do not have permission to modify profiles."
+msgstr "Vous n’avez pas l’autorisation de modifier les profils."
+
+#: src/Service/ProfileRightsPresetService.php:93
+#: src/Service/ProfileRightsPresetService.php:152
+msgid "A selected profile no longer exists."
+msgstr "Un profil sélectionné n’existe plus."
+
+#: src/Service/ProfileRightsPresetService.php:135
+msgid "Preview these profile changes again before applying them."
+msgstr "Prévisualisez de nouveau ces changements avant de les appliquer."
+
+#: src/Service/ProfileRightsPresetService.php:141
+msgid "The source profile changed. Preview these rights again."
+msgstr "Le profil source a changé. Prévisualisez de nouveau ces droits."
+
+#: src/Service/ProfileRightsPresetService.php:145
+msgid "A target profile changed. Preview these rights again."
+msgstr "Un profil cible a changé. Prévisualisez de nouveau ces droits."
+
+#: src/Service/ProfileRightsPresetService.php:156
+msgid "GLPI could not save all Secret profile rights."
+msgstr "GLPI n’a pas pu enregistrer tous les droits de profil Secret."
+
+#: src/Service/ProfileRightsPresetService.php:204
+msgid "Select a valid source profile."
+msgstr "Sélectionnez un profil source valide."
+
+#: src/Service/ProfileRightsPresetService.php:212
+msgid "Select a valid rights preset."
+msgstr "Sélectionnez un préréglage de droits valide."
+
+#: src/Service/ProfileRightsPresetService.php:230
+msgid "Select at least one target profile."
+msgstr "Sélectionnez au moins un profil cible."
 
 #: src/Service/SecretAvailabilityNotifier.php:26
 msgid ""
@@ -283,19 +448,13 @@ msgstr "Consulter l’audit des secrets"
 msgid "Administer Secret"
 msgstr "Administrer Secret"
 
-#: src/Controller/RevealSecretController.php:32
-#: src/Controller/MutateItilSecretController.php:35
-msgid "Unknown secret."
-msgstr "Secret inconnu."
-
-#: src/Controller/RevealSecretController.php:38
-#: src/Controller/CreateItilSecretController.php:37
-msgid "Unsupported ITIL object."
-msgstr "Objet ITIL non pris en charge."
-
 #: src/Controller/RevealSecretController.php:54
 msgid "Unsupported reveal action."
 msgstr "Action d’affichage non prise en charge."
+
+#: src/Controller/MutateItilSecretController.php:35
+msgid "Unknown secret."
+msgstr "Secret inconnu."
 
 #: src/Controller/MutateItilSecretController.php:46
 msgid "Secret deleted."
@@ -305,6 +464,10 @@ msgstr "Secret supprimé."
 msgid "Secret updated."
 msgstr "Secret mis à jour."
 
+#: src/Controller/CreateItilSecretController.php:37
+msgid "Unsupported ITIL object."
+msgstr "Objet ITIL non pris en charge."
+
 #: src/Controller/CreateItilSecretController.php:49
 msgid "The secret could not be created."
 msgstr "Le secret n’a pas pu être créé."
@@ -313,11 +476,22 @@ msgstr "Le secret n’a pas pu être créé."
 msgid "Secret created."
 msgstr "Secret créé."
 
-#: src/Config.php:22
+#: src/Config.php:23
 msgid "Secret settings"
 msgstr "Paramètres de Secret"
 
-#: front/config.php:21
+#: front/config.php:29
+#, php-format
+msgid "%d profile updated."
+msgid_plural "%d profiles updated."
+msgstr[0] "%d profil mis à jour."
+msgstr[1] "%d profils mis à jour."
+
+#: front/config.php:33
+msgid "The Secret profile rights could not be saved."
+msgstr "Les droits de profil Secret n’ont pas pu être enregistrés."
+
+#: front/config.php:39
 msgid "Secret settings saved."
 msgstr "Paramètres de Secret enregistrés."
 
@@ -325,58 +499,41 @@ msgstr "Paramètres de Secret enregistrés."
 msgid "Copy was refused by the browser."
 msgstr "La copie a été refusée par le navigateur."
 
-#: public/js/secret.js:137
+#: public/js/secret.js:164
 msgid "Invalid secret response."
 msgstr "La réponse contenant le secret est invalide."
 
-#: public/js/secret.js:143
+#: public/js/secret.js:170
 msgid "Secret copied to the clipboard."
 msgstr "Secret copié dans le presse-papiers."
 
-#: public/js/secret.js:150
+#: public/js/secret.js:177
 msgid "Reveal area not found."
 msgstr "La zone d’affichage est introuvable."
 
-#: public/js/secret.js:170
+#: public/js/secret.js:192
 msgid "Hide and clear"
 msgstr "Masquer et effacer"
 
-#: public/js/secret.js:188
+#: public/js/secret.js:221
 msgid "Unknown error."
 msgstr "Erreur inconnue."
 
-#: public/js/secret.js:190
+#: public/js/secret.js:223
 #, javascript-format
 msgid "Secret action failed: %s"
 msgstr "L’action sur le secret a échoué : %s"
 
-#: public/js/secret.js:231
+#: public/js/secret.js:264
 msgid "Load older entries"
 msgstr "Charger les événements précédents"
 
-#: public/js/secret.js:283
+#: public/js/secret.js:316
 msgid "Permanently delete this secret?"
 msgstr "Supprimer définitivement ce secret ?"
 
-#: templates/config_form.html.twig
-msgid "Allow Secret administrators to access all secrets"
-msgstr "Autoriser les administrateurs de Secret à accéder à tous les secrets"
-
-#: templates/config_form.html.twig
-msgid "Administrators must still have access to the linked ITIL object and the profile right required for each action."
-msgstr "Les administrateurs doivent toujours avoir accès à l’objet ITIL associé et disposer du droit de profil requis pour chaque action."
-
-#: src/Secret.php templates/timeline_form.html.twig
-msgid "Username and password"
-msgstr "Identifiant et mot de passe"
-
-#: src/Secret.php templates/timeline_form.html.twig
-msgid "Sensitive information"
-msgstr "Information sensible"
-
-#: templates/itil_tab.html.twig
-msgid "New sensitive information"
-msgstr "Nouvelle information sensible"
+#~ msgid "Credential"
+#~ msgstr "Identifiant"
 
 #~ msgid "Secrets"
 #~ msgstr "Secrets"

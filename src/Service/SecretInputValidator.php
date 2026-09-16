@@ -22,6 +22,7 @@ final class SecretInputValidator
         $name = (string) ($input['name'] ?? '');
         $username = (string) ($input['username'] ?? '');
         return trim($name) !== '' && mb_check_encoding($name . $username, 'UTF-8')
+            && !str_contains($name . $username, "\0")
             && mb_strlen($name) <= 255 && mb_strlen($username) <= 255
             && in_array($input['type'] ?? '', Secret::types(), true)
             && in_array($input['visibility'] ?? '', Config::ticketVisibilities(), true)

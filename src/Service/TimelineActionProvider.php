@@ -8,6 +8,7 @@ use CommonITILObject;
 use GlpiPlugin\Secret\Config;
 use GlpiPlugin\Secret\Profile;
 use GlpiPlugin\Secret\SecretItem;
+use GlpiPlugin\Secret\TimelineSecret;
 
 final class TimelineActionProvider
 {
@@ -42,7 +43,10 @@ final class TimelineActionProvider
 
         $actions = [
             'PluginSecretTimelineSecret' => [
-                'type' => 'PluginSecretTimelineSecret',
+                // This must be a real PHP class: GLPI invokes getType() and
+                // getTypeName() on every timeline type while notifications
+                // are generated after ticket updates and mass actions.
+                'type' => TimelineSecret::class,
                 'class' => 'PluginSecretTimelineSecret',
                 'icon' => 'ti ti-shield-lock',
                 'label' => _n('Secret', 'Secrets', 1, 'secret'),

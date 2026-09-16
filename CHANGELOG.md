@@ -2,6 +2,45 @@
 
 All notable changes are documented here.
 
+## 0.1.1 - 2026-09-16
+
+### Fixed
+
+- Declare Secret timeline cards with a real, presentation-only GLPI item type.
+  Ticket updates, resolution and mass actions can now build notifications
+  without attempting to load a nonexistent global class.
+- Supply the notification timeline contract with an explicitly empty content
+  value so generated notifications never receive secret metadata or plaintext.
+- Return a uniform access denial for missing, unauthorized, unauditable or
+  undecryptable reveal requests without exposing internal failure details.
+- Require profile-right previews to remain current and apply them within ten
+  minutes, preventing a changed source or target profile from being overwritten.
+- Keep the client-side generator usable when a stored or submitted configuration
+  disables every character category.
+
+### Changed
+
+- Remove unused Asset-phase ACL branches, server-side generator code and an
+  obsolete profile-default marker while retaining all encrypted and audit data.
+- Extend static analysis to installation and migration code, align Marketplace
+  metadata with the exact GLPI 11.0.x range, and mark the production release stable.
+
+## 0.1.0 - 2026-09-15
+
+### Added
+
+- Add a profile rights assistant to the native Secret settings. Administrators
+  with GLPI's profile update permission can select several target profiles,
+  preview a Technician, Supervisor or Requester preset, and explicitly apply it.
+- Add an option to copy all dedicated Secret rights from one existing profile
+  to several target profiles.
+
+### Changed
+
+- Mark the complete Ticket, Change and Problem scope as the first production
+  release. Runtime authorization continues to use GLPI profile rights together
+  with ITIL object access and the per-secret ACL.
+
 ## 0.0.21 - 2026-09-11
 
 ### Added

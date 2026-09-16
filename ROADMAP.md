@@ -1,10 +1,10 @@
 # Roadmap
 
 This roadmap follows the original project brief while reflecting what has been
-implemented and field-tested. Version numbers remain in the `0.0.x` series
-until deployment feedback confirms the permission model and operational fit.
+implemented and field-tested. Version 0.1.0 marks the first production ITIL
+scope after deployment validation.
 
-## 0.0.21 — ITIL stable field-test candidate
+## 0.1.0 — ITIL production release
 
 - [x] Native Ticket, Change, and Problem timeline action.
 - [x] Encrypted creation with GLPIKey and secured-field registration.
@@ -21,7 +21,7 @@ until deployment feedback confirms the permission model and operational fit.
 
 ## Next — Asset integration (paused)
 
-Work starts only after the 0.0.21 ITIL workflow has been observed in real use.
+Work starts only after the 0.1.0 ITIL workflow has been observed in real use.
 
 - [ ] Audit native asset classes and the Accounts plugin relation patterns.
 - [ ] Add one polymorphic relation per asset without duplicating ciphertext.

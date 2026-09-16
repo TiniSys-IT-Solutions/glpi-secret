@@ -29,6 +29,9 @@ final class PluginIntegrationContractTest extends TestCase
         $legacyConfig = (string) file_get_contents($root . '/front/config.php');
         self::assertStringNotContainsString('Session::checkCSRF(', $legacyConfig);
         self::assertStringContainsString('SecretConfig::save($_POST)', $legacyConfig);
+        self::assertStringContainsString('ProfileRightsPresetService', $legacyConfig);
+        self::assertStringContainsString("isset(\$_POST['preview_profile_rights'])", $legacyConfig);
+        self::assertStringContainsString("isset(\$_POST['apply_profile_rights'])", $legacyConfig);
 
         foreach (['CreateItilSecretController.php', 'RevealSecretController.php', 'MutateItilSecretController.php', 'AuditSecretController.php'] as $controller) {
             $source = (string) file_get_contents($root . '/src/Controller/' . $controller);
@@ -76,7 +79,7 @@ final class PluginIntegrationContractTest extends TestCase
 
         $stylesheet = (string) file_get_contents($root . '/public/css/secret.css');
         self::assertStringContainsString('.timeline-item.PluginSecretSecret .timeline-content', $stylesheet);
-        self::assertStringContainsString('.timeline-item.PluginSecretTimelineSecret .timeline-content', $stylesheet);
+        self::assertStringContainsString('.timeline-item.plugin-secret-timeline-item .timeline-content', $stylesheet);
     }
 
     public function testProfileRightsAreNormalizedToBooleanValues(): void
@@ -86,12 +89,52 @@ final class PluginIntegrationContractTest extends TestCase
         self::assertSame(7, substr_count($profile, 'return (bool) Session::haveRight('));
     }
 
+    public function testProfileRightsAssistantRequiresPreviewAndNativeProfilePermission(): void
+    {
+        $root = dirname(__DIR__, 2);
+        $service = (string) file_get_contents($root . '/src/Service/ProfileRightsPresetService.php');
+        $template = (string) file_get_contents($root . '/templates/config_form.html.twig');
+
+        self::assertStringContainsString("Session::haveRight('profile', UPDATE)", $service);
+        self::assertStringContainsString('ProfileRight::updateProfileRights', $service);
+        self::assertStringContainsString('hash_equals(', $service);
+        self::assertStringContainsString("'expires_at' => time() + 600", $service);
+        self::assertStringContainsString("'target_rights' => \$targetRights", $service);
+        self::assertStringContainsString("'current_rights' => array_column(\$rows, 'before', 'id')", $service);
+        self::assertStringContainsString('beginTransaction()', $service);
+        self::assertStringContainsString('rollBack()', $service);
+        self::assertStringContainsString('preview_profile_rights', $template);
+        self::assertStringContainsString('apply_profile_rights', $template);
+        self::assertStringContainsString('profile_ids[]', $template);
+        self::assertStringContainsString('preview_token', $template);
+    }
+
     public function testRevealFailsWhenItsAuditCannotBeRecorded(): void
     {
         $service = (string) file_get_contents(dirname(__DIR__, 2) . '/src/Service/SecretValueService.php');
 
         self::assertStringContainsString("if (!\$this->audit->record(", $service);
         self::assertStringContainsString('The secret access could not be audited.', $service);
+    }
+
+    public function testRevealControllerUsesOneClosedFailureResponse(): void
+    {
+        $controller = (string) file_get_contents(dirname(__DIR__, 2) . '/src/Controller/RevealSecretController.php');
+
+        self::assertStringContainsString('catch (\\RuntimeException)', $controller);
+        self::assertStringNotContainsString('$exception->getMessage()', $controller);
+        self::assertGreaterThanOrEqual(3, substr_count($controller, 'AccessDeniedHttpException'));
+    }
+
+    public function testSecretHistoryAndUninstallRetentionAreExplicit(): void
+    {
+        $root = dirname(__DIR__, 2);
+        $secret = (string) file_get_contents($root . '/src/Secret.php');
+        $installer = (string) file_get_contents($root . '/src/Install/Installer.php');
+
+        self::assertStringContainsString('public $dohistory = false', $secret);
+        self::assertStringContainsString("CronTask::unregister('Secret')", $installer);
+        self::assertStringNotContainsString("DROP TABLE", $installer);
     }
 
     public function testAllSecretActionsUseGlpiEntityScope(): void
@@ -154,5 +197,19 @@ final class PluginIntegrationContractTest extends TestCase
         self::assertStringNotContainsString('secret_value', $notifier);
         self::assertStringContainsString('AuditLogger::UPDATE', $mutation);
         self::assertStringContainsString('AuditLogger::DELETE', $mutation);
+    }
+
+    public function testTimelineCardsUseARealNotificationSafeItemType(): void
+    {
+        $root = dirname(__DIR__, 2);
+        $actions = (string) file_get_contents($root . '/src/Service/TimelineActionProvider.php');
+        $items = (string) file_get_contents($root . '/src/Service/TimelineItemProvider.php');
+        $type = (string) file_get_contents($root . '/src/TimelineSecret.php');
+
+        self::assertStringContainsString("'type' => TimelineSecret::class", $actions);
+        self::assertStringContainsString("'type' => TimelineSecret::class", $items);
+        self::assertStringContainsString("'content' => ''", $items);
+        self::assertStringContainsString('final class TimelineSecret extends \\CommonGLPI', $type);
+        self::assertStringNotContainsString("'type' => 'PluginSecretTimelineSecret'", $actions . $items);
     }
 }

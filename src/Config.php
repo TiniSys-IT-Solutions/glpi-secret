@@ -7,6 +7,7 @@ namespace GlpiPlugin\Secret;
 use CommonGLPI;
 use Glpi\Application\View\TemplateRenderer;
 use GlpiPlugin\Secret\Security\Visibility;
+use GlpiPlugin\Secret\Service\ProfileRightsPresetService;
 use Session;
 
 final class Config extends \CommonGLPI
@@ -56,11 +57,21 @@ final class Config extends \CommonGLPI
         return true;
     }
 
-    public static function renderForm(?string $action = null): void
+    /** @param array<string, mixed>|null $profilePreview */
+    public static function renderForm(?string $action = null, ?array $profilePreview = null): void
     {
+        $profileRights = new ProfileRightsPresetService();
+        $canApplyProfileRights = ProfileRightsPresetService::canApply();
         TemplateRenderer::getInstance()->display('@secret/config_form.html.twig', [
             'config' => self::values(),
             'action' => $action ?? self::frontUrl(),
+            'profile_rights' => [
+                'can_apply' => $canApplyProfileRights,
+                'profiles' => $canApplyProfileRights ? $profileRights->profiles() : [],
+                'presets' => $profileRights->presets(),
+                'rights' => $profileRights->rightLabels(),
+                'preview' => $profilePreview,
+            ],
         ]);
     }
 
@@ -112,6 +123,10 @@ final class Config extends \CommonGLPI
         foreach (['ticket_enabled', 'admin_acl_bypass', 'generator_lowercase', 'generator_uppercase', 'generator_digits', 'generator_special', 'generator_exclude_ambiguous'] as $key) {
             $values[$key] = (bool) (int) $values[$key];
         }
+        if (!$values['generator_lowercase'] && !$values['generator_uppercase']
+            && !$values['generator_digits'] && !$values['generator_special']) {
+            $values['generator_lowercase'] = true;
+        }
         $values['generator_length'] = max(8, min(256, (int) $values['generator_length']));
         $values['max_secret_length'] = max(1024, min(1048576, (int) $values['max_secret_length']));
 
@@ -129,6 +144,15 @@ final class Config extends \CommonGLPI
         if (!in_array($expiration, self::expirationPolicies(), true)) {
             $expiration = 'never';
         }
+        $generatorSets = [
+            'generator_lowercase' => !empty($input['generator_lowercase']),
+            'generator_uppercase' => !empty($input['generator_uppercase']),
+            'generator_digits' => !empty($input['generator_digits']),
+            'generator_special' => !empty($input['generator_special']),
+        ];
+        if (!in_array(true, $generatorSets, true)) {
+            $generatorSets['generator_lowercase'] = true;
+        }
 
         \Config::setConfigurationValues(self::CONTEXT, [
             'ticket_enabled' => !empty($input['ticket_enabled']) ? '1' : '0',
@@ -136,10 +160,10 @@ final class Config extends \CommonGLPI
             'default_visibility' => $visibility,
             'default_expiration' => $expiration,
             'generator_length' => (string) max(8, min(256, (int) ($input['generator_length'] ?? 20))),
-            'generator_lowercase' => !empty($input['generator_lowercase']) ? '1' : '0',
-            'generator_uppercase' => !empty($input['generator_uppercase']) ? '1' : '0',
-            'generator_digits' => !empty($input['generator_digits']) ? '1' : '0',
-            'generator_special' => !empty($input['generator_special']) ? '1' : '0',
+            'generator_lowercase' => $generatorSets['generator_lowercase'] ? '1' : '0',
+            'generator_uppercase' => $generatorSets['generator_uppercase'] ? '1' : '0',
+            'generator_digits' => $generatorSets['generator_digits'] ? '1' : '0',
+            'generator_special' => $generatorSets['generator_special'] ? '1' : '0',
             'generator_exclude_ambiguous' => !empty($input['generator_exclude_ambiguous']) ? '1' : '0',
             'max_secret_length' => (string) max(1024, min(1048576, (int) ($input['max_secret_length'] ?? 65535))),
         ]);

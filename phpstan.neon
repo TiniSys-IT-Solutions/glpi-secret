@@ -6,6 +6,3 @@ parameters:
         - tests/StaticAnalysis/glpi-stubs.php
         - tests/StaticAnalysis/glpi-http-stubs.php
     tmpDir: .phpunit.cache/phpstan
-    excludePaths:
-        analyse:
-            - src/Install/*

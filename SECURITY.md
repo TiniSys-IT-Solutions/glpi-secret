@@ -6,8 +6,8 @@ backup constraints are documented in [docs/security.md](docs/security.md).
 ## Supported versions
 
 Security fixes are provided for the latest published release and the current
-`main` branch. Version 0.0.21 is a stable field-test candidate; the `0.0.x`
-series remains subject to validation before production deployment.
+`main` branch. Version 0.1.1 is the supported production release for the ITIL
+ticketing scope.
 
 ## Reporting a vulnerability
 

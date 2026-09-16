@@ -8,19 +8,15 @@
   <img src="https://img.shields.io/badge/GLPI-11.x-blue" alt="GLPI 11">
   <img src="https://img.shields.io/badge/PHP-8.2%2B-777bb4" alt="PHP 8.2 or newer">
   <img src="https://img.shields.io/badge/license-GPL--3.0--or--later-green" alt="License GPL-3.0-or-later">
-  <img src="https://img.shields.io/badge/status-field--test%20candidate-purple" alt="Status: field-test candidate">
+  <img src="https://img.shields.io/badge/status-production-success" alt="Status: production">
 </p>
 
 GLPI Secret provides native storage for operational credentials attached to
-GLPI workflows and assets. Its purpose is to prevent passwords and tokens from
-being pasted into unprotected ticket text or asset notes.
+GLPI ITIL workflows. Its purpose is to prevent passwords and tokens from being
+pasted into unprotected Ticket, Change or Problem text.
 
-Version 0.0.21 includes the Ticket, Change, and Problem workflow. Asset
+Version 0.1.1 is the current production release of the Ticket, Change, and Problem workflow. Asset
 integration is intentionally deferred to the next milestone.
-
-> Status: first stable field-test candidate (`0.0.x`). Validate the plugin and
-> its permission model in a non-production GLPI environment before considering
-> a production rollout.
 
 ## Security foundations
 

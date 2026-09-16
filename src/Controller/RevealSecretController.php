@@ -29,13 +29,13 @@ final class RevealSecretController extends AbstractController
         Session::checkLoginUser();
         $secret = new Secret();
         if ($id <= 0 || !$secret->getFromDB($id)) {
-            throw new BadRequestHttpException(__('Unknown secret.', 'secret'));
+            throw new AccessDeniedHttpException();
         }
 
         $itemtype = $request->request->getString('itemtype');
         $itemsId = $request->request->getInt('items_id');
         if (!in_array($itemtype, SecretItem::supportedItemtypes(), true) || $itemsId <= 0) {
-            throw new BadRequestHttpException(__('Unsupported ITIL object.', 'secret'));
+            throw new AccessDeniedHttpException();
         }
         if (countElementsInTable(SecretItem::getTable(), [
             'plugin_secret_secrets_id' => $id,
@@ -53,12 +53,18 @@ final class RevealSecretController extends AbstractController
         if (!in_array($action, ['view', 'copy'], true)) {
             throw new BadRequestHttpException(__('Unsupported reveal action.', 'secret'));
         }
-        $value = (new SecretValueService())->reveal(
-            $secret,
-            $action === 'copy',
-            (new ItilActorResolver())->forItem($item),
-            ['source' => 'itil_tab', 'itemtype' => $itemtype, 'items_id' => $itemsId],
-        );
+        try {
+            $value = (new SecretValueService())->reveal(
+                $secret,
+                $action === 'copy',
+                (new ItilActorResolver())->forItem($item),
+                ['source' => 'itil_tab', 'itemtype' => $itemtype, 'items_id' => $itemsId],
+            );
+        } catch (\RuntimeException) {
+            // Do not expose ACL, audit or cryptographic failure details to the
+            // caller. Every failure remains closed and returns no plaintext.
+            throw new AccessDeniedHttpException();
+        }
 
         $response = new JsonResponse(['value' => $value]);
         $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate, private');

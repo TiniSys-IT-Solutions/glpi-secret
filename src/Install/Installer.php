@@ -20,6 +20,11 @@ final class Installer
             }
         }
 
+        // This marker was written by pre-0.1 releases but never participated
+        // in authorization or migrations. Remove it while keeping the active
+        // one-time bootstrap marker and every encrypted/audit record.
+        $DB->delete('glpi_plugin_secret_configs', ['name' => 'profile_rights_defaults_v3']);
+
         $secretsTable = 'glpi_plugin_secret_secrets';
         if (!$DB->fieldExists($secretsTable, 'expiration_policy')) {
             $migration->addField($secretsTable, 'expiration_policy', 'varchar(32)', [
@@ -48,6 +53,11 @@ final class Installer
 
     public function uninstall(): bool
     {
+        // Remove executable scheduling metadata so GLPI never tries to call a
+        // class from an uninstalled plugin. Encrypted data, dedicated audit
+        // rows, configuration and profile choices remain deliberately intact.
+        \CronTask::unregister('Secret');
+
         // Intentionally retain encrypted records. GLPI's plugin uninstall hook
         // cannot obtain an explicit, informed confirmation before dropping the
         // tables. A separately authorized purge workflow will be added later.

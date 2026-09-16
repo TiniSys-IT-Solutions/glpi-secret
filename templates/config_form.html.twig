@@ -53,3 +53,97 @@
    </div>
    <div class="card-footer text-end"><button class="btn btn-primary" type="submit"><i class="ti ti-device-floppy me-1"></i>{{ __('Save') }}</button></div>
 </form>
+
+<form method="post" action="{{ action }}" class="card mt-4" data-track-changes="true">
+   <input type="hidden" name="_glpi_csrf_token" value="{{ csrf_token() }}">
+   <div class="card-body">
+      <h3 class="card-title"><i class="ti ti-users-cog me-2"></i>{{ __('Profile rights assistant', 'secret') }}</h3>
+      <p class="text-muted">
+         {{ __('Select technician or requester profiles, preview every rights change, then apply it explicitly.', 'secret') }}
+         {{ __('After application, GLPI profile rights remain the authorization source and can still be edited from Administration > Profiles.', 'secret') }}
+      </p>
+
+      {% if not profile_rights.can_apply %}
+         <div class="alert alert-info mb-0">
+            {{ __('The native GLPI permission to modify profiles is required to use this assistant.', 'secret') }}
+         </div>
+      {% else %}
+         {% set preview = profile_rights.preview %}
+         <div class="row g-3">
+            <div class="col-lg-5">
+               <label class="form-label" for="secret-target-profiles">{{ __('Target profiles', 'secret') }}</label>
+               <select class="form-select" id="secret-target-profiles" name="profile_ids[]" multiple size="8" required>
+                  {% for profile in profile_rights.profiles %}
+                     <option value="{{ profile.id }}" {{ preview and profile.id in preview.profile_ids ? 'selected' : '' }}>{{ profile.name }}</option>
+                  {% endfor %}
+               </select>
+               <div class="form-hint">{{ __('Use Ctrl or Command to select several profiles.', 'secret') }}</div>
+            </div>
+            <div class="col-lg-4">
+               <label class="form-label" for="secret-rights-preset">{{ __('Rights preset', 'secret') }}</label>
+               <select class="form-select" id="secret-rights-preset" name="rights_preset" required>
+                  {% for key, preset in profile_rights.presets %}
+                     <option value="{{ key }}" {{ preview and preview.preset == key ? 'selected' : '' }}>{{ preset.label }} — {{ preset.description }}</option>
+                  {% endfor %}
+                  <option value="copy" {{ preview and preview.preset == 'copy' ? 'selected' : '' }}>{{ __('Copy another profile', 'secret') }}</option>
+               </select>
+            </div>
+            <div class="col-lg-3">
+               <label class="form-label" for="secret-source-profile">{{ __('Source profile for copy', 'secret') }}</label>
+               <select class="form-select" id="secret-source-profile" name="source_profile_id">
+                  <option value="0">{{ __('None') }}</option>
+                  {% for profile in profile_rights.profiles %}
+                     <option value="{{ profile.id }}" {{ preview and preview.source_profile_id == profile.id ? 'selected' : '' }}>{{ profile.name }}</option>
+                  {% endfor %}
+               </select>
+            </div>
+         </div>
+
+         <div class="alert alert-warning mt-3 mb-0">
+            {{ __('Applying a preset replaces all Secret rights of the selected profiles. It never changes ticket visibility rules or access to ITIL objects.', 'secret') }}
+         </div>
+
+         {% if preview %}
+            <h4 class="mt-4">{{ __('Preview', 'secret') }}</h4>
+            <div class="table-responsive">
+               <table class="table table-sm table-vcenter">
+                  <thead>
+                     <tr>
+                        <th>{{ __('Profile') }}</th>
+                        {% for right in profile_rights.rights %}<th class="text-center">{{ right.label }}</th>{% endfor %}
+                     </tr>
+                  </thead>
+                  <tbody>
+                     {% for row in preview.rows %}
+                        <tr>
+                           <th>{{ row.name }}</th>
+                           {% for right in profile_rights.rights %}
+                              {% set before = attribute(row.before, right.field) %}
+                              {% set after = attribute(row.after, right.field) %}
+                              <td class="text-center {{ before != after ? 'table-warning' : '' }}">
+                                 {% if after %}<i class="ti ti-check text-success" title="{{ __('Granted', 'secret') }}"></i>{% else %}<i class="ti ti-x text-muted" title="{{ __('Not granted', 'secret') }}"></i>{% endif %}
+                                 {% if before != after %}<span class="visually-hidden">{{ __('Changed', 'secret') }}</span>{% endif %}
+                              </td>
+                           {% endfor %}
+                        </tr>
+                     {% endfor %}
+                  </tbody>
+               </table>
+            </div>
+            <input type="hidden" name="preview_token" value="{{ preview.token }}">
+         {% endif %}
+      {% endif %}
+   </div>
+   {% if profile_rights.can_apply %}
+      <div class="card-footer d-flex justify-content-end gap-2">
+         <button class="btn btn-outline-primary" type="submit" name="preview_profile_rights" value="1">
+            <i class="ti ti-eye me-1"></i>{{ __('Preview changes', 'secret') }}
+         </button>
+         {% if profile_rights.preview %}
+            <button class="btn btn-warning" type="submit" name="apply_profile_rights" value="1">
+               <i class="ti ti-check me-1"></i>{{ __('Apply these rights', 'secret') }}
+            </button>
+         {% endif %}
+      </div>
+   {% endif %}
+</form>

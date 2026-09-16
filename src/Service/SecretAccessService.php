@@ -66,11 +66,6 @@ final class SecretAccessService
         return Profile::canCreateSecret();
     }
 
-    public function canCreateInEntity(int $entityId): bool
-    {
-        return $this->canCreate() && Session::haveAccessToEntity($entityId);
-    }
-
     public function canCreateForItil(CommonITILObject $item): bool
     {
         return $this->canCreate() && $item->canViewItem();
@@ -126,7 +121,6 @@ final class SecretAccessService
             : new AclContext(
                 userId: (int) Session::getLoginUserID(),
                 groupIds: array_map('intval', $_SESSION['glpigroups'] ?? []),
-                entityTechnician: false,
             );
 
         return $this->policy->allows(

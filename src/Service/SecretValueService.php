@@ -7,13 +7,14 @@ namespace GlpiPlugin\Secret\Service;
 use GlpiPlugin\Secret\Secret;
 use GlpiPlugin\Secret\Security\AclContext;
 use GlpiPlugin\Secret\Security\GlpiKeyCipher;
+use GlpiPlugin\Secret\Security\SecretCipher;
 use RuntimeException;
 
 final class SecretValueService
 {
     public function __construct(
         private readonly SecretAccessService $access = new SecretAccessService(),
-        private readonly GlpiKeyCipher $cipher = new GlpiKeyCipher(),
+        private readonly SecretCipher $cipher = new GlpiKeyCipher(),
         private readonly AuditLogger $audit = new AuditLogger(),
     ) {}
 

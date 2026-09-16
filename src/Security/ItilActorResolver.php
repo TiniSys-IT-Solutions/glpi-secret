@@ -57,20 +57,4 @@ final class ItilActorResolver
         return $merged;
     }
 
-    public function hasClosedLinkedItem(Secret $secret): bool
-    {
-        global $DB;
-
-        foreach ($DB->request([
-            'FROM' => SecretItem::getTable(),
-            'WHERE' => ['plugin_secret_secrets_id' => (int) $secret->getID(), 'itemtype' => SecretItem::supportedItemtypes()],
-        ]) as $relation) {
-            $item = getItemForItemtype((string) $relation['itemtype']);
-            if ($item instanceof CommonITILObject && $item->getFromDB((int) $relation['items_id']) && $item->isClosed()) {
-                return true;
-            }
-        }
-
-        return false;
-    }
 }

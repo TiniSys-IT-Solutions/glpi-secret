@@ -6,6 +6,7 @@ namespace GlpiPlugin\Secret\Install;
 
 final class Schema
 {
+    /** @return array<string, string> */
     public static function tables(): array
     {
         return [

@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+const PLUGIN_SECRET_VERSION = '0.1.1';
+const DAY_TIMESTAMP = 86400;
+
 class CommonGLPI
 {
     public function getID(): int {}
@@ -52,8 +55,18 @@ class ITILFollowup extends CommonDBTM {}
 class CronTask extends CommonDBTM
 {
     public const MODE_INTERNAL = 1;
+    public static function register(string $itemtype, string $name, int $frequency, array $options = []): void {}
+    public static function unregister(string $plugin): bool {}
     public function setVolume(int $volume): void {}
     public function log(string $message): void {}
+}
+
+class Migration
+{
+    public function __construct(string $version) {}
+    public function addField(string $table, string $field, string $type, array $options = []): void {}
+    public function addKey(string $table, string|array $fields, string $name): void {}
+    public function executeMigration(): void {}
 }
 
 class Profile extends CommonDBTM
@@ -65,6 +78,7 @@ class Profile extends CommonDBTM
 class ProfileRight extends CommonDBTM
 {
     public static function getProfileRights(int $profileId, array $rights = []): array {}
+    public static function updateProfileRights(int $profileId, array $rights = []): void {}
 }
 
 class Session

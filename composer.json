@@ -1,6 +1,6 @@
 {
   "name": "tinisys-it-solutions/glpi-secret",
-  "description": "Secure operational secrets for GLPI 11 tickets and assets.",
+  "description": "Secure operational secrets for GLPI 11 ITIL workflows.",
   "type": "glpi-plugin",
   "license": "GPL-3.0-or-later",
   "authors": [
