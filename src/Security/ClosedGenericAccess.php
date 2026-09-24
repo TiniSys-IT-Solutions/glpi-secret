@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace GlpiPlugin\Secret\Security;
 
-/** ITIL services are the only public access path in this milestone. */
+/** Dedicated audited controllers are the only public Secret access path. */
 trait ClosedGenericAccess
 {
     public static function canView(): bool

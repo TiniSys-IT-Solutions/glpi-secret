@@ -7,7 +7,6 @@ namespace GlpiPlugin\Secret;
 use CommonGLPI;
 use Glpi\Application\View\TemplateRenderer;
 use GlpiPlugin\Secret\Security\Visibility;
-use GlpiPlugin\Secret\Service\ProfileRightsPresetService;
 use Session;
 
 final class Config extends \CommonGLPI
@@ -57,21 +56,12 @@ final class Config extends \CommonGLPI
         return true;
     }
 
-    /** @param array<string, mixed>|null $profilePreview */
-    public static function renderForm(?string $action = null, ?array $profilePreview = null): void
+    public static function renderForm(?string $action = null): void
     {
-        $profileRights = new ProfileRightsPresetService();
-        $canApplyProfileRights = ProfileRightsPresetService::canApply();
+        $config = self::values();
         TemplateRenderer::getInstance()->display('@secret/config_form.html.twig', [
-            'config' => self::values(),
+            'config' => $config,
             'action' => $action ?? self::frontUrl(),
-            'profile_rights' => [
-                'can_apply' => $canApplyProfileRights,
-                'profiles' => $canApplyProfileRights ? $profileRights->profiles() : [],
-                'presets' => $profileRights->presets(),
-                'rights' => $profileRights->rightLabels(),
-                'preview' => $profilePreview,
-            ],
         ]);
     }
 
@@ -80,6 +70,12 @@ final class Config extends \CommonGLPI
         global $CFG_GLPI;
 
         return rtrim((string) ($CFG_GLPI['root_doc'] ?? ''), '/') . '/plugins/secret/front/config.php';
+    }
+
+    public static function pluginUrl(): string
+    {
+        global $CFG_GLPI;
+        return rtrim((string) ($CFG_GLPI['root_doc'] ?? ''), '/') . '/plugins/secret';
     }
 
     public static function globalConfigUrl(): string
@@ -92,6 +88,7 @@ final class Config extends \CommonGLPI
     {
         return [
             'ticket_enabled' => '1',
+            'asset_enabled' => '1',
             'admin_acl_bypass' => '0',
             'default_visibility' => Visibility::TICKET_TECHNICIANS,
             'default_expiration' => 'never',
@@ -120,7 +117,7 @@ final class Config extends \CommonGLPI
         $current = \Config::getConfigurationValues(self::CONTEXT);
         $values = array_replace(self::defaults(), $current);
 
-        foreach (['ticket_enabled', 'admin_acl_bypass', 'generator_lowercase', 'generator_uppercase', 'generator_digits', 'generator_special', 'generator_exclude_ambiguous'] as $key) {
+        foreach (['ticket_enabled', 'asset_enabled', 'admin_acl_bypass', 'generator_lowercase', 'generator_uppercase', 'generator_digits', 'generator_special', 'generator_exclude_ambiguous'] as $key) {
             $values[$key] = (bool) (int) $values[$key];
         }
         if (!$values['generator_lowercase'] && !$values['generator_uppercase']
@@ -129,7 +126,6 @@ final class Config extends \CommonGLPI
         }
         $values['generator_length'] = max(8, min(256, (int) $values['generator_length']));
         $values['max_secret_length'] = max(1024, min(1048576, (int) $values['max_secret_length']));
-
         return $values;
     }
 
@@ -156,6 +152,7 @@ final class Config extends \CommonGLPI
 
         \Config::setConfigurationValues(self::CONTEXT, [
             'ticket_enabled' => !empty($input['ticket_enabled']) ? '1' : '0',
+            'asset_enabled' => !empty($input['asset_enabled']) ? '1' : '0',
             'admin_acl_bypass' => !empty($input['admin_acl_bypass']) ? '1' : '0',
             'default_visibility' => $visibility,
             'default_expiration' => $expiration,
@@ -169,6 +166,11 @@ final class Config extends \CommonGLPI
         ]);
     }
 
+    public static function activeProfileCanAccessAssets(): bool
+    {
+        return Profile::canReadMetadata();
+    }
+
     /** @return list<string> */
     public static function ticketVisibilities(): array
     {
@@ -178,6 +180,12 @@ final class Config extends \CommonGLPI
             Visibility::REQUESTERS_AND_TECHNICIANS,
             Visibility::GROUP,
         ];
+    }
+
+    /** @return list<string> */
+    public static function secretVisibilities(): array
+    {
+        return [...self::ticketVisibilities(), Visibility::ASSET_TECHNICAL_PROFILES];
     }
 
     /** @return list<string> */

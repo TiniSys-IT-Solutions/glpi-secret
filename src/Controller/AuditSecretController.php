@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GlpiPlugin\Secret\Controller;
 
-use CommonITILObject;
 use Glpi\Controller\AbstractController;
 use Glpi\Exception\Http\AccessDeniedHttpException;
 use Glpi\Http\Firewall;
@@ -12,7 +11,7 @@ use Glpi\Security\Attribute\SecurityStrategy;
 use GlpiPlugin\Secret\Secret;
 use GlpiPlugin\Secret\SecretItem;
 use GlpiPlugin\Secret\SecretLog;
-use GlpiPlugin\Secret\Security\ItilActorResolver;
+use GlpiPlugin\Secret\Service\LinkedItemContextResolver;
 use GlpiPlugin\Secret\Service\SecretAccessService;
 use Session;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -31,15 +30,13 @@ final class AuditSecretController extends AbstractController
         $secret = new Secret();
         $itemtype = $request->request->getString('itemtype');
         $itemsId = $request->request->getInt('items_id');
-        if (!$secret->getFromDB($id) || !in_array($itemtype, SecretItem::supportedItemtypes(), true)
-            || $itemsId <= 0 || countElementsInTable(SecretItem::getTable(), [
-                'plugin_secret_secrets_id' => $id, 'itemtype' => $itemtype, 'items_id' => $itemsId,
-            ]) !== 1) {
+        if (!$secret->getFromDB($id) || $itemsId <= 0 || countElementsInTable(SecretItem::getTable(), [
+            'plugin_secret_secrets_id' => $id, 'itemtype' => $itemtype, 'items_id' => $itemsId,
+        ]) !== 1) {
             throw new AccessDeniedHttpException();
         }
-        $item = getItemForItemtype($itemtype);
-        if (!$item instanceof CommonITILObject || !$item->getFromDB($itemsId) || !$item->canViewItem()
-            || !(new SecretAccessService())->canAudit($secret, (new ItilActorResolver())->forItem($item))) {
+        $resolved = (new LinkedItemContextResolver())->resolve($itemtype, $itemsId);
+        if ($resolved === null || !(new SecretAccessService())->canAudit($secret, $resolved[1])) {
             throw new AccessDeniedHttpException();
         }
         $rows = [];

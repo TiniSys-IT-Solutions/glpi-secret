@@ -49,6 +49,7 @@ final class TicketSecretRepository
             "$secretsTable.username",
             "$secretsTable.visibility",
             "$secretsTable.groups_id",
+            "$secretsTable.plugin_secret_categories_id",
             "$secretsTable.users_id_creator",
             "$secretsTable.entities_id",
             "$secretsTable.is_recursive",
@@ -75,12 +76,14 @@ final class TicketSecretRepository
             }
             $result[] = [
                 'id' => (int) $row['id'],
+                'form_url' => Secret::getFormURLWithID((int) $row['id']),
                 'name' => (string) $row['name'],
                 'type' => (string) $row['type'],
                 'type_label' => Secret::typeLabel((string) $row['type']),
                 'username' => $row['username'] !== null ? (string) $row['username'] : null,
                 'visibility' => (string) $row['visibility'],
                 'groups_id' => (int) $row['groups_id'],
+                'plugin_secret_categories_id' => (int) $row['plugin_secret_categories_id'],
                 'users_id_creator' => (int) $row['users_id_creator'],
                 'expiration_policy' => (string) $row['expiration_policy'],
                 'expiration' => $row['expiration'] !== null ? (string) $row['expiration'] : null,

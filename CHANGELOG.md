@@ -2,6 +2,96 @@
 
 All notable changes are documented here.
 
+## 0.2.5 - 2026-09-24
+
+### Changed
+
+- Complete the pre-release audit of the 0.1.1-to-0.2.x migration path,
+  packaging, documentation and GLPI 11.0.8 integration structure.
+- Remove the obsolete central-list repository path and stale translations from
+  the retired profile-rights assistant.
+- Harden repository exclusions for local tooling, credentials, editor files,
+  caches and generated artifacts, and add dependency auditing to CI.
+
+## 0.2.4 - 2026-09-24
+
+### Changed
+
+- Seed every central Secret column through GLPI's native default display
+  preferences while preserving each user's column selection and ordering.
+- Keep the highlighted edit area collapsed by default and add password
+  generation when replacing the encrypted value.
+
+## 0.2.3 - 2026-09-24
+
+### Added
+
+- Add a sortable and filterable linked-item type column to the native Secret
+  list.
+- Add an explicitly confirmed, audited permanent-delete massive action.
+- Allow an authorized technician to link the current Secret to another asset
+  from its Linked items tab using GLPI's native item-type selector.
+
+### Changed
+
+- Allow the encrypted value plus the credential username to be replaced without
+  preloading plaintext.
+- Explain that permanent deletion breaks every relation before confirmation.
+
+## 0.2.2 - 2026-09-24
+
+### Changed
+
+- Remove the redundant asset technical-profile selector. Asset visibility now
+  requires the action-specific Secret right and native access to the asset.
+- Replace the custom central table with GLPI's native search list and a
+  dedicated Secret form using the standard Secret, Linked items and History
+  tabs.
+- Add GLPI-native row selection and an audited **Link to an asset** massive
+  action; unsafe generic trash and transfer actions remain unavailable.
+- Keep only Reveal on linked ITIL and asset rows, link their names to the
+  dedicated Secret form, and add a show/hide control to asset secret creation.
+
+### Fixed
+
+- Load every dedicated Secret form tab through GLPI's authenticated native tab
+  endpoint and register the form page in the plugin firewall.
+
+## 0.2.1 - 2026-09-23
+
+### Fixed
+
+- Use GLPI's native multiple Profile dropdown for the asset technical-profile
+  allow-list.
+- Let a recursive asset link eligible secrets from its entity and descendant
+  entities while retaining native entity access, Secret rights and per-secret
+  ACL checks.
+
+## 0.2.0 - 2026-09-23
+
+### Added
+
+- Add Secret tabs to every native and custom GLPI asset type discovered from
+  `$CFG_GLPI['asset_types']`.
+- Allow encrypted creation and reuse of an existing Secret across several
+  assets without copying its ciphertext.
+- Add entity-aware hierarchical Secret categories and an ACL-filtered
+  metadata-only **Tools > Secrets** page.
+- Add audited `LINK` and `UNLINK` events.
+
+### Changed
+
+- Replace the profile-rights preset assistant with a multi-profile selector
+  defining the profiles eligible for asset technical-profile visibility.
+- Delete a ciphertext only after its final ITIL or asset relation is removed;
+  dedicated audit rows remain retained.
+
+### Security
+
+- Require the action-specific Secret profile right, native asset access and the
+  per-secret ACL for all asset metadata, reveal, copy and mutation operations.
+- Keep ciphertext excluded from the central page, generic searches and APIs.
+
 ## 0.1.1 - 2026-09-16
 
 ### Fixed

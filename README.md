@@ -15,8 +15,9 @@ GLPI Secret provides native storage for operational credentials attached to
 GLPI ITIL workflows. Its purpose is to prevent passwords and tokens from being
 pasted into unprotected Ticket, Change or Problem text.
 
-Version 0.1.1 is the current production release of the Ticket, Change, and Problem workflow. Asset
-integration is intentionally deferred to the next milestone.
+Version 0.2.5 extends the production Ticket, Change, and Problem
+workflow with asset tabs, shared links, entity-aware categories and a central
+metadata view.
 
 ## Security foundations
 
@@ -29,6 +30,8 @@ integration is intentionally deferred to the next milestone.
 - no external service and no call to the GLPI REST API from inside GLPI;
 - native Secret timeline action and ACL-filtered ITIL tab;
 - dedicated reveal/copy requests with no-store responses and audit events;
+- one ciphertext may be linked to several native or custom GLPI assets;
+- asset ACLs combine native asset access with action-specific Secret rights;
 - configurable visibility, expiration, and password generation defaults.
 
 ## Compatibility

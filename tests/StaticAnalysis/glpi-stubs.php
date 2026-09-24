@@ -2,29 +2,43 @@
 
 declare(strict_types=1);
 
-const PLUGIN_SECRET_VERSION = '0.1.1';
+const PLUGIN_SECRET_VERSION = '0.2.5';
 const DAY_TIMESTAMP = 86400;
 
 class CommonGLPI
 {
     public function getID(): int {}
     public static function getType(): string {}
+    public static function getTypeName($nb = 0): string {}
+    public static function getFormURLWithID($id = 0, bool $full = true): string {}
     public static function createTabEntry(string $label, int $count = 0, string $type = '', string $icon = ''): string {}
+    public function addDefaultFormTab(array &$tabs): static {}
+    public function addStandardTab(string $itemtype, array &$tabs, array $options): static {}
 }
 
 class CommonDBTM extends CommonGLPI
 {
     public array $fields = [];
     public static function getTable(): string {}
+    public static function dropdown(array $options = []): string|false|int {}
+    public function getName(): string {}
     public function rawSearchOptions(): array {}
     public function getFromDB(int $id): bool {}
     public function can($id, int $right, ?array &$input = null): bool {}
     public function add(array $input): int|false {}
     public function update(array $input, bool $history = true): bool {}
     public function delete(array $input, bool $force = false, bool $history = true): bool {}
+    public function canViewItem(): bool {}
+    public function getLinkURL(): string {}
+    public function cleanDBonPurge(): void {}
+    public function getSpecificMassiveActions($checkitem = null): array {}
+    public static function showMassiveActionsSubForm(MassiveAction $ma): bool {}
+    public static function processMassiveActionsForOneItemtype(MassiveAction $ma, CommonDBTM $item, array $ids): void {}
 }
 
 class CommonDBRelation extends CommonDBTM {}
+class CommonDropdown extends CommonDBTM {}
+abstract class CommonTreeDropdown extends CommonDropdown {}
 
 class CommonITILActor
 {
@@ -93,9 +107,25 @@ class Session
 
 class Html
 {
+    public static function entities_deep(mixed $value): mixed {}
     public static function hidden(string $name, array $options = []): string {}
     public static function submit(string $label, array $options = []): string {}
     public static function closeForm(): void {}
+}
+
+class Dropdown
+{
+    public static function showSelectItemFromItemtypes(array $options): void {}
+}
+
+class MassiveAction
+{
+    public const CLASS_ACTION_SEPARATOR = ':';
+    public const ACTION_OK = 0;
+    public const ACTION_KO = 1;
+    public function getAction(): string {}
+    public function getInput(): array {}
+    public function itemDone(string $itemtype, int $id, int $result): void {}
 }
 
 class GLPIKey
@@ -115,10 +145,13 @@ class Config extends CommonDBTM
 function __(string $message, string $domain = 'glpi'): string {}
 function _n(string $singular, string $plural, int $count, string $domain = 'glpi'): string {}
 function _sx(string $context, string $message, string $domain = 'glpi'): string {}
+function _x(string $context, string $message, string $domain = 'glpi'): string {}
 function countElementsInTable(string $table, array $criteria = []): int {}
 function getItemForItemtype(string $itemtype): ?CommonDBTM {}
 
 function getAncestorsOf(string $table, int $id): array {}
+function getSonsOf(string $table, int $id): array {}
+function getEntitiesRestrictCriteria(string $table = '', string $field = '', string|array $value = '', bool $isRecursive = false): array {}
 const WARNING = 4;
 const READ = 1;
 const UPDATE = 2;

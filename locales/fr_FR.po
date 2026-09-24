@@ -5,7 +5,7 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: GLPI Secret 0.1.1\n"
+"Project-Id-Version: GLPI Secret 0.2.5\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-09-16 16:15+0530\n"
 "PO-Revision-Date: 2026-09-08 16:38+0530\n"
@@ -324,68 +324,6 @@ msgstr ""
 msgid "Add a secret"
 msgstr "Ajouter un secret"
 
-#: src/Service/ProfileRightsPresetService.php:59
-msgid "Technician"
-msgstr "Technicien"
-
-#: src/Service/ProfileRightsPresetService.php:60
-msgid "Metadata, creation, reveal, update and deletion."
-msgstr "Métadonnées, création, révélation, modification et suppression."
-
-#: src/Service/ProfileRightsPresetService.php:64
-msgid "Supervisor"
-msgstr "Superviseur"
-
-#: src/Service/ProfileRightsPresetService.php:65
-msgid "Technician rights plus audit consultation."
-msgstr "Droits Technicien avec consultation de l’audit."
-
-#: src/Service/ProfileRightsPresetService.php:69
-msgid "Requester"
-msgstr "Demandeur"
-
-#: src/Service/ProfileRightsPresetService.php:70
-msgid "Metadata, creation and reveal only."
-msgstr "Métadonnées, création et révélation uniquement."
-
-#: src/Service/ProfileRightsPresetService.php:83
-#: src/Service/ProfileRightsPresetService.php:123
-msgid "You do not have permission to modify profiles."
-msgstr "Vous n’avez pas l’autorisation de modifier les profils."
-
-#: src/Service/ProfileRightsPresetService.php:93
-#: src/Service/ProfileRightsPresetService.php:152
-msgid "A selected profile no longer exists."
-msgstr "Un profil sélectionné n’existe plus."
-
-#: src/Service/ProfileRightsPresetService.php:135
-msgid "Preview these profile changes again before applying them."
-msgstr "Prévisualisez de nouveau ces changements avant de les appliquer."
-
-#: src/Service/ProfileRightsPresetService.php:141
-msgid "The source profile changed. Preview these rights again."
-msgstr "Le profil source a changé. Prévisualisez de nouveau ces droits."
-
-#: src/Service/ProfileRightsPresetService.php:145
-msgid "A target profile changed. Preview these rights again."
-msgstr "Un profil cible a changé. Prévisualisez de nouveau ces droits."
-
-#: src/Service/ProfileRightsPresetService.php:156
-msgid "GLPI could not save all Secret profile rights."
-msgstr "GLPI n’a pas pu enregistrer tous les droits de profil Secret."
-
-#: src/Service/ProfileRightsPresetService.php:204
-msgid "Select a valid source profile."
-msgstr "Sélectionnez un profil source valide."
-
-#: src/Service/ProfileRightsPresetService.php:212
-msgid "Select a valid rights preset."
-msgstr "Sélectionnez un préréglage de droits valide."
-
-#: src/Service/ProfileRightsPresetService.php:230
-msgid "Select at least one target profile."
-msgstr "Sélectionnez au moins un profil cible."
-
 #: src/Service/SecretAvailabilityNotifier.php:26
 msgid ""
 "A secure secret is available for this ticket. Sign in to GLPI to view it."
@@ -537,3 +475,80 @@ msgstr "Supprimer définitivement ce secret ?"
 
 #~ msgid "Secrets"
 #~ msgstr "Secrets"
+
+msgid "Secret category"
+msgid_plural "Secret categories"
+msgstr[0] "Catégorie de Secret"
+msgstr[1] "Catégories de Secret"
+
+msgid "Asset integration"
+msgstr "Intégration des actifs"
+
+msgid "Enable Secret tabs on every GLPI asset type"
+msgstr "Activer les onglets Secret sur tous les types d'actifs GLPI"
+
+msgid "Technical profiles allowed by asset ACLs"
+msgstr "Profils techniques autorisés par les ACL des actifs"
+
+msgid "A selected profile must still have the required Secret right and native access to the asset in the active entity."
+msgstr "Un profil sélectionné doit toujours disposer du droit Secret requis et de l'accès natif à l'actif dans l'entité active."
+
+msgid "Create a secret for this asset"
+msgstr "Créer un Secret pour cet actif"
+
+msgid "Technical profiles"
+msgstr "Profils techniques"
+
+msgid "Link an existing secret"
+msgstr "Lier un Secret existant"
+
+msgid "Link"
+msgstr "Lier"
+
+msgid "Unlink"
+msgstr "Dissocier"
+
+msgid "Unlink this secret from the asset?"
+msgstr "Dissocier ce Secret de l'actif ?"
+
+msgid "Manage categories"
+msgstr "Gérer les catégories"
+
+msgid "Linked objects"
+msgstr "Objets liés"
+
+msgid "Unsupported asset."
+msgstr "Actif non pris en charge."
+
+msgid "Secret linked."
+msgstr "Secret lié."
+
+msgid "Secret unlinked."
+msgstr "Secret dissocié."
+
+msgid "Linked items"
+msgstr "Éléments liés"
+
+msgid "Asset access requires the appropriate Secret right and native access to the asset."
+msgstr "L'accès aux actifs nécessite le droit Secret approprié et l'accès natif à l'actif."
+
+msgid "Authorized asset users"
+msgstr "Utilisateurs autorisés sur l'actif"
+
+msgid "Link to an asset"
+msgstr "Lier à un actif"
+
+msgid "Linked item type"
+msgstr "Type d'élément lié"
+
+msgid "Deleting a secret permanently breaks all its links. This action cannot be undone."
+msgstr "Supprimer définitivement un Secret rompt tous ses liens. Cette action est irréversible."
+
+msgid "New secret value"
+msgstr "Nouvelle valeur du Secret"
+
+msgid "Leave blank to keep the current encrypted value."
+msgstr "Laisser vide pour conserver la valeur chiffrée actuelle."
+
+msgid "Deleting this secret permanently breaks all its links. This action cannot be undone."
+msgstr "Supprimer définitivement ce Secret rompt tous ses liens. Cette action est irréversible."

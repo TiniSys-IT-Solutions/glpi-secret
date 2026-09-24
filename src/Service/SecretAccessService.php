@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GlpiPlugin\Secret\Service;
 
+use CommonDBTM;
 use CommonITILObject;
 use GlpiPlugin\Secret\Config;
 use GlpiPlugin\Secret\Profile;
@@ -61,6 +62,26 @@ final class SecretAccessService
         return ['OR' => $clauses];
     }
 
+    /** @return array<string, mixed> */
+    public function metadataCriteriaForAsset(AclContext $context): array
+    {
+        $table = Secret::getTable();
+        if (!Profile::canReadMetadata() || !$context->assetItemAccess || $context->userId <= 0) {
+            return ["$table.id" => -1];
+        }
+        if ($this->administratorAclBypassEnabled()) {
+            return ["$table.id" => ['>', 0]];
+        }
+        $clauses = [["$table.visibility" => Visibility::OWNER, "$table.users_id_creator" => $context->userId]];
+        if ($context->groupIds !== []) {
+            $clauses[] = ["$table.visibility" => Visibility::GROUP, "$table.groups_id" => $context->groupIds];
+        }
+        if ($context->assetTechnicalProfile) {
+            $clauses[] = ["$table.visibility" => Visibility::ASSET_TECHNICAL_PROFILES];
+        }
+        return ['OR' => $clauses];
+    }
+
     public function canCreate(): bool
     {
         return Profile::canCreateSecret();
@@ -69,6 +90,12 @@ final class SecretAccessService
     public function canCreateForItil(CommonITILObject $item): bool
     {
         return $this->canCreate() && $item->canViewItem();
+    }
+
+    public function canCreateForAsset(CommonDBTM $item): bool
+    {
+        return Config::values()['asset_enabled'] && $this->canCreate() && $item->canViewItem()
+            && (new AssetTypeProvider())->supports($item->getType());
     }
 
     public function canReveal(Secret $secret, ?AclContext $context = null): bool
@@ -104,12 +131,11 @@ final class SecretAccessService
             $entityId,
             (bool) ($secret->fields['is_recursive'] ?? false),
         );
-        // For an ITIL-bound request, the linked object's native canViewItem()
-        // decision is authoritative. This covers legitimate requesters from
-        // the service catalogue even when the ticket entity is outside their
-        // directly active entity set. Direct Secret access still requires the
-        // regular GLPI entity scope.
-        if (!$entityAllowed && !($context->itilItemAccess ?? false)) {
+        // In a verified linked-object request, native canViewItem() is the
+        // scope authority. This covers legitimate catalogue requesters and
+        // assets visible through the active profile. Direct Secret access
+        // still requires GLPI's regular entity scope.
+        if (!$entityAllowed && !($context->itilItemAccess ?? false) && !($context->assetItemAccess ?? false)) {
             return false;
         }
         if ($this->administratorAclBypassEnabled()) {

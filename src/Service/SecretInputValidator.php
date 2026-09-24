@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GlpiPlugin\Secret\Service;
 
+use GlpiPlugin\Secret\Category;
 use GlpiPlugin\Secret\Config;
 use GlpiPlugin\Secret\Secret;
 use GlpiPlugin\Secret\Security\Visibility;
@@ -25,9 +26,23 @@ final class SecretInputValidator
             && !str_contains($name . $username, "\0")
             && mb_strlen($name) <= 255 && mb_strlen($username) <= 255
             && in_array($input['type'] ?? '', Secret::types(), true)
-            && in_array($input['visibility'] ?? '', Config::ticketVisibilities(), true)
+            && in_array($input['visibility'] ?? '', Config::secretVisibilities(), true)
             && in_array($input['expiration_policy'] ?? ExpirationPolicy::NEVER, ExpirationPolicy::all(), true)
             && (($input['visibility'] ?? '') !== Visibility::GROUP || (int) ($input['groups_id'] ?? 0) > 0);
+    }
+
+    public function categoryIsValid(int $id, int $entityId): bool
+    {
+        if ($id === 0) {
+            return true;
+        }
+        $category = new Category();
+        if (!$category->getFromDB($id)) {
+            return false;
+        }
+        $ownerEntity = (int) ($category->fields['entities_id'] ?? -1);
+        return $ownerEntity === $entityId || (!empty($category->fields['is_recursive'])
+            && in_array($ownerEntity, array_map('intval', getAncestorsOf('glpi_entities', $entityId)), true));
     }
 
     public function groupIsValid(int $id, int $entityId): bool

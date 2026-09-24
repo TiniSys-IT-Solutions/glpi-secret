@@ -16,7 +16,11 @@ final class PluginIntegrationContractTest extends TestCase
         self::assertFileExists($root . '/front/config.php');
         self::assertFileExists($root . '/logo.png');
         self::assertStringContainsString("[Hooks::CONFIG_PAGE]['secret'] = 'front/config.php'", $setup);
-        self::assertStringNotContainsString("[Hooks::MENU_TOADD]['secret']", $setup);
+        self::assertStringContainsString("[Hooks::USE_MASSIVE_ACTION]['secret'] = true", $setup);
+        self::assertStringContainsString('secret\\.form', $setup);
+        self::assertStringContainsString("[Hooks::MENU_TOADD]['secret']", $setup);
+        self::assertStringContainsString('AssetTypeProvider', $setup);
+        self::assertStringContainsString('AssetRelationLifecycle::beforePurge', $setup);
         self::assertStringContainsString("[Hooks::TIMELINE_ANSWER_ACTIONS]['secret']", $setup);
         self::assertStringContainsString("[Hooks::TIMELINE_ITEMS]['secret']", $setup);
         self::assertStringContainsString("registerJavascriptFile('js/secret.js')", $setup);
@@ -29,11 +33,10 @@ final class PluginIntegrationContractTest extends TestCase
         $legacyConfig = (string) file_get_contents($root . '/front/config.php');
         self::assertStringNotContainsString('Session::checkCSRF(', $legacyConfig);
         self::assertStringContainsString('SecretConfig::save($_POST)', $legacyConfig);
-        self::assertStringContainsString('ProfileRightsPresetService', $legacyConfig);
-        self::assertStringContainsString("isset(\$_POST['preview_profile_rights'])", $legacyConfig);
-        self::assertStringContainsString("isset(\$_POST['apply_profile_rights'])", $legacyConfig);
+        self::assertStringNotContainsString('ProfileRightsPresetService', $legacyConfig);
+        self::assertStringNotContainsString('preview_profile_rights', $legacyConfig);
 
-        foreach (['CreateItilSecretController.php', 'RevealSecretController.php', 'MutateItilSecretController.php', 'AuditSecretController.php'] as $controller) {
+        foreach (['CreateItilSecretController.php', 'CreateAssetSecretController.php', 'RevealSecretController.php', 'MutateItilSecretController.php', 'MutateAssetSecretController.php', 'MutateCentralSecretController.php', 'AuditSecretController.php'] as $controller) {
             $source = (string) file_get_contents($root . '/src/Controller/' . $controller);
             self::assertStringContainsString('#[SecurityStrategy(Firewall::STRATEGY_AUTHENTICATED)]', $source);
         }
@@ -89,24 +92,16 @@ final class PluginIntegrationContractTest extends TestCase
         self::assertSame(7, substr_count($profile, 'return (bool) Session::haveRight('));
     }
 
-    public function testProfileRightsAssistantRequiresPreviewAndNativeProfilePermission(): void
+    public function testAssetAccessUsesNativeRightsWithoutProfileSelector(): void
     {
         $root = dirname(__DIR__, 2);
-        $service = (string) file_get_contents($root . '/src/Service/ProfileRightsPresetService.php');
+        $config = (string) file_get_contents($root . '/src/Config.php');
         $template = (string) file_get_contents($root . '/templates/config_form.html.twig');
 
-        self::assertStringContainsString("Session::haveRight('profile', UPDATE)", $service);
-        self::assertStringContainsString('ProfileRight::updateProfileRights', $service);
-        self::assertStringContainsString('hash_equals(', $service);
-        self::assertStringContainsString("'expires_at' => time() + 600", $service);
-        self::assertStringContainsString("'target_rights' => \$targetRights", $service);
-        self::assertStringContainsString("'current_rights' => array_column(\$rows, 'before', 'id')", $service);
-        self::assertStringContainsString('beginTransaction()', $service);
-        self::assertStringContainsString('rollBack()', $service);
-        self::assertStringContainsString('preview_profile_rights', $template);
-        self::assertStringContainsString('apply_profile_rights', $template);
-        self::assertStringContainsString('profile_ids[]', $template);
-        self::assertStringContainsString('preview_token', $template);
+        self::assertStringContainsString('activeProfileCanAccessAssets', $config);
+        self::assertStringContainsString('return Profile::canReadMetadata()', $config);
+        self::assertStringNotContainsString('asset_technical_profile_ids', $config . $template);
+        self::assertStringNotContainsString('preview_profile_rights', $template);
     }
 
     public function testRevealFailsWhenItsAuditCannotBeRecorded(): void
@@ -144,7 +139,8 @@ final class PluginIntegrationContractTest extends TestCase
         $creation = (string) file_get_contents($root . '/src/Service/CreateSecretService.php');
 
         self::assertStringContainsString('Session::haveAccessToEntity(', $access);
-        self::assertStringContainsString('if (!$entityAllowed && !($context->itilItemAccess ?? false))', $access);
+        self::assertStringContainsString("!\$context->assetItemAccess", $access);
+        self::assertStringContainsString('canCreateForAsset($item)', $creation);
         self::assertStringContainsString('canCreateForItil($item)', $creation);
         self::assertStringContainsString("'is_recursive' => 0", $creation);
 
@@ -171,14 +167,12 @@ final class PluginIntegrationContractTest extends TestCase
         $root = dirname(__DIR__, 2);
         $secret = (string) file_get_contents($root . '/src/Secret.php');
         $form = (string) file_get_contents($root . '/templates/timeline_form.html.twig');
-        $tab = (string) file_get_contents($root . '/templates/itil_tab.html.twig');
         $javascript = (string) file_get_contents($root . '/public/js/secret.js');
 
         self::assertStringContainsString("self::TYPE_OTHER => __('Sensitive information', 'secret')", $secret);
         self::assertStringContainsString('plugin-secret-username-field', $form);
         self::assertStringContainsString('plugin-secret-sensitive-value', $form);
         self::assertStringContainsString("type === 'other'", $javascript);
-        self::assertStringContainsString("secret.type == 'other'", $tab);
         self::assertStringNotContainsString('value="{{ secret.', $form);
     }
 
@@ -186,11 +180,12 @@ final class PluginIntegrationContractTest extends TestCase
     {
         $root = dirname(__DIR__, 2);
         $tab = (string) file_get_contents($root . '/templates/itil_tab.html.twig');
+        $detail = (string) file_get_contents($root . '/templates/secret_form.html.twig');
         $notifier = (string) file_get_contents($root . '/src/Service/SecretAvailabilityNotifier.php');
         $mutation = (string) file_get_contents($root . '/src/Service/SecretMutationService.php');
 
-        self::assertStringContainsString("/Mutate')", $tab);
-        self::assertStringContainsString("/Audit')", $tab);
+        self::assertStringNotContainsString("/Mutate')", $tab);
+        self::assertStringContainsString('plugins/secret/Central/Secret/', $detail);
         self::assertStringContainsString('available for this ticket. Sign in to GLPI to view it.', $notifier);
         self::assertStringContainsString('available for this change. Sign in to GLPI to view it.', $notifier);
         self::assertStringContainsString('available for this problem. Sign in to GLPI to view it.', $notifier);
@@ -211,5 +206,36 @@ final class PluginIntegrationContractTest extends TestCase
         self::assertStringContainsString("'content' => ''", $items);
         self::assertStringContainsString('final class TimelineSecret extends \\CommonGLPI', $type);
         self::assertStringNotContainsString("'type' => 'PluginSecretTimelineSecret'", $actions . $items);
+    }
+
+    public function testAssetAndCentralSurfacesStayDedicatedAndMetadataOnly(): void
+    {
+        $root = dirname(__DIR__, 2);
+        foreach (['front/secret.php', 'front/secret.form.php', 'front/category.php', 'front/category.form.php', 'templates/asset_tab.html.twig', 'templates/secret_form.html.twig', 'templates/secret_relations.html.twig', 'templates/secret_history.html.twig'] as $path) {
+            self::assertFileExists($root . '/' . $path);
+        }
+
+        $assetTypes = (string) file_get_contents($root . '/src/Service/AssetTypeProvider.php');
+        $assetRepository = (string) file_get_contents($root . '/src/Service/AssetSecretRepository.php');
+        $centralRepository = (string) file_get_contents($root . '/src/Service/CentralSecretRepository.php');
+        $links = (string) file_get_contents($root . '/src/Service/SecretLinkService.php');
+        $assetTemplate = (string) file_get_contents($root . '/templates/asset_tab.html.twig');
+        $centralTemplates = (string) file_get_contents($root . '/templates/secret_form.html.twig')
+            . (string) file_get_contents($root . '/templates/secret_relations.html.twig')
+            . (string) file_get_contents($root . '/templates/secret_history.html.twig');
+
+        self::assertStringContainsString("\$CFG_GLPI['asset_types']", $assetTypes);
+        self::assertStringNotContainsString('encrypted_value', $assetRepository . $centralRepository . $assetTemplate . $centralTemplates);
+        self::assertStringContainsString('Search::show(Secret::class)', (string) file_get_contents($root . '/front/secret.php'));
+        self::assertStringNotContainsString('forcetoview', (string) file_get_contents($root . '/front/secret.php'));
+        self::assertStringContainsString('getSpecificMassiveActions', (string) file_get_contents($root . '/src/Secret.php'));
+        self::assertStringContainsString("'link_asset'", (string) file_get_contents($root . '/src/Secret.php'));
+        self::assertStringContainsString('defaultDisplayPreferenceRows', (string) file_get_contents($root . '/src/Secret.php'));
+        self::assertStringContainsString('Hooks::DEFAULT_DISPLAY_PREFS', (string) file_get_contents($root . '/setup.php'));
+        self::assertStringContainsString('metadataCriteriaForAsset', $assetRepository);
+        self::assertStringContainsString('AuditLogger::LINK', $links);
+        self::assertStringContainsString('AuditLogger::UNLINK', $links);
+        self::assertStringContainsString("countElementsInTable(SecretItem::getTable()", $links);
+        self::assertStringNotContainsString("'asset_technical_profile_ids'", (string) file_get_contents($root . '/src/Config.php'));
     }
 }

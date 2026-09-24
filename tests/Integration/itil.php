@@ -26,14 +26,19 @@ if (getenv('SECRET_TEST_KEY_REGISTRATION') !== false) {
 }
 
 
+use GlpiPlugin\Secret\Category as SecretCategory;
 use GlpiPlugin\Secret\Profile as SecretProfile;
 use GlpiPlugin\Secret\Secret;
 use GlpiPlugin\Secret\SecretItem;
 use GlpiPlugin\Secret\SecretLog;
+use GlpiPlugin\Secret\Security\AssetActorResolver;
 use GlpiPlugin\Secret\Security\ItilActorResolver;
+use GlpiPlugin\Secret\Service\AssetSecretRepository;
+use GlpiPlugin\Secret\Service\AssetTypeProvider;
 use GlpiPlugin\Secret\Service\CreateSecretService;
 use GlpiPlugin\Secret\Service\SecretAccessService;
 use GlpiPlugin\Secret\Service\SecretAvailabilityNotifier;
+use GlpiPlugin\Secret\Service\SecretLinkService;
 use GlpiPlugin\Secret\Service\SecretMutationService;
 use GlpiPlugin\Secret\Service\SecretValueService;
 use GlpiPlugin\Secret\Service\TicketSecretRepository;
@@ -263,6 +268,38 @@ try {
         verify(!$secret->getFromDB($secretId), "$type expired ciphertext removed");
         verify(countElementsInTable(SecretLog::getTable(), ['plugin_secret_secrets_id' => $secretId, 'action' => 'PURGE']) === 1, "$type purge retains audit");
     }
+    verify((new AssetTypeProvider())->supports(Computer::class), 'native asset types include Computer');
+    $category = new SecretCategory();
+    $categoryId = $category->add(['name' => 'Synthetic infrastructure', 'entities_id' => 0, 'is_recursive' => 1]);
+    verify((bool) $categoryId, 'entity-aware secret category created');
+    $assetA = new Computer();
+    $assetAId = $assetA->add(['name' => 'Secret asset A', 'entities_id' => 0]);
+    $assetB = new Computer();
+    $assetBId = $assetB->add(['name' => 'Secret asset B', 'entities_id' => 0]);
+    verify((bool) $assetAId && (bool) $assetBId, 'asset fixtures created');
+    $assetA->getFromDB((int) $assetAId);
+    $assetB->getFromDB((int) $assetBId);
+    $assetSecretId = (new CreateSecretService())->createForAsset($assetA, [
+        'name' => 'Synthetic asset credential',
+        'type' => 'password',
+        'secret_value' => 'synthetic-asset-secret',
+        'visibility' => 'owner',
+        'plugin_secret_categories_id' => $categoryId,
+        'expiration_policy' => 'never',
+    ]);
+    $assetSecret = new Secret();
+    verify($assetSecret->getFromDB($assetSecretId), 'asset service persists one ciphertext');
+    $assetContextA = (new AssetActorResolver())->forItem($assetA);
+    verify((new SecretValueService())->reveal($assetSecret, false, $assetContextA) === 'synthetic-asset-secret', 'asset reveal uses layered ACL');
+    verify((new AssetSecretRepository())->countVisibleForItem($assetA) === 1, 'asset tab count is ACL filtered');
+    (new SecretLinkService())->link($assetSecret, $assetB, (new AssetActorResolver())->forItem($assetB));
+    verify(countElementsInTable(SecretItem::getTable(), ['plugin_secret_secrets_id' => $assetSecretId]) === 2, 'same ciphertext links to two assets');
+    (new SecretLinkService())->unlink($assetSecret, $assetA, $assetContextA);
+    verify($assetSecret->getFromDB($assetSecretId), 'ciphertext survives while another asset link exists');
+    (new SecretLinkService())->unlink($assetSecret, $assetB, (new AssetActorResolver())->forItem($assetB));
+    verify(!$assetSecret->getFromDB($assetSecretId), 'ciphertext is removed after final link');
+    verify(countElementsInTable(SecretLog::getTable(), ['plugin_secret_secrets_id' => $assetSecretId, 'action' => 'LINK']) === 1, 'asset link is audited');
+    verify(countElementsInTable(SecretLog::getTable(), ['plugin_secret_secrets_id' => $assetSecretId, 'action' => 'UNLINK']) === 2, 'asset unlinks remain audited');
 } finally {
     $DB->rollBack();
     file_put_contents(GLPI_CONFIG_DIR . '/glpicrypt.key', $originalKey);

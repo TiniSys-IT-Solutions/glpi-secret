@@ -122,6 +122,9 @@
         if (!(form instanceof HTMLFormElement)) {
             return;
         }
+        if (form.dataset?.createContext === 'asset') {
+            return;
+        }
         const root = typeof CFG_GLPI === 'object' && typeof CFG_GLPI.root_doc === 'string'
             ? CFG_GLPI.root_doc.replace(/\/$/, '')
             : '';
@@ -171,7 +174,7 @@
                 }
                 return;
             }
-            const container = button.closest('td, .plugin-secret-timeline-content');
+            const container = button.closest('td, .plugin-secret-timeline-content, .plugin-secret-detail-content');
             const target = container?.querySelector('.plugin-secret-revealed');
             if (!target) {
                 throw new Error(__('Reveal area not found.', 'secret'));
@@ -313,8 +316,21 @@
             enforceCreateEndpoint(event.target);
         }
         if (event.target.matches('.plugin-secret-delete-form')
-            && !window.confirm(__('Permanently delete this secret?', 'secret'))) {
+            && !window.confirm(__('Deleting this secret permanently breaks all its links. This action cannot be undone.', 'secret'))) {
             event.preventDefault();
+        }
+        if (event.target.matches('.plugin-secret-unlink-form')
+            && !window.confirm(__('Unlink this secret from the asset?', 'secret'))) {
+            event.preventDefault();
+        }
+        if (event.target.matches('.plugin-secret-link-form')) {
+            const select = event.target.querySelector('.plugin-secret-link-select');
+            const id = Number(select?.value || 0);
+            if (id <= 0) {
+                event.preventDefault();
+            } else {
+                event.target.action = `${event.target.dataset.actionPrefix}${id}`;
+            }
         }
     }, true);
 
@@ -332,7 +348,6 @@
             enforceCreateEndpoint(form);
             refreshConditionalFields(form);
         });
-
         const answerBlock = document.getElementById('new-PluginSecretSecret-block');
         if (answerBlock) {
             answerBlock.addEventListener('shown.bs.collapse', () => {

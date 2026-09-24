@@ -5,18 +5,20 @@ declare(strict_types=1);
 use Glpi\Http\Firewall;
 use Glpi\Plugin\HookManager;
 use Glpi\Plugin\Hooks;
+use GlpiPlugin\Secret\Category;
 use GlpiPlugin\Secret\Config as SecretConfig;
 use GlpiPlugin\Secret\Install\ProfileRightSynchronizer;
 use GlpiPlugin\Secret\Profile;
 use GlpiPlugin\Secret\Secret;
 use GlpiPlugin\Secret\SecretItem;
 use GlpiPlugin\Secret\SecretLog;
+use GlpiPlugin\Secret\Service\AssetTypeProvider;
 use GlpiPlugin\Secret\Service\TimelineActionProvider;
 use GlpiPlugin\Secret\Service\TimelineItemProvider;
 
 defined('GLPI_ROOT') or die('No direct access allowed');
 
-const PLUGIN_SECRET_VERSION = '0.1.1';
+const PLUGIN_SECRET_VERSION = '0.2.5';
 const PLUGIN_SECRET_MIN_GLPI = '11.0.8';
 const PLUGIN_SECRET_MAX_GLPI = '11.1.0';
 const PLUGIN_SECRET_MIN_PHP = '8.2.0';
@@ -35,6 +37,8 @@ function plugin_init_secret(): void
 
     plugin_secret_autoload();
     $PLUGIN_HOOKS[Hooks::CSRF_COMPLIANT]['secret'] = true;
+    $PLUGIN_HOOKS[Hooks::USE_MASSIVE_ACTION]['secret'] = true;
+    $PLUGIN_HOOKS[Hooks::DEFAULT_DISPLAY_PREFS]['secret'] = Secret::defaultDisplayPreferences(...);
 
     // GLPI removes non-helpdesk rights while loading a Helpdesk-interface
     // profile. Register every Secret right in its native allow-list so the
@@ -65,6 +69,11 @@ function plugin_init_secret(): void
             '#^/front/config\.php$#',
             Firewall::STRATEGY_CENTRAL_ACCESS,
         );
+        Firewall::addPluginStrategyForLegacyScripts(
+            'secret',
+            '#^/front/(secret|secret\.form|category|category\.form)\.php$#',
+            Firewall::STRATEGY_CENTRAL_ACCESS,
+        );
     }
 
     if (class_exists(Plugin::class) && Plugin::isPluginActive('secret')) {
@@ -74,9 +83,12 @@ function plugin_init_secret(): void
         (new ProfileRightSynchronizer())->refreshActiveProfileRights();
         Plugin::registerClass(Profile::class, ['addtabon' => [\Profile::class]]);
         Plugin::registerClass(SecretConfig::class, ['addtabon' => [\Config::class]]);
+        Plugin::registerClass(Category::class);
         Plugin::registerClass(Secret::class);
-        Plugin::registerClass(SecretItem::class, ['addtabon' => SecretItem::supportedItemtypes()]);
-        foreach (SecretItem::supportedItemtypes() as $itemtype) {
+        $itilTypes = SecretItem::supportedItemtypes();
+        $assetTypes = (new AssetTypeProvider())->all();
+        Plugin::registerClass(SecretItem::class, ['addtabon' => [...$itilTypes, ...$assetTypes]]);
+        foreach ($itilTypes as $itemtype) {
             $PLUGIN_HOOKS[Hooks::ITEM_UPDATE]['secret'][$itemtype] = \GlpiPlugin\Secret\Service\ExpirationLifecycle::onUpdate(...);
             $PLUGIN_HOOKS[Hooks::PRE_ITEM_UPDATE]['secret'][$itemtype] = \GlpiPlugin\Secret\Service\ExpirationLifecycle::beforeUpdate(...);
             $PLUGIN_HOOKS[Hooks::PRE_ITEM_PURGE]['secret'][$itemtype] = \GlpiPlugin\Secret\Service\ExpirationLifecycle::beforePurge(...);
@@ -84,7 +96,15 @@ function plugin_init_secret(): void
             // Secret before other plugin tabs without rewriting GLPI's order.
             CommonGLPI::registerStandardTab($itemtype, SecretItem::class, 100);
         }
+        foreach ($assetTypes as $itemtype) {
+            $PLUGIN_HOOKS[Hooks::PRE_ITEM_PURGE]['secret'][$itemtype] = \GlpiPlugin\Secret\Service\AssetRelationLifecycle::beforePurge(...);
+            CommonGLPI::registerStandardTab($itemtype, SecretItem::class, 100);
+        }
         Plugin::registerClass(SecretLog::class);
+
+        if (Profile::canReadMetadata()) {
+            $PLUGIN_HOOKS[Hooks::MENU_TOADD]['secret'] = ['tools' => Secret::class];
+        }
 
         $PLUGIN_HOOKS[Hooks::TIMELINE_ANSWER_ACTIONS]['secret'] = TimelineActionProvider::actions(...);
         $PLUGIN_HOOKS[Hooks::TIMELINE_ITEMS]['secret'] = TimelineItemProvider::items(...);

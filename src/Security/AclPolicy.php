@@ -17,6 +17,7 @@ final class AclPolicy
             Visibility::GROUP => $groupId > 0 && in_array($groupId, $actor->groupIds, true),
             Visibility::TICKET_TECHNICIANS => $actor->ticketTechnician,
             Visibility::REQUESTERS_AND_TECHNICIANS => $actor->ticketTechnician || $actor->ticketRequester,
+            Visibility::ASSET_TECHNICAL_PROFILES => $actor->assetItemAccess && $actor->assetTechnicalProfile,
             default => false,
         };
     }

@@ -107,6 +107,13 @@
          }) }}
       </div>
       <div class="col-md-6">
+         {{ fields.dropdownField('GlpiPlugin\\Secret\\Category', 'plugin_secret_categories_id', 0, __('Category'), {
+            entity: subitem.fields.entities_id,
+            entity_sons: true,
+            full_width: true
+         }) }}
+      </div>
+      <div class="col-md-6">
          <label class="form-label required" for="secret-expiration">{{ __('Expiration') }}</label>
          <select class="form-select plugin-secret-expiration" id="secret-expiration" name="expiration_policy" required>
             <option value="never" {{ subitem.fields.config.default_expiration == 'never' ? 'selected' : '' }}>{{ __('Never') }}</option>

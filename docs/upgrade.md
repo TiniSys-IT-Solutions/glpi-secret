@@ -45,3 +45,49 @@ error. Notification timeline content for these cards remains explicitly empty.
 The same 0.1.1 maintenance pass removes an obsolete configuration marker and
 unregisters the automatic action on uninstall; encrypted records, dedicated
 audit rows, plugin settings and profile choices remain retained.
+
+## Upgrade to 0.2.0
+
+The migration adds an optional category reference to existing Secret rows and
+creates the entity-aware category tree. Existing ciphertext and relations are
+unchanged. Asset integration is enabled by default, but the technical-profile
+selection starts empty and therefore broadens no existing ACL.
+
+The former profile-rights preset assistant is removed. Previously configured
+native Secret rights remain unchanged and continue to be managed from GLPI
+profiles. Select technical profiles explicitly only when the new asset ACL is
+required.
+
+## Upgrade to 0.2.1
+
+Version 0.2.1 requires no schema migration. It uses GLPI's native multiple
+Profile selector for asset technical profiles and permits recursive assets to
+link eligible secrets from descendant entities. The usual profile rights,
+entity access and per-secret ACL checks remain mandatory.
+
+## Upgrade to 0.2.2
+
+Version 0.2.2 requires no schema migration. It removes the redundant asset
+technical-profile selector and relies on the action-specific Secret right,
+native asset access and the per-secret ACL. It also adopts GLPI's native search,
+form tabs and massive-action mechanisms for the central Secret interface.
+
+## Upgrade to 0.2.3
+
+Version 0.2.3 requires no schema migration. It adds the linked GLPI item type to
+the native searchable list, an audited permanent-delete bulk action, encrypted
+value replacement and asset linking from the dedicated Secret form.
+
+## Upgrade to 0.2.4
+
+Version 0.2.4 requires no plugin schema migration. Its update cycle installs
+the native GLPI default display preferences for the central Secret list without
+overwriting personal preferences. It also restores the collapsed editor and
+adds password generation to encrypted-value replacement.
+
+## Upgrade to 0.2.5
+
+Version 0.2.5 requires no schema or ciphertext migration. It is the audited
+release candidate for the complete 0.2 asset and central-management scope.
+Upgrading from 0.1.1 still creates the category table, adds the optional
+category reference and preserves every encrypted value, relation and audit row.

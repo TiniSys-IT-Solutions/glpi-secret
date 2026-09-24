@@ -24,8 +24,15 @@ VERSION="${TAG_NAME#v}"
 }
 ARCHIVE="${DIST_DIR}/${REPOSITORY_NAME}-${VERSION}.zip"
 
-for command in composer node php rg rsync python3 xgettext msginit msgmerge msgfmt msgattrib; do
+for command in composer node php rg rsync python3; do
   command -v "${command}" >/dev/null 2>&1 || { echo "Missing command: ${command}" >&2; exit 1; }
+done
+
+GETTEXT_AVAILABLE=true
+for command in xgettext msginit msgmerge msgfmt msgattrib; do
+  if ! command -v "${command}" >/dev/null 2>&1; then
+    GETTEXT_AVAILABLE=false
+  fi
 done
 
 composer validate --strict --no-check-publish
@@ -38,21 +45,41 @@ php -r '$xml = simplexml_load_file("secret.xml"); exit($xml === false ? 1 : 0);'
 
 rm -rf "${DIST_DIR}"
 
-# Maintain the native GLPI gettext catalogs before packaging. English is the
-# source language; the French catalog must remain fully translated.
-vendor/bin/extract-locales
-sed -i "s/Project-Id-Version: PACKAGE VERSION/Project-Id-Version: GLPI Secret ${VERSION}/" locales/en_GB.po
-msgattrib --clear-fuzzy --output-file=locales/en_GB.po locales/en_GB.po
-msgmerge --no-fuzzy-matching locales/fr_FR.po locales/secret.pot -o locales/fr_FR.po.new
-mv locales/fr_FR.po.new locales/fr_FR.po
-msgfmt --check --check-format --statistics -o locales/en_GB.mo locales/en_GB.po
-msgfmt --check --check-format --statistics -o locales/fr_FR.mo locales/fr_FR.po
-for locale in en_GB fr_FR; do
-  if msgattrib --untranslated "locales/${locale}.po" | rg -q '^msgid '; then
-    echo "${locale} catalog contains untranslated messages" >&2
+# Maintain the native GLPI gettext catalogs before packaging when GNU gettext
+# is available. Minimal build environments may reuse already compiled catalogs,
+# but only when their source headers match the release and every artifact exists.
+if [[ "${GETTEXT_AVAILABLE}" == true ]]; then
+  vendor/bin/extract-locales
+  sed -i "s/Project-Id-Version: PACKAGE VERSION/Project-Id-Version: GLPI Secret ${VERSION}/" locales/secret.pot locales/en_GB.po
+  msgattrib --clear-fuzzy --output-file=locales/en_GB.po locales/en_GB.po
+  msgmerge --no-fuzzy-matching locales/fr_FR.po locales/secret.pot -o locales/fr_FR.po.new
+  mv locales/fr_FR.po.new locales/fr_FR.po
+  msgfmt --check --check-format --statistics -o locales/en_GB.mo locales/en_GB.po
+  msgfmt --check --check-format --statistics -o locales/fr_FR.mo locales/fr_FR.po
+  for locale in en_GB fr_FR; do
+    if msgattrib --untranslated "locales/${locale}.po" | rg -q '^msgid '; then
+      echo "${locale} catalog contains untranslated messages" >&2
+      exit 1
+    fi
+  done
+else
+  echo "GNU gettext unavailable; validating existing locale artifacts" >&2
+  for locale in en_GB fr_FR; do
+    rg -Fq "Project-Id-Version: GLPI Secret ${VERSION}" "locales/${locale}.po" || {
+      echo "${locale} catalog version does not match ${VERSION}" >&2
+      exit 1
+    }
+    [[ -s "locales/${locale}.mo" ]] || {
+      echo "Missing compiled catalog: locales/${locale}.mo" >&2
+      exit 1
+    }
+  done
+  [[ -s locales/secret.pot ]] || { echo "Missing catalog template: locales/secret.pot" >&2; exit 1; }
+  rg -Fq "Project-Id-Version: GLPI Secret ${VERSION}" locales/secret.pot || {
+    echo "Catalog template version does not match ${VERSION}" >&2
     exit 1
-  fi
-done
+  }
+fi
 
 mkdir -p "${PACKAGE_DIR}"
 for entry in setup.php hook.php composer.json composer.lock secret.xml LICENSE README.md CHANGELOG.md SECURITY.md CONTRIBUTING.md ROADMAP.md logo.png src front templates public locales docs; do

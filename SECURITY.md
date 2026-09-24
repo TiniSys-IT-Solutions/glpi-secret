@@ -6,8 +6,8 @@ backup constraints are documented in [docs/security.md](docs/security.md).
 ## Supported versions
 
 Security fixes are provided for the latest published release and the current
-`main` branch. Version 0.1.1 is the supported production release for the ITIL
-ticketing scope.
+`main` branch. Version 0.2.5 is the supported production release for ITIL and
+asset workflows.
 
 ## Reporting a vulnerability
 
@@ -25,6 +25,7 @@ It cannot protect a secret after full compromise of both the GLPI server and
 its cryptographic key, from an administrator controlling the complete runtime,
 or after an authorized user copies a revealed value elsewhere.
 
-Generic Secret model APIs and searches are closed. Ciphertext is also
+Generic Secret model APIs and searches are closed. The asset and central views
+use dedicated ACL-filtered metadata queries. Ciphertext is also
 explicitly excluded from serialization and GLPI history. Plaintext is decrypted only after both the profile permission and the
 secret ACL have passed. Reveal and copy are audited without recording values.

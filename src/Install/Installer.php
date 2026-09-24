@@ -26,6 +26,13 @@ final class Installer
         $DB->delete('glpi_plugin_secret_configs', ['name' => 'profile_rights_defaults_v3']);
 
         $secretsTable = 'glpi_plugin_secret_secrets';
+        if (!$DB->fieldExists($secretsTable, 'plugin_secret_categories_id')) {
+            $migration->addField($secretsTable, 'plugin_secret_categories_id', 'int unsigned', [
+                'value' => 0,
+                'after' => 'groups_id',
+            ]);
+            $migration->addKey($secretsTable, 'plugin_secret_categories_id', 'category');
+        }
         if (!$DB->fieldExists($secretsTable, 'expiration_policy')) {
             $migration->addField($secretsTable, 'expiration_policy', 'varchar(32)', [
                 'value' => 'never',
@@ -36,6 +43,18 @@ final class Installer
         $migration->addKey($secretsTable, ['expiration_policy', 'expiration', 'id'], 'closure_expiration');
         if (!(new ProfileRightSynchronizer())->synchronize()) {
             return false;
+        }
+
+        if (countElementsInTable('glpi_displaypreferences', [
+            'itemtype' => Secret::class,
+            'users_id' => 0,
+            'interface' => 'central',
+        ]) === 0) {
+            foreach (Secret::defaultDisplayPreferenceRows() as $preference) {
+                if (!$DB->insert('glpi_displaypreferences', $preference)) {
+                    return false;
+                }
+            }
         }
 
         Config::installDefaults();

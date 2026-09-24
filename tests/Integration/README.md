@@ -18,7 +18,9 @@ The checks execute generic API list/create methods (only response transport is
 intercepted), native CSRF checks, dedicated audit/reveal controllers, real
 GLPIKey encryption and rotation, profile synchronization, SQL ACL equivalence,
 invalid inputs, notification rights, audit-failure rollback, closure/reopening
-and retained purge audit for Ticket, Change and Problem.
+and retained purge audit for Ticket, Change and Problem. It also checks native
+asset discovery, entity-aware categories, asset creation, multi-asset links,
+ACL-filtered counts and last-link ciphertext deletion.
 
 Key-registration lifecycle checks can be run in separate processes after
 changing the disposable plugin state:

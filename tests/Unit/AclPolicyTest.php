@@ -26,6 +26,8 @@ final class AclPolicyTest extends TestCase
         yield 'other group' => [Visibility::GROUP, 7, 12, new AclContext(8, [13]), false];
         yield 'ticket technician' => [Visibility::TICKET_TECHNICIANS, 7, 0, new AclContext(8, [], true), true];
         yield 'requester' => [Visibility::REQUESTERS_AND_TECHNICIANS, 7, 0, new AclContext(8, [], false, true), true];
+        yield 'asset technical profile' => [Visibility::ASSET_TECHNICAL_PROFILES, 7, 0, new AclContext(8, [], false, false, false, true, true), true];
+        yield 'asset profile without item access' => [Visibility::ASSET_TECHNICAL_PROFILES, 7, 0, new AclContext(8, [], false, false, false, false, true), false];
         yield 'anonymous always denied' => [Visibility::OWNER, 0, 0, new AclContext(0), false];
         yield 'unknown visibility denied' => ['unexpected', 7, 0, new AclContext(7), false];
     }

@@ -1,8 +1,8 @@
 # Security model
 
-All public secret operations use the dedicated authenticated ITIL controllers.
+All public secret operations use dedicated authenticated controllers.
 Authorization combines the requested Secret profile right, a verified relation
-with a viewable Ticket/Change/Problem, and the per-secret ACL. GLPI's native
+with a viewable ITIL object or asset, and the per-secret ACL. GLPI's native
 `canViewItem()` is authoritative for that linked object's scope, including
 legitimate catalogue requesters outside their directly active entity set.
 Direct service access without verified ITIL context requires active-entity scope.
@@ -31,7 +31,17 @@ Secret values must be nonempty UTF-8 text without NUL bytes and within the
 configured byte limit on both creation and replacement. Metadata is also valid
 UTF-8 without NUL bytes and its limits use Unicode character counts. Only ITIL visibility choices are accepted. An explicit
 group must exist, be assignable and belong to the item's entity or a recursive
-ancestor. Entity-technician visibility remains unavailable in this phase.
+ancestor. Ticket actor visibility remains separate from asset visibility.
+
+Asset visibility accepts owner, explicit group, or authorized asset users. The
+user must hold the action-specific Secret right and pass the linked asset's
+native `canViewItem()` decision. A recursive parent asset may link a secret from
+an authorized descendant entity; unrelated cross-entity links are refused.
+
+Removing a link records an allow-listed `UNLINK` event. Ciphertext is retained
+while at least one verified ITIL or asset relation remains and is deleted
+transactionally after the final relation disappears. Audit rows deliberately
+remain without secret material.
 
 The sensitive-information textarea is visible only for the value actively typed
 by the user. It is never prefilled by the server. Its value follows the same

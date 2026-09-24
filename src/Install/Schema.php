@@ -25,6 +25,7 @@ final class Schema
                 `encrypted_value` longtext NOT NULL,
                 `visibility` varchar(48) NOT NULL,
                 `groups_id` int unsigned NOT NULL DEFAULT 0,
+                `plugin_secret_categories_id` int unsigned NOT NULL DEFAULT 0,
                 `users_id_creator` int unsigned NOT NULL,
                 `entities_id` int unsigned NOT NULL DEFAULT 0,
                 `is_recursive` tinyint NOT NULL DEFAULT 0,
@@ -36,8 +37,25 @@ final class Schema
                 KEY `entity_visibility` (`entities_id`, `is_recursive`, `visibility`),
                 KEY `creator` (`users_id_creator`),
                 KEY `group_visibility` (`groups_id`, `visibility`),
+                KEY `category` (`plugin_secret_categories_id`),
                 KEY `expiration` (`expiration`),
                 KEY `closure_expiration` (`expiration_policy`, `expiration`, `id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+            'glpi_plugin_secret_categories' => "CREATE TABLE `glpi_plugin_secret_categories` (
+                `id` int unsigned NOT NULL AUTO_INCREMENT,
+                `entities_id` int unsigned NOT NULL DEFAULT 0,
+                `is_recursive` tinyint NOT NULL DEFAULT 0,
+                `plugin_secret_categories_id` int unsigned NOT NULL DEFAULT 0,
+                `name` varchar(255) NOT NULL,
+                `completename` text DEFAULT NULL,
+                `level` int NOT NULL DEFAULT 0,
+                `ancestors_cache` longtext DEFAULT NULL,
+                `sons_cache` longtext DEFAULT NULL,
+                `comment` text DEFAULT NULL,
+                PRIMARY KEY (`id`),
+                KEY `entity` (`entities_id`, `is_recursive`),
+                KEY `parent` (`plugin_secret_categories_id`),
+                KEY `name` (`name`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
             'glpi_plugin_secret_secretitems' => "CREATE TABLE `glpi_plugin_secret_secretitems` (
                 `id` int unsigned NOT NULL AUTO_INCREMENT,

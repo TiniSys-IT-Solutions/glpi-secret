@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace GlpiPlugin\Secret;
 
+use CommonDBTM;
 use CommonGLPI;
 use CommonITILObject;
 use Glpi\Application\View\TemplateRenderer;
+use GlpiPlugin\Secret\Service\AssetSecretRepository;
+use GlpiPlugin\Secret\Service\AssetTypeProvider;
 use GlpiPlugin\Secret\Service\SecretAccessService;
 use GlpiPlugin\Secret\Service\TicketSecretRepository;
 use Session;
@@ -45,16 +48,26 @@ final class SecretItem extends \CommonDBRelation
     {
         if (
             $withtemplate
-            || !$item instanceof CommonITILObject
             || Session::getCurrentInterface() === 'helpdesk'
-            || !in_array($item->getType(), self::supportedItemtypes(), true)
             || (!Profile::canReadMetadata() && !Profile::canCreateSecret())
         ) {
             return '';
         }
 
+        if (!$item instanceof CommonDBTM) {
+            return '';
+        }
+
+        $isItil = $item instanceof CommonITILObject && in_array($item->getType(), self::supportedItemtypes(), true);
+        $isAsset = (new AssetTypeProvider())->supports($item->getType()) && Config::values()['asset_enabled'];
+        if (!$isItil && !$isAsset) {
+            return '';
+        }
+
         $count = !empty($_SESSION['glpishow_count_on_tabs']) && Profile::canReadMetadata()
-            ? (new TicketSecretRepository())->countVisibleForItem($item)
+            ? ($isItil
+                ? (new TicketSecretRepository())->countVisibleForItem($item)
+                : (new AssetSecretRepository())->countVisibleForItem($item))
             : 0;
 
         return self::createTabEntry(
@@ -71,7 +84,29 @@ final class SecretItem extends \CommonDBRelation
      */
     public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0): bool
     {
-        if (!$item instanceof CommonITILObject || !$item->canViewItem()) {
+        if (!$item instanceof CommonDBTM || !$item->canViewItem()) {
+            return false;
+        }
+
+        if ((new AssetTypeProvider())->supports($item->getType())) {
+            $page = max(0, (int) ($_GET['secret_page'] ?? 0));
+            $repository = new AssetSecretRepository();
+            $total = $repository->countVisibleForItem($item);
+            $page = min($page, max(0, (int) ceil($total / 50) - 1));
+            TemplateRenderer::getInstance()->display('@secret/asset_tab.html.twig', [
+                'page' => $page,
+                'total' => $total,
+                'page_url' => $item->getLinkURL() . '&forcetab=' . rawurlencode(self::getType() . '$1') . '&secret_page=',
+                'item' => $item,
+                'secrets' => Profile::canReadMetadata() ? $repository->visibleMetadataForItem($item, 50, $page * 50) : [],
+                'linkable_secrets' => Profile::canUpdateSecret() ? $repository->linkableForItem($item) : [],
+                'can_create' => (new SecretAccessService())->canCreateForAsset($item),
+                'generator' => Config::values(),
+            ]);
+            return true;
+        }
+
+        if (!$item instanceof CommonITILObject) {
             return false;
         }
 

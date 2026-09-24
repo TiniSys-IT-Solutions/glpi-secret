@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GlpiPlugin\Secret\Controller;
 
-use CommonITILObject;
 use Glpi\Controller\AbstractController;
 use Glpi\Exception\Http\AccessDeniedHttpException;
 use Glpi\Exception\Http\BadRequestHttpException;
@@ -12,7 +11,7 @@ use Glpi\Http\Firewall;
 use Glpi\Security\Attribute\SecurityStrategy;
 use GlpiPlugin\Secret\Secret;
 use GlpiPlugin\Secret\SecretItem;
-use GlpiPlugin\Secret\Security\ItilActorResolver;
+use GlpiPlugin\Secret\Service\LinkedItemContextResolver;
 use GlpiPlugin\Secret\Service\SecretValueService;
 use Session;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -34,7 +33,7 @@ final class RevealSecretController extends AbstractController
 
         $itemtype = $request->request->getString('itemtype');
         $itemsId = $request->request->getInt('items_id');
-        if (!in_array($itemtype, SecretItem::supportedItemtypes(), true) || $itemsId <= 0) {
+        if ($itemsId <= 0) {
             throw new AccessDeniedHttpException();
         }
         if (countElementsInTable(SecretItem::getTable(), [
@@ -44,10 +43,11 @@ final class RevealSecretController extends AbstractController
         ]) !== 1) {
             throw new AccessDeniedHttpException();
         }
-        $item = getItemForItemtype($itemtype);
-        if (!$item instanceof CommonITILObject || !$item->getFromDB($itemsId) || !$item->canViewItem()) {
+        $resolved = (new LinkedItemContextResolver())->resolve($itemtype, $itemsId);
+        if ($resolved === null) {
             throw new AccessDeniedHttpException();
         }
+        [, $context] = $resolved;
 
         $action = $request->request->getString('action', 'view');
         if (!in_array($action, ['view', 'copy'], true)) {
@@ -57,8 +57,8 @@ final class RevealSecretController extends AbstractController
             $value = (new SecretValueService())->reveal(
                 $secret,
                 $action === 'copy',
-                (new ItilActorResolver())->forItem($item),
-                ['source' => 'itil_tab', 'itemtype' => $itemtype, 'items_id' => $itemsId],
+                $context,
+                ['source' => 'linked_item', 'itemtype' => $itemtype, 'items_id' => $itemsId],
             );
         } catch (\RuntimeException) {
             // Do not expose ACL, audit or cryptographic failure details to the

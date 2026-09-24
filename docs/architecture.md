@@ -15,6 +15,21 @@ profile assignment and its native recursive flag.
 Ticket and asset integrations will supply contextual actor facts to the same ACL
 engine. They will never duplicate encryption, audit, or authorization logic.
 
+The 0.2.0 asset integration discovers native and custom asset classes from
+`$CFG_GLPI['asset_types']`. `SecretItem` registers one standard tab for every
+class and stores only polymorphic links. `AssetSecretRepository` selects an
+explicit metadata allow-list and applies the same `SecretAccessService` used by
+dedicated reveal and mutation controllers. `LINK` and `UNLINK` are audited; a
+Secret row is purged only when no ITIL or asset relation remains.
+
+`Category` is a native entity-aware recursive tree dropdown. The central Tools
+page uses GLPI's native search list and item tabs, but enables them only inside
+the dedicated authenticated UI after computing the authorized Secret IDs.
+Generic API access remains closed, and no search option exposes ciphertext.
+The plugin seeds GLPI's global display preferences with every metadata column;
+personal display preferences remain authoritative, so users can remove and
+reorder columns through the native selector.
+
 The 0.1.1 ITIL integration uses controllers discovered from `src/Controller/`.
 User-facing plugin strings use the `secret` gettext domain and GLPI's native
 `locales/<language>.mo` loading mechanism.
