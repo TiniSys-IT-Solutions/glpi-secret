@@ -22,6 +22,19 @@ final class ExpirationPolicy
         return [self::NEVER, self::TICKET_CLOSED, self::ONE_DAY, self::SEVEN_DAYS, self::THIRTY_DAYS, self::CUSTOM];
     }
 
+    public static function label(string $policy): string
+    {
+        return match ($policy) {
+            self::NEVER => __('Never'),
+            self::TICKET_CLOSED => __('When the ITIL object is closed', 'secret'),
+            self::ONE_DAY => __('1 day', 'secret'),
+            self::SEVEN_DAYS => __('7 days', 'secret'),
+            self::THIRTY_DAYS => __('30 days', 'secret'),
+            self::CUSTOM => __('Custom date', 'secret'),
+            default => __('Unknown'),
+        };
+    }
+
     public function resolve(string $policy, ?string $customDate = null, ?DateTimeImmutable $now = null): ?string
     {
         $now ??= new DateTimeImmutable();

@@ -1,7 +1,7 @@
 <?php
 
 $finder = PhpCsFixer\Finder::create()
-    ->in([__DIR__ . '/src', __DIR__ . '/tests'])
+    ->in([__DIR__ . '/src', __DIR__ . '/front', __DIR__ . '/tests'])
     ->append([__DIR__ . '/setup.php', __DIR__ . '/hook.php']);
 
 return (new PhpCsFixer\Config())
@@ -13,4 +13,3 @@ return (new PhpCsFixer\Config())
         'ordered_imports' => true,
     ])
     ->setFinder($finder);
-

@@ -24,7 +24,7 @@
             <option value="owner">{{ __('Me only', 'secret') }}</option><option value="asset_technical_profiles">{{ __('Authorized asset users', 'secret') }}</option><option value="group">{{ __('Group') }}</option>
          </select></div>
          <div class="col-md-4 plugin-secret-group-field" hidden>{{ fields.dropdownField('Group', 'groups_id', 0, __('Group'), {entity: item.fields.entities_id, full_width: true, condition: {'is_assign': 1}}) }}</div>
-         <div class="col-md-4">{{ fields.dropdownField('GlpiPlugin\\Secret\\Category', 'plugin_secret_categories_id', 0, __('Category'), {entity: item.fields.entities_id, entity_sons: true, full_width: true}) }}</div>
+         <div class="col-md-4">{{ fields.dropdownField('GlpiPlugin\\Secret\\Category', 'plugin_secret_categories_id', 0, __('Category'), {entity: item.fields.entities_id, full_width: true}) }}</div>
          <div class="col-md-4"><label class="form-label required">{{ __('Expiration') }}</label><select class="form-select plugin-secret-expiration" name="expiration_policy" required>
             <option value="never">{{ __('Never') }}</option><option value="one_day">{{ __('1 day', 'secret') }}</option><option value="seven_days">{{ __('7 days', 'secret') }}</option><option value="thirty_days">{{ __('30 days', 'secret') }}</option><option value="custom">{{ __('Custom date', 'secret') }}</option>
          </select></div>
@@ -47,7 +47,7 @@
 
 <div class="card"><div class="card-header"><h3 class="card-title"><i class="ti ti-key me-2"></i>{{ _n('Secret', 'Secrets', 2, 'secret') }}</h3></div>
 <div class="table-responsive"><table class="table table-hover card-table"><thead><tr><th>{{ __('Name') }}</th><th>{{ __('Type') }}</th><th>{{ __('Username', 'secret') }}</th><th>{{ __('Expiration') }}</th><th>{{ __('Actions') }}</th></tr></thead><tbody>
-{% for secret in secrets %}<tr><td><a href="{{ secret.form_url }}"><i class="ti ti-key me-1"></i>{{ secret.name }}</a></td><td>{{ secret.type_label }}</td><td>{{ secret.username ?? '—' }}</td><td>{{ secret.expiration ?? secret.expiration_policy }}</td><td>
+{% for secret in secrets %}<tr><td><a href="{{ secret.form_url }}"><i class="ti ti-key me-1"></i>{{ secret.name }}</a></td><td>{{ secret.type_label }}</td><td>{{ secret.username ?? '—' }}</td><td>{{ secret.expiration ?? secret.expiration_label }}</td><td>
    {% if secret.can_reveal %}<button type="button" class="btn btn-sm btn-outline-primary plugin-secret-action" data-action="view" data-url="{{ path('plugins/secret/Secret/' ~ secret.id ~ '/Reveal') }}" data-secret-type="{{ secret.type }}" data-itemtype="{{ item.getType() }}" data-items-id="{{ item.getID() }}" data-csrf="{{ csrf_token(true) }}"><i class="ti ti-eye"></i> {{ __('Reveal', 'secret') }}</button>{% else %}<span class="text-secondary">{{ __('Not available', 'secret') }}</span>{% endif %}
    <div class="plugin-secret-revealed mt-2" hidden></div>
 </td></tr>{% else %}<tr><td colspan="5" class="text-center text-secondary py-4">{{ __('No visible secret.', 'secret') }}</td></tr>{% endfor %}

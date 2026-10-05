@@ -31,8 +31,9 @@ author can later reveal a secret sent only to assigned technicians.
 Adding the generic notification followup additionally requires GLPI's own
 followup creation rights. Lack of that permission does not undo the saved secret.
 
-All generic APIs, searches and model CRUD/purge access are closed for these three
-plugin models in 0.0.20. Operator UI actions use the dedicated audited services.
+Generic APIs and model CRUD/purge access remain closed for Secret, SecretItem
+and SecretLog. The dedicated central UI uses native metadata search and tabs
+with relation and ACL checks. Operator writes use the dedicated audited services.
 Configuration retains its deliberate recovery exception: GLPI config UPDATE or
 Secret administration UPDATE permits changing plugin defaults, but neither
 bypasses the secret ACL. The plugin configuration still resides in native GLPI
@@ -56,3 +57,15 @@ ACLs remain available independently.
 The **Authorized asset users** visibility applies only when the active profile
 can read Secret metadata and GLPI grants access to the asset. Reveal, update,
 delete and history still require their own Secret rights.
+
+## Categories and massive actions
+
+Secret administrators manage categories through **Setup > Dropdowns > Secret**.
+Categories follow GLPI's native entity and recursion rules. A secret can select
+a category from its own entity or from a recursive ancestor, including when the
+secret is edited through a shared link to an ancestor asset.
+
+The central **Link to an asset** massive action requires the update right;
+**Delete permanently** requires the delete right independently. Each selected
+secret is checked against a viewable linked object and its ACL, and every
+successful write is audited. Metadata permission is required to use the list.

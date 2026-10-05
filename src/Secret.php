@@ -7,8 +7,10 @@ namespace GlpiPlugin\Secret;
 use Glpi\Application\View\TemplateRenderer;
 use GlpiPlugin\Secret\Security\ClosedGenericAccess;
 use GlpiPlugin\Secret\Security\GlpiKeyCipher;
+use GlpiPlugin\Secret\Security\Visibility;
 use GlpiPlugin\Secret\Service\AssetTypeProvider;
 use GlpiPlugin\Secret\Service\CentralSecretRepository;
+use GlpiPlugin\Secret\Service\ExpirationPolicy;
 use GlpiPlugin\Secret\Service\SecretAccessService;
 use GlpiPlugin\Secret\Service\SecretInputValidator;
 use GlpiPlugin\Secret\Service\SecretLinkService;
@@ -143,6 +145,8 @@ final class Secret extends \CommonDBTM
             'secret' => $this,
             'relation' => ['itemtype' => $relation[0], 'items_id' => $relation[1]],
             'type_label' => self::typeLabel((string) $this->fields['type']),
+            'visibility_label' => Visibility::label((string) $this->fields['visibility']),
+            'expiration_label' => ExpirationPolicy::label((string) $this->fields['expiration_policy']),
             'can_reveal' => (new SecretAccessService())->canReveal($this, $relation[2]),
             'can_update' => (new SecretAccessService())->canUpdate($this, $relation[2]),
             'can_delete' => (new SecretAccessService())->canDelete($this, $relation[2]),
@@ -158,10 +162,9 @@ final class Secret extends \CommonDBTM
     public function getSpecificMassiveActions($checkitem = null): array
     {
         $actions = parent::getSpecificMassiveActions($checkitem);
-        if (!Profile::canUpdateSecret()) {
-            return $actions;
+        if (Profile::canUpdateSecret()) {
+            $actions[self::class . \MassiveAction::CLASS_ACTION_SEPARATOR . 'link_asset'] = __('Link to an asset', 'secret');
         }
-        $actions[self::class . \MassiveAction::CLASS_ACTION_SEPARATOR . 'link_asset'] = __('Link to an asset', 'secret');
         if (Profile::canDeleteSecret()) {
             $actions[self::class . \MassiveAction::CLASS_ACTION_SEPARATOR . 'delete_secret'] = __('Delete permanently');
         }

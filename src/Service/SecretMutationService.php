@@ -38,12 +38,12 @@ final class SecretMutationService
             }
         }
         if (array_key_exists('plugin_secret_categories_id', $update)) {
-            $item = getItemForItemtype($itemtype);
-            if (!$item instanceof \CommonDBTM || !$item->getFromDB($itemsId)
-                || !(new SecretInputValidator())->categoryIsValid(
-                    (int) $update['plugin_secret_categories_id'],
-                    (int) ($item->fields['entities_id'] ?? -1),
-                )) {
+            // A shared secret keeps its own entity even when edited through a
+            // recursive asset in an ancestor entity.
+            if (!(new SecretInputValidator())->categoryIsValid(
+                (int) $update['plugin_secret_categories_id'],
+                (int) ($secret->fields['entities_id'] ?? -1),
+            )) {
                 throw new RuntimeException('Invalid category.');
             }
         }

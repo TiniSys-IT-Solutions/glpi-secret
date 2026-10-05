@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-const PLUGIN_SECRET_VERSION = '0.2.5';
+const PLUGIN_SECRET_VERSION = '0.2.6';
 const DAY_TIMESTAMP = 86400;
 
 class CommonGLPI

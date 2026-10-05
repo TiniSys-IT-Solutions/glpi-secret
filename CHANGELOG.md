@@ -2,6 +2,29 @@
 
 All notable changes are documented here.
 
+## 0.2.6 - 2026-10-05
+
+### Fixed
+
+- Restrict category selectors to the secret's entity and recursive ancestors;
+  validate shared-secret category updates against the secret's own entity.
+- Offer permanent-delete massive actions to profiles with the dedicated delete
+  right independently of the update right. Per-secret access and audit checks
+  still apply.
+- Display translated visibility and expiration labels instead of storage keys.
+- Remove a duplicate French translation that prevented catalog compilation and
+  exclude previous distributions from native gettext extraction.
+
+### Changed
+
+- Make Secret categories discoverable through GLPI's native dropdown setup.
+- Batch central-list relations and resolve each linked object's access once per
+  list computation, preserving profile, entity and per-secret ACL checks.
+- Generate reproducible `dist/secret/` and `dist/secret-0.2.6.zip` packages,
+  require regenerated gettext catalogs, and verify package integrity.
+- Complete installation, configuration, usage, permissions and build guidance.
+  No schema, ciphertext or profile-right migration is required.
+
 ## 0.2.5 - 2026-09-24
 
 ### Changed

@@ -91,3 +91,21 @@ Version 0.2.5 requires no schema or ciphertext migration. It is the audited
 release candidate for the complete 0.2 asset and central-management scope.
 Upgrading from 0.1.1 still creates the category table, adds the optional
 category reference and preserves every encrypted value, relation and audit row.
+
+## Upgrade to 0.2.6
+
+No schema, ciphertext or profile-right migration is required. Existing encrypted
+values, relations, categories, settings and audit rows are preserved. Category
+selectors now match server validation: use the secret's entity or a recursive
+ancestor category. Updating a shared secret through a recursive ancestor asset
+keeps the secret's own entity authoritative.
+
+A profile with the dedicated delete right can use permanent-delete massive
+actions without also receiving the update right. The action still requires
+metadata access, a viewable linked object, the per-secret ACL and successful
+audit. Review profiles that deliberately have delete rights without update.
+
+Starting with this release the archive is named `secret-VERSION.zip` and its
+staged directory is `dist/secret/`. The installable root remains `secret/`.
+Before deployment, validate Central and Self-Service access, category selection,
+shared-asset links and massive actions on your test GLPI instance.

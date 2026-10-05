@@ -19,22 +19,39 @@ final class CentralSecretRepository
             return [];
         }
         $table = Secret::getTable();
+        $links = SecretItem::getTable();
         $ids = [];
+        $contexts = [];
+        $resolver = new LinkedItemContextResolver();
         foreach ($DB->request([
             'SELECT' => [
                 "$table.id", "$table.visibility", "$table.groups_id", "$table.users_id_creator",
                 "$table.entities_id", "$table.is_recursive", "$table.expiration_policy", "$table.expiration",
+                "$links.itemtype", "$links.items_id",
             ],
             'FROM' => $table,
+            'JOIN' => [$links => ['FKEY' => [$table => 'id', $links => 'plugin_secret_secrets_id']]],
             'WHERE' => getEntitiesRestrictCriteria($table, '', '', true),
         ]) as $row) {
+            $id = (int) $row['id'];
+            if (isset($ids[$id])) {
+                continue;
+            }
+            // Resolve each linked object once for this list computation only.
+            // Never reuse authorization facts across requests or profiles.
+            $key = (string) $row['itemtype'] . ':' . (int) $row['items_id'];
+            if (!array_key_exists($key, $contexts)) {
+                $contexts[$key] = $resolver->resolve((string) $row['itemtype'], (int) $row['items_id']);
+            }
+            $resolved = $contexts[$key];
             $secret = new Secret();
+            unset($row['itemtype'], $row['items_id']);
             $secret->fields = $row;
-            if ($this->firstAuthorizedRelation($secret) !== null) {
-                $ids[] = (int) $row['id'];
+            if ($resolved !== null && $this->access->canSeeMetadata($secret, $resolved[1])) {
+                $ids[$id] = $id;
             }
         }
-        return $ids;
+        return array_values($ids);
     }
 
     /** @return array{0: string, 1: int, 2: \GlpiPlugin\Secret\Security\AclContext}|null */

@@ -58,6 +58,7 @@ final class AssetSecretRepository
             $row['id'] = (int) $row['id'];
             $row['form_url'] = Secret::getFormURLWithID((int) $row['id']);
             $row['type_label'] = Secret::typeLabel((string) $row['type']);
+            $row['expiration_label'] = ExpirationPolicy::label((string) $row['expiration_policy']);
             $row['can_reveal'] = $this->access->canReveal($secret, $context);
             $row['can_update'] = $this->access->canUpdate($secret, $context);
             $row['can_delete'] = $this->access->canDelete($secret, $context);

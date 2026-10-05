@@ -1,7 +1,8 @@
 # Contributing
 
 Use a focused branch and submit changes through a pull request. Every change
-must preserve the invariants in `AGENTS.md` and pass. Install GNU gettext
+must preserve the security invariants documented in
+[docs/security.md](docs/security.md) and pass the checks below. Install GNU gettext
 before running the release build so both maintained catalogs are regenerated
 and checked:
 

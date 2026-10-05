@@ -5,7 +5,7 @@ Authorization combines the requested Secret profile right, a verified relation
 with a viewable ITIL object or asset, and the per-secret ACL. GLPI's native
 `canViewItem()` is authoritative for that linked object's scope, including
 legitimate catalogue requesters outside their directly active entity set.
-Direct service access without verified ITIL context requires active-entity scope.
+Direct service access without a verified linked-object context requires active-entity scope.
 
 An optional administrator override, disabled by default, may bypass only the
 per-secret owner/group/actor ACL. It requires the dedicated Secret administration
@@ -13,13 +13,15 @@ right as well as the action-specific right and verified GLPI access to the linke
 ITIL object. It never bypasses expiration for reveal and never relies on a
 profile name.
 
-Since version 0.0.20, generic access to Secret, SecretItem and
-SecretLog: native canView/canCreate/canUpdate/canDelete/canPurge are false, generic
-search options are empty, and system list criteria match no records. The model
+Generic API access to Secret, SecretItem and SecretLog remains closed. The
+central Secret list and form explicitly enable native metadata search and tabs
+only in the dedicated authenticated UI, with authorized relation and ACL checks.
+SecretItem and SecretLog expose no generic search options; no model permits
+generic create/update/delete/purge. Search never includes ciphertext. The model
 classes remain available internally for GLPIKey rotation and audited application
 services. A profile administrator cannot bypass an individual secret ACL by
 using the generic API, search, dropdown or purge action. There is no generic
-Secret API integration in this ITIL milestone.
+Secret API integration.
 
 `encrypted_value` remains undisclosed and excluded from GLPI history. No initial
 page contains plaintext. Reveal/Copy use POST with native session and CSRF
@@ -29,7 +31,7 @@ must never enter it. Model form retry buffers do not retain secret input.
 
 Secret values must be nonempty UTF-8 text without NUL bytes and within the
 configured byte limit on both creation and replacement. Metadata is also valid
-UTF-8 without NUL bytes and its limits use Unicode character counts. Only ITIL visibility choices are accepted. An explicit
+UTF-8 without NUL bytes and its limits use Unicode character counts. ITIL creation accepts only ITIL visibility choices. An explicit
 group must exist, be assignable and belong to the item's entity or a recursive
 ancestor. Ticket actor visibility remains separate from asset visibility.
 

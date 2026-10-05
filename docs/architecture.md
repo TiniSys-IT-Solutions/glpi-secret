@@ -12,8 +12,8 @@ reproduce that decision. Entity scope is resolved with GLPI's
 `Session::haveAccessToEntity()` so parent/child access follows the user's active
 profile assignment and its native recursive flag.
 
-Ticket and asset integrations will supply contextual actor facts to the same ACL
-engine. They will never duplicate encryption, audit, or authorization logic.
+Ticket and asset integrations supply contextual actor facts to the same ACL
+engine and share encryption, audit and authorization logic.
 
 The 0.2.0 asset integration discovers native and custom asset classes from
 `$CFG_GLPI['asset_types']`. `SecretItem` registers one standard tab for every
@@ -76,3 +76,9 @@ the encrypted tables, audit, configuration and profile choices.
 The operator metadata tab uses pages of 50 authorized entries; the audit uses an
 ID cursor and pages of 50. Timeline cards remain under native GLPI timeline
 rendering; their metadata is batched, with no per-secret parent reload.
+
+The central list joins secrets to their relations in one metadata-only query.
+Each linked object's native access context is resolved once per list computation;
+those facts are never cached across requests or profile/entity changes. At least
+one viewable relation and the secret ACL must pass before its ID reaches native
+GLPI search. Individual form operations recheck the relation and permissions.

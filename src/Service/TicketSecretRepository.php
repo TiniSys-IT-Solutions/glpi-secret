@@ -87,6 +87,7 @@ final class TicketSecretRepository
                 'users_id_creator' => (int) $row['users_id_creator'],
                 'expiration_policy' => (string) $row['expiration_policy'],
                 'expiration' => $row['expiration'] !== null ? (string) $row['expiration'] : null,
+                'expiration_label' => ExpirationPolicy::label((string) $row['expiration_policy']),
                 'date_creation' => $row['date_creation'] !== null ? (string) $row['date_creation'] : null,
                 'date_mod' => $row['date_mod'] !== null ? (string) $row['date_mod'] : null,
                 'can_reveal' => $this->access->canReveal($secret, $context),
