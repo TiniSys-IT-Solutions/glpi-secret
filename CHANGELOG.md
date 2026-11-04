@@ -2,6 +2,12 @@
 
 All notable changes are documented here.
 
+## [0.2.7] - 2026-11-04
+
+### Fixed
+
+- Quote the XML validation step as a YAML block so GitHub Actions can load the quality workflow.
+
 ## 0.2.6 - 2026-10-05
 
 ### Fixed
