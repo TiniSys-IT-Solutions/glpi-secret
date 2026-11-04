@@ -2,6 +2,12 @@
 
 All notable changes are documented here.
 
+## [0.2.9] - 2026-11-04
+
+### Fixed
+
+- Use standard grep for release translation checks and install required packaging tools in the release workflow.
+
 ## [0.2.8] - 2026-11-04
 
 ### Fixed

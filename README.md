@@ -5,7 +5,7 @@
 <h1 align="center">GLPI Secret</h1>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.2.8-blue" alt="Version 0.2.8">
+  <img src="https://img.shields.io/badge/version-0.2.9-blue" alt="Version 0.2.9">
   <img src="https://img.shields.io/badge/GLPI-%3E%3D11.0.8_%3C11.1.0-blue" alt="GLPI 11.0.8 to 11.0.x">
   <img src="https://img.shields.io/badge/PHP-8.2%2B-777bb4" alt="PHP 8.2 or newer">
   <img src="https://img.shields.io/badge/license-GPL--3.0--or--later-green" alt="License GPL-3.0-or-later">
@@ -16,7 +16,7 @@ GLPI Secret provides native storage for operational credentials attached to
 GLPI ITIL workflows. Its purpose is to prevent passwords and tokens from being
 pasted into unprotected Ticket, Change or Problem text.
 
-Version 0.2.8 extends the production Ticket, Change, and Problem
+Version 0.2.9 extends the production Ticket, Change, and Problem
 workflow with asset tabs, shared links, entity-aware categories and a central
 metadata view.
 
@@ -56,7 +56,7 @@ GLPI's native gettext catalogs.
 
 ## Installation
 
-Download `secret-0.2.8.zip` from [Releases](https://github.com/TiniSys-IT-Solutions/glpi-secret/releases).
+Download `secret-0.2.9.zip` from [Releases](https://github.com/TiniSys-IT-Solutions/glpi-secret/releases).
 Back up the database and matching `glpicrypt.key`, then extract the archive so
 that `setup.php` is located at `plugins/secret/setup.php`. Install and enable
 **Secret** from GLPI's plugin management page. Marketplace installations use
@@ -127,7 +127,7 @@ invariants.
 ```
 
 The build validates code and translations and creates `dist/secret/` plus
-`dist/secret-0.2.8.zip`, rooted at `secret/`. It uses an explicit distribution
+`dist/secret-0.2.9.zip`, rooted at `secret/`. It uses an explicit distribution
 allow-list and excludes local files, tests and development dependencies.
 Composer, Node.js, PHP, ripgrep, rsync, Python 3 and GNU gettext are build tools;
 they are not additional services required by the installed plugin.
