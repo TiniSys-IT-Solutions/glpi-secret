@@ -13,7 +13,9 @@ require $root . '/vendor/autoload.php';
 $kernel = new Glpi\Kernel\Kernel('testing');
 $kernel->boot();
 set_exception_handler(static function (Throwable $error): void {
-    $message = str_starts_with($error->getMessage(), 'FAIL:') ? $error->getMessage() : $error::class;
+    $message = str_starts_with($error->getMessage(), 'FAIL:')
+        ? $error->getMessage()
+        : $error::class . ' at ' . basename($error->getFile()) . ':' . $error->getLine();
     fwrite(STDERR, $message . "\n");
     exit(1);
 });
