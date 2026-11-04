@@ -1,12 +1,12 @@
 # Native GLPI integration checks
 
 This runner executes native GLPI classes and SQL against a **disposable** GLPI
-11.0.8 instance. It requires no Docker and must never target production or a copy
+12.0.1 instance. It requires no Docker and must never target production or a copy
 containing real credentials. It changes configuration and rotates the test key.
 Test rows are rolled back and the original test key is restored in a finally
 block, but the instance must remain disposable in case a process is interrupted.
 
-1. Install GLPI 11.0.8 with its required PHP extensions and a local MariaDB/MySQL
+1. Install GLPI 12.0.1 with its required PHP extensions and a local MariaDB/MySQL
    database. Disable telemetry and notifications; use only synthetic data.
 2. Install and activate this plugin under `plugins/secret`.
 3. Create an empty `.secret-disposable-test` marker at the GLPI root.

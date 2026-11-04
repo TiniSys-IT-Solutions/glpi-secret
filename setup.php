@@ -18,10 +18,10 @@ use GlpiPlugin\Secret\Service\TimelineItemProvider;
 
 defined('GLPI_ROOT') or die('No direct access allowed');
 
-const PLUGIN_SECRET_VERSION = '0.2.7';
-const PLUGIN_SECRET_MIN_GLPI = '11.0.8';
-const PLUGIN_SECRET_MAX_GLPI = '11.1.0';
-const PLUGIN_SECRET_MIN_PHP = '8.2.0';
+const PLUGIN_SECRET_VERSION = '0.3.0';
+const PLUGIN_SECRET_MIN_GLPI = '12.0.0';
+const PLUGIN_SECRET_MAX_GLPI = '12.1.0';
+const PLUGIN_SECRET_MIN_PHP = '8.3.0';
 
 function plugin_secret_autoload(): void
 {
@@ -36,7 +36,6 @@ function plugin_init_secret(): void
     global $PLUGIN_HOOKS;
 
     plugin_secret_autoload();
-    $PLUGIN_HOOKS[Hooks::CSRF_COMPLIANT]['secret'] = true;
     $PLUGIN_HOOKS[Hooks::USE_MASSIVE_ACTION]['secret'] = true;
     $PLUGIN_HOOKS[Hooks::DEFAULT_DISPLAY_PREFS]['secret'] = Secret::defaultDisplayPreferences(...);
 

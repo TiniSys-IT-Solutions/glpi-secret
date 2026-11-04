@@ -36,7 +36,7 @@ final class ExpirationLifecycle
         global $DB;
         foreach ($DB->request([
             'SELECT' => ['plugin_secret_secrets_id'], 'FROM' => SecretItem::getTable(),
-            'WHERE' => ['itemtype' => $item->getType(), 'items_id' => (int) $item->getID()],
+            'WHERE' => ['itemtype' => $item::class, 'items_id' => (int) $item->getID()],
         ]) as $row) {
             self::persist((int) $row['plugin_secret_secrets_id'], date('Y-m-d H:i:s'));
         }
