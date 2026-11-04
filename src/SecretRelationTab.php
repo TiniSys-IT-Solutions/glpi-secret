@@ -16,7 +16,7 @@ final class SecretRelationTab extends CommonGLPI
     /** @param mixed $withtemplate */
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0): string
     {
-        return $item instanceof Secret ? self::createTabEntry(__('Linked items', 'secret'), 0, $item::getType(), 'ti ti-link') : '';
+        return $item instanceof Secret ? self::createTabEntry(__('Linked items', 'secret'), 0, $item::class, 'ti ti-link') : '';
     }
 
     /**

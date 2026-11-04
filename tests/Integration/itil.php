@@ -10,10 +10,20 @@ if (!$root || !is_file($root . '/.secret-disposable-test')) {
 }
 session_save_path($root . '/files/_sessions');
 require $root . '/vendor/autoload.php';
-$kernel = new Glpi\Kernel\Kernel();
+// GLPI's testing mode records native sessions, but normally redirects DB and
+// key paths to tests/config. Keep this marked installation's real test paths.
+if (!defined('GLPI_CONFIG_DIR')) {
+    define('GLPI_CONFIG_DIR', getenv('GLPI_CONFIG_DIR') ?: $root . '/config');
+}
+if (!defined('GLPI_VAR_DIR')) {
+    define('GLPI_VAR_DIR', getenv('GLPI_VAR_DIR') ?: $root . '/files');
+}
+$kernel = new Glpi\Kernel\Kernel('testing');
 $kernel->boot();
 set_exception_handler(static function (Throwable $error): void {
-    $message = str_starts_with($error->getMessage(), 'FAIL:') ? $error->getMessage() : $error::class;
+    $message = str_starts_with($error->getMessage(), 'FAIL:')
+        ? $error->getMessage()
+        : $error::class . ' at ' . basename($error->getFile()) . ':' . $error->getLine();
     fwrite(STDERR, $message . "\n");
     exit(1);
 });
@@ -103,6 +113,8 @@ foreach ([Secret::class, SecretItem::class, SecretLog::class] as $model) {
 }
 $csrfListener = new Glpi\Kernel\Listener\ControllerListener\CheckCsrfListener(new Glpi\Http\SessionManager());
 $csrfRequest = Symfony\Component\HttpFoundation\Request::create('/plugins/secret/Itil/Secret', 'POST');
+$csrfRequest->headers->set('Sec-Fetch-Site', 'cross-site');
+$csrfRequest->request->set('_glpi_csrf_token', Session::getNewCSRFToken());
 $csrfEvent = new Symfony\Component\HttpKernel\Event\ControllerEvent($kernel, static fn() => null, $csrfRequest, Symfony\Component\HttpKernel\HttpKernelInterface::MAIN_REQUEST);
 $denied = false;
 try {
@@ -110,15 +122,23 @@ try {
 } catch (Glpi\Exception\Http\AccessDeniedHttpException) {
     $denied = true;
 }
-verify($denied, 'native CSRF listener rejects a missing token');
-$csrfRequest->request->set('_glpi_csrf_token', Session::getNewCSRFToken());
+verify($denied, 'native GLPI 12 CSRF listener rejects cross-site requests even with a token');
+$csrfRequest->headers->set('Sec-Fetch-Site', 'same-origin');
 $csrfListener->onKernelController($csrfEvent);
-verify(true, 'native CSRF listener accepts a valid form token');
+verify(true, 'native GLPI 12 CSRF listener accepts same-origin form submissions');
 $csrfRequest->headers->set('X-Requested-With', 'XMLHttpRequest');
-$csrfRequest->server->set('HTTP_X_GLPI_CSRF_TOKEN', Session::getNewCSRFToken(true));
 $csrfListener->onKernelController($csrfEvent);
 $csrfListener->onKernelController($csrfEvent);
-verify(true, 'native AJAX CSRF token remains valid for repeated actions');
+verify(true, 'native GLPI 12 accepts repeated same-origin AJAX requests');
+$csrfRequest->headers->remove('Sec-Fetch-Site');
+$csrfRequest->headers->set('Origin', 'https://untrusted.example');
+$denied = false;
+try {
+    $csrfListener->onKernelController($csrfEvent);
+} catch (Glpi\Exception\Http\AccessDeniedHttpException) {
+    $denied = true;
+}
+verify($denied, 'native GLPI 12 Origin fallback rejects a foreign host');
 $originalKey = file_get_contents(GLPI_CONFIG_DIR . '/glpicrypt.key');
 $DB->beginTransaction();
 try {
@@ -151,7 +171,7 @@ try {
         $timelineEntry = reset($timeline);
         verify(is_array($timelineEntry) && ($timelineEntry['type'] ?? null) === TimelineSecret::class, "$type timeline uses a loadable item type");
         verify(($timelineEntry['item']['content'] ?? null) === '', "$type timeline notification content is empty");
-        verify(TimelineSecret::getType() !== '' && TimelineSecret::getTypeName(1) !== '', "$type timeline type satisfies GLPI notification methods");
+        verify(TimelineSecret::class !== '' && TimelineSecret::getTypeName(1) !== '', "$type timeline type satisfies GLPI notification methods");
         $request = new Symfony\Component\HttpFoundation\Request([], ['itemtype' => $type, 'items_id' => $id]);
         $response = (new GlpiPlugin\Secret\Controller\AuditSecretController())($request, $secretId);
         verify(count(json_decode($response->getContent(), true)['entries']) === 3, "$type native audit controller");

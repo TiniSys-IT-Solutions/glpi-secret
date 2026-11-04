@@ -59,7 +59,7 @@ final class Profile extends \Profile
             return '';
         }
 
-        return self::createTabEntry(_n('Secret', 'Secrets', 1, 'secret'), 0, $item::getType(), 'ti ti-key');
+        return self::createTabEntry(_n('Secret', 'Secrets', 1, 'secret'), 0, $item::class, 'ti ti-key');
     }
 
     /**

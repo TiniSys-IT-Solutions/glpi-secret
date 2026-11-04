@@ -20,13 +20,13 @@ final class Secret extends \CommonDBTM
 {
     use ClosedGenericAccess;
     /** @var string */
-    public static $rightname = Profile::RIGHT_METADATA;
+    public static string $rightname = Profile::RIGHT_METADATA;
     /** @var list<string> */
-    public static $undisclosedFields = ['encrypted_value'];
+    public static array $undisclosedFields = ['encrypted_value'];
     /** @var bool */
-    public $dohistory = false;
+    public bool $dohistory = false;
     /** @var list<string> */
-    public $history_blacklist = ['encrypted_value'];
+    public array $history_blacklist = ['encrypted_value'];
 
     public const TYPE_PASSWORD = 'password';
     public const TYPE_CREDENTIAL = 'credential';
@@ -205,9 +205,9 @@ final class Secret extends \CommonDBTM
                         throw new \RuntimeException('Access denied.');
                     }
                     (new Service\SecretMutationService())->delete($secret, $relation[0], $relation[1], $relation[2], 'central_massive_action');
-                    $ma->itemDone($item->getType(), (int) $id, \MassiveAction::ACTION_OK);
+                    $ma->itemDone($item::class, (int) $id, \MassiveAction::ACTION_OK);
                 } catch (\Throwable) {
-                    $ma->itemDone($item->getType(), (int) $id, \MassiveAction::ACTION_KO);
+                    $ma->itemDone($item::class, (int) $id, \MassiveAction::ACTION_KO);
                 }
             }
             return;
@@ -234,9 +234,9 @@ final class Secret extends \CommonDBTM
                     throw new \RuntimeException('Access denied.');
                 }
                 (new SecretLinkService())->link($secret, $asset, (new Security\AssetActorResolver())->forItem($asset));
-                $ma->itemDone($item->getType(), (int) $id, \MassiveAction::ACTION_OK);
+                $ma->itemDone($item::class, (int) $id, \MassiveAction::ACTION_OK);
             } catch (\Throwable) {
-                $ma->itemDone($item->getType(), (int) $id, \MassiveAction::ACTION_KO);
+                $ma->itemDone($item::class, (int) $id, \MassiveAction::ACTION_KO);
             }
         }
     }

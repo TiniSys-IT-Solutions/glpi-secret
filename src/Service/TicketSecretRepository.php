@@ -19,7 +19,7 @@ final class TicketSecretRepository
     public function countVisibleForItem(CommonITILObject $item): int
     {
         global $DB;
-        if (!in_array($item->getType(), SecretItem::supportedItemtypes(), true) || !$item->canViewItem()) {
+        if (!in_array($item::class, SecretItem::supportedItemtypes(), true) || !$item->canViewItem()) {
             return 0;
         }
         $query = $this->queryForItem($item);
@@ -33,7 +33,7 @@ final class TicketSecretRepository
     {
         global $DB;
 
-        if (!in_array($item->getType(), SecretItem::supportedItemtypes(), true) || !$item->canViewItem()) {
+        if (!in_array($item::class, SecretItem::supportedItemtypes(), true) || !$item->canViewItem()) {
             return [];
         }
 
@@ -109,7 +109,7 @@ final class TicketSecretRepository
             'FROM' => $secrets,
             'JOIN' => [$links => ['FKEY' => [$secrets => 'id', $links => 'plugin_secret_secrets_id']]],
             'WHERE' => [
-                "$links.itemtype" => $item->getType(), "$links.items_id" => (int) $item->getID(),
+                "$links.itemtype" => $item::class, "$links.items_id" => (int) $item->getID(),
                 $this->access->metadataCriteriaForItil($this->actors->forItem($item)),
             ],
         ];

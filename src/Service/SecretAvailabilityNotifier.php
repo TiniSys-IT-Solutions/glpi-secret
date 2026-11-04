@@ -12,7 +12,7 @@ final class SecretAvailabilityNotifier
     {
         $followup = new \ITILFollowup();
         $input = [
-            'itemtype' => $item->getType(),
+            'itemtype' => $item::class,
             'items_id' => (int) $item->getID(),
             'content' => $this->messageFor($item),
             'is_private' => 0,
@@ -22,7 +22,7 @@ final class SecretAvailabilityNotifier
 
     private function messageFor(CommonITILObject $item): string
     {
-        return match ($item->getType()) {
+        return match ($item::class) {
             \Ticket::class => __('A secure secret is available for this ticket. Sign in to GLPI to view it.', 'secret'),
             \Change::class => __('A secure secret is available for this change. Sign in to GLPI to view it.', 'secret'),
             \Problem::class => __('A secure secret is available for this problem. Sign in to GLPI to view it.', 'secret'),

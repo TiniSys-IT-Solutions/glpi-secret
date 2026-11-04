@@ -1,6 +1,6 @@
 {
   "name": "tinisys-it-solutions/glpi-secret",
-  "description": "Secure operational secrets for GLPI 11 ITIL workflows.",
+  "description": "Secure operational secrets for GLPI 12 ITIL workflows.",
   "type": "glpi-plugin",
   "license": "GPL-3.0-or-later",
   "authors": [
@@ -9,7 +9,7 @@
     }
   ],
   "require": {
-    "php": ">=8.2",
+    "php": ">=8.3",
     "ext-json": "*",
     "ext-sodium": "*"
   },
@@ -48,8 +48,9 @@
   "config": {
     "optimize-autoloader": true,
     "sort-packages": true,
+    "autoloader-suffix": "PluginSecret",
     "platform": {
-      "php": "8.2.0"
+      "php": "8.3.0"
     }
   }
 }

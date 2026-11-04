@@ -24,7 +24,7 @@ final class TimelineItemProvider
         }
         $manageUrl = $item->getLinkURL()
             . (str_contains($item->getLinkURL(), '?') ? '&' : '?')
-            . 'forcetab=' . rawurlencode(SecretItem::getType() . '$1');
+            . 'forcetab=' . rawurlencode(SecretItem::class . '$1');
 
         foreach ((new TicketSecretRepository())->visibleMetadataForItem($item) as $secret) {
             $timeline['PluginSecretTimelineSecret_' . $secret['id']] = [
@@ -41,7 +41,7 @@ final class TimelineItemProvider
                     'date' => $secret['date_creation'],
                     'date_mod' => $secret['date_mod'],
                     'timeline_position' => CommonITILObject::TIMELINE_RIGHT,
-                    'itemtype' => $item->getType(),
+                    'itemtype' => $item::class,
                     'items_id' => (int) $item->getID(),
                     'manage_url' => $manageUrl,
                     'can_manage' => $secret['can_update'] || $secret['can_delete'] || $secret['can_audit'],
