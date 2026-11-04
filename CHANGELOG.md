@@ -10,12 +10,19 @@ All notable changes are documented here.
 - Match native typed model properties and use PHP class names for item types.
 - Validate native model loading, plugin lifecycle and synthetic regressions against GLPI 12.0.1.
 
+
+## [0.2.8] - 2026-11-04
+
+### Fixed
+
+- Resolve development dependencies for the supported minimum PHP 8.2.
+- Install all required build commands in the quality workflow.
+
 ## [0.2.7] - 2026-11-04
 
 ### Fixed
 
 - Quote the XML validation step as a YAML block so GitHub Actions can load the quality workflow.
-
 
 ## 0.2.6 - 2026-10-05
 

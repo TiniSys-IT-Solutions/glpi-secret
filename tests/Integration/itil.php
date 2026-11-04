@@ -10,6 +10,14 @@ if (!$root || !is_file($root . '/.secret-disposable-test')) {
 }
 session_save_path($root . '/files/_sessions');
 require $root . '/vendor/autoload.php';
+// GLPI's testing mode records native sessions, but normally redirects DB and
+// key paths to tests/config. Keep this marked installation's real test paths.
+if (!defined('GLPI_CONFIG_DIR')) {
+    define('GLPI_CONFIG_DIR', getenv('GLPI_CONFIG_DIR') ?: $root . '/config');
+}
+if (!defined('GLPI_VAR_DIR')) {
+    define('GLPI_VAR_DIR', getenv('GLPI_VAR_DIR') ?: $root . '/files');
+}
 $kernel = new Glpi\Kernel\Kernel('testing');
 $kernel->boot();
 set_exception_handler(static function (Throwable $error): void {

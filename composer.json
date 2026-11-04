@@ -48,6 +48,9 @@
   "config": {
     "optimize-autoloader": true,
     "sort-packages": true,
-    "autoloader-suffix": "PluginSecret"
+    "autoloader-suffix": "PluginSecret",
+    "platform": {
+      "php": "8.3.0"
+    }
   }
 }
