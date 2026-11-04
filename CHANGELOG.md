@@ -2,6 +2,13 @@
 
 All notable changes are documented here.
 
+## [0.2.8] - 2026-11-04
+
+### Fixed
+
+- Resolve development dependencies for the supported minimum PHP 8.2.
+- Install all required build commands in the quality workflow.
+
 ## [0.2.7] - 2026-11-04
 
 ### Fixed
