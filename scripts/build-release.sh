@@ -25,7 +25,7 @@ SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-$(git log -1 --format=%ct 2>/dev/null ||
 [[ "${SOURCE_DATE_EPOCH}" =~ ^[0-9]+$ ]] || { echo "Invalid SOURCE_DATE_EPOCH" >&2; exit 1; }
 export SOURCE_DATE_EPOCH
 
-for command in composer node php rg rsync python3 xgettext msginit msgmerge msgfmt msgattrib; do
+for command in composer node php rsync python3 xgettext msginit msgmerge msgfmt msgattrib; do
   command -v "${command}" >/dev/null 2>&1 || { echo "Missing command: ${command}" >&2; exit 1; }
 done
 
@@ -74,7 +74,7 @@ for path in [pathlib.Path('locales/secret.pot'), *pathlib.Path('locales').glob('
 PY
 for locale in en_GB fr_FR; do
   msgfmt --check --check-format --statistics -o "locales/${locale}.mo" "locales/${locale}.po"
-  if [[ -n "$(msgattrib --untranslated --no-obsolete "locales/${locale}.po" | rg '^msgid ' || true)" ]]; then
+  if [[ -n "$(msgattrib --untranslated --no-obsolete "locales/${locale}.po" | grep '^msgid ' || true)" ]]; then
     echo "${locale} catalog contains untranslated messages" >&2
     exit 1
   fi
