@@ -10,8 +10,8 @@ PACKAGE_DIR="${DIST_DIR}/${PLUGIN_KEY}"
 cd "${ROOT_DIR}"
 PLUGIN_VERSION="$(sed -n "s/^const PLUGIN_SECRET_VERSION = '\([^']*\)';/\1/p" setup.php)"
 [[ -n "${PLUGIN_VERSION}" ]] || { echo "Unable to read plugin version" >&2; exit 1; }
-if [[ -n "${TAG_NAME}" && ! "${TAG_NAME}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-  echo "Expected a vX.Y.Z release tag" >&2
+if [[ -n "${TAG_NAME}" && ! "${TAG_NAME}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-glpi12-beta\.[1-9][0-9]*)?$ ]]; then
+  echo "Expected a vX.Y.Z or vX.Y.Z-glpi12-beta.N release tag" >&2
   exit 1
 fi
 VERSION="${TAG_NAME#v}"
