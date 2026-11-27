@@ -14,7 +14,7 @@ final class Config extends \CommonGLPI
     public const CONTEXT = 'plugin:secret';
 
     /** @var string */
-    public static $rightname = Profile::RIGHT_ADMIN;
+    public static string $rightname = Profile::RIGHT_ADMIN;
 
     /** @param int $nb */
     public static function getTypeName($nb = 0): string
@@ -39,7 +39,7 @@ final class Config extends \CommonGLPI
             return '';
         }
 
-        return self::createTabEntry(_n('Secret', 'Secrets', 1, 'secret'), 0, $item::getType(), self::getIcon());
+        return self::createTabEntry(_n('Secret', 'Secrets', 1, 'secret'), 0, $item::class, self::getIcon());
     }
 
     /**
@@ -80,7 +80,7 @@ final class Config extends \CommonGLPI
 
     public static function globalConfigUrl(): string
     {
-        return \Config::getFormURL() . '?forcetab=' . rawurlencode(self::getType() . '$1');
+        return \Config::getFormURL() . '?forcetab=' . rawurlencode(self::class . '$1');
     }
 
     /** @return array<string, string> */

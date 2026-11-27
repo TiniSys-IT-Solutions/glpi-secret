@@ -7,7 +7,7 @@ Version 0.2.6 supports Ticket, Change, and Problem objects.
    the built-in Followup, Task, Solution, Document, and Approval actions.
 2. The user enters or generates a value, selects visibility and expiration, and
    submits the form.
-3. A GLPI 11 POST controller validates CSRF, object access, profile rights, input,
+3. A GLPI 12 POST controller validates CSRF, object access, profile rights, input,
    encryption, relation creation, and the CREATE audit in one transaction.
 4. Authorized metadata appears in the object's **Secrets (N)** tab.
 5. Reveal and Copy each perform a new POST request and a complete authorization

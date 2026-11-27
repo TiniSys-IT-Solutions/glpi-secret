@@ -23,7 +23,7 @@ final class TimelineActionProvider
         if (
             !$item instanceof CommonITILObject
             || $item->isNewItem()
-            || !in_array($item->getType(), SecretItem::supportedItemtypes(), true)
+            || !in_array($item::class, SecretItem::supportedItemtypes(), true)
             || !$item->canViewItem()
             || (!Profile::canCreateSecret() && !Profile::canReadMetadata())
         ) {
@@ -33,7 +33,7 @@ final class TimelineActionProvider
         // GLPI only hands this value back to our Twig template as `subitem`.
         // A data holder avoids pretending that an unsaved secret already exists.
         $subitem = (object) ['fields' => [
-            'itemtype' => $item->getType(),
+            'itemtype' => $item::class,
             'items_id' => (int) $item->getID(),
             'entities_id' => (int) ($item->fields['entities_id'] ?? 0),
             'config' => $config,

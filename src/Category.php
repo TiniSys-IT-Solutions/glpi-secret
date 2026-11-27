@@ -7,9 +7,9 @@ namespace GlpiPlugin\Secret;
 final class Category extends \CommonTreeDropdown
 {
     /** @var string */
-    public static $rightname = Profile::RIGHT_ADMIN;
+    public static string $rightname = Profile::RIGHT_ADMIN;
     /** @var bool */
-    public $can_be_translated = false;
+    public bool $can_be_translated = false;
 
     /** @param int $nb */
     public static function getTypeName($nb = 0): string

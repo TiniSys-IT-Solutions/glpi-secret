@@ -19,7 +19,7 @@ final class AssetSecretRepository
     public function countVisibleForItem(CommonDBTM $item): int
     {
         global $DB;
-        if (!(new AssetTypeProvider())->supports($item->getType()) || !$item->canViewItem()) {
+        if (!(new AssetTypeProvider())->supports($item::class) || !$item->canViewItem()) {
             return 0;
         }
         $query = $this->queryForItem($item);
@@ -31,7 +31,7 @@ final class AssetSecretRepository
     public function visibleMetadataForItem(CommonDBTM $item, int $limit = 50, int $offset = 0): array
     {
         global $DB;
-        if (!(new AssetTypeProvider())->supports($item->getType()) || !$item->canViewItem()) {
+        if (!(new AssetTypeProvider())->supports($item::class) || !$item->canViewItem()) {
             return [];
         }
         $table = Secret::getTable();
@@ -84,7 +84,7 @@ final class AssetSecretRepository
         $context = $this->actors->forItem($item);
         $linked = [];
         foreach ($DB->request(['SELECT' => ['plugin_secret_secrets_id'], 'FROM' => $links, 'WHERE' => [
-            'itemtype' => $item->getType(), 'items_id' => (int) $item->getID(),
+            'itemtype' => $item::class, 'items_id' => (int) $item->getID(),
         ]]) as $row) {
             $linked[] = (int) $row['plugin_secret_secrets_id'];
         }
@@ -123,7 +123,7 @@ final class AssetSecretRepository
             'FROM' => $secrets,
             'JOIN' => [$links => ['FKEY' => [$secrets => 'id', $links => 'plugin_secret_secrets_id']]],
             'WHERE' => [
-                "$links.itemtype" => $item->getType(),
+                "$links.itemtype" => $item::class,
                 "$links.items_id" => (int) $item->getID(),
                 $this->access->metadataCriteriaForAsset($context),
             ],

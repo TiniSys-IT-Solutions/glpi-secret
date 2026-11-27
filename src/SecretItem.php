@@ -18,19 +18,19 @@ final class SecretItem extends \CommonDBRelation
 {
     use Security\ClosedGenericAccess;
     /** @var string */
-    public static $rightname = Profile::RIGHT_METADATA;
+    public static string $rightname = Profile::RIGHT_METADATA;
     /** @var class-string<Secret> */
-    public static $itemtype_1 = Secret::class;
+    public static ?string $itemtype_1 = Secret::class;
     /** @var string */
-    public static $items_id_1 = 'plugin_secret_secrets_id';
+    public static ?string $items_id_1 = 'plugin_secret_secrets_id';
     /** @var bool */
-    public static $take_entity_1 = false;
+    public static bool $take_entity_1 = false;
     /** @var string */
-    public static $itemtype_2 = 'itemtype';
+    public static ?string $itemtype_2 = 'itemtype';
     /** @var string */
-    public static $items_id_2 = 'items_id';
+    public static ?string $items_id_2 = 'items_id';
     /** @var bool */
-    public static $take_entity_2 = true;
+    public static bool $take_entity_2 = true;
 
     /** @return list<class-string<CommonITILObject>> */
     public static function supportedItemtypes(): array
@@ -58,8 +58,8 @@ final class SecretItem extends \CommonDBRelation
             return '';
         }
 
-        $isItil = $item instanceof CommonITILObject && in_array($item->getType(), self::supportedItemtypes(), true);
-        $isAsset = (new AssetTypeProvider())->supports($item->getType()) && Config::values()['asset_enabled'];
+        $isItil = $item instanceof CommonITILObject && in_array($item::class, self::supportedItemtypes(), true);
+        $isAsset = (new AssetTypeProvider())->supports($item::class) && Config::values()['asset_enabled'];
         if (!$isItil && !$isAsset) {
             return '';
         }
@@ -73,7 +73,7 @@ final class SecretItem extends \CommonDBRelation
         return self::createTabEntry(
             _n('Secret', 'Secrets', 2, 'secret'),
             $count,
-            $item::getType(),
+            $item::class,
             self::getIcon(),
         );
     }
@@ -88,7 +88,7 @@ final class SecretItem extends \CommonDBRelation
             return false;
         }
 
-        if ((new AssetTypeProvider())->supports($item->getType())) {
+        if ((new AssetTypeProvider())->supports($item::class)) {
             $page = max(0, (int) ($_GET['secret_page'] ?? 0));
             $repository = new AssetSecretRepository();
             $total = $repository->countVisibleForItem($item);
@@ -96,7 +96,7 @@ final class SecretItem extends \CommonDBRelation
             TemplateRenderer::getInstance()->display('@secret/asset_tab.html.twig', [
                 'page' => $page,
                 'total' => $total,
-                'page_url' => $item->getLinkURL() . '&forcetab=' . rawurlencode(self::getType() . '$1') . '&secret_page=',
+                'page_url' => $item->getLinkURL() . '&forcetab=' . rawurlencode(self::class . '$1') . '&secret_page=',
                 'item' => $item,
                 'secrets' => Profile::canReadMetadata() ? $repository->visibleMetadataForItem($item, 50, $page * 50) : [],
                 'linkable_secrets' => Profile::canUpdateSecret() ? $repository->linkableForItem($item) : [],
@@ -116,7 +116,7 @@ final class SecretItem extends \CommonDBRelation
         $page = min($page, max(0, (int) ceil($total / 50) - 1));
         TemplateRenderer::getInstance()->display('@secret/itil_tab.html.twig', [
             'page' => $page, 'total' => $total,
-            'page_url' => $item->getLinkURL() . '&forcetab=' . rawurlencode(self::getType() . '$1') . '&secret_page=',
+            'page_url' => $item->getLinkURL() . '&forcetab=' . rawurlencode(self::class . '$1') . '&secret_page=',
             'item' => $item,
             'secrets' => Profile::canReadMetadata()
                 ? $repository->visibleMetadataForItem($item, 50, $page * 50)

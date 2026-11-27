@@ -17,7 +17,7 @@ final class SecretHistoryTab extends CommonGLPI
         if (!$item instanceof Secret || !Profile::canViewAudit()) {
             return '';
         }
-        return self::createTabEntry(__('History'), 0, $item::getType(), 'ti ti-history');
+        return self::createTabEntry(__('History'), 0, $item::class, 'ti ti-history');
     }
 
     /**

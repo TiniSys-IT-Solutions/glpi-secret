@@ -9,9 +9,9 @@ final class SecretLog extends \CommonDBTM
     use Security\ClosedGenericAccess;
 
     /** @var string */
-    public static $rightname = Profile::RIGHT_AUDIT;
+    public static string $rightname = Profile::RIGHT_AUDIT;
     /** @var bool */
-    public $dohistory = false;
+    public bool $dohistory = false;
 
     public function canViewItem(): bool
     {

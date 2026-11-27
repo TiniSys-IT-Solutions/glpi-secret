@@ -15,7 +15,7 @@ final class AssetRelationLifecycle
     {
         global $DB;
 
-        $criteria = ['itemtype' => $item->getType(), 'items_id' => (int) $item->getID()];
+        $criteria = ['itemtype' => $item::class, 'items_id' => (int) $item->getID()];
         $rows = iterator_to_array($DB->request([
             'SELECT' => ['plugin_secret_secrets_id'],
             'FROM' => SecretItem::getTable(),
@@ -29,7 +29,7 @@ final class AssetRelationLifecycle
             foreach ($rows as $row) {
                 $secretId = (int) $row['plugin_secret_secrets_id'];
                 if (!(new AuditLogger())->record($secretId, AuditLogger::UNLINK, [
-                    'source' => 'asset_purge', 'itemtype' => $item->getType(), 'items_id' => (int) $item->getID(),
+                    'source' => 'asset_purge', 'itemtype' => $item::class, 'items_id' => (int) $item->getID(),
                 ])) {
                     throw new RuntimeException('Asset unlink audit failed.');
                 }

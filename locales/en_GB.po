@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: GLPI Secret 0.2.9\n"
+"Project-Id-Version: GLPI Secret 0.3.0-glpi12-beta.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-04 00:00+0000\n"
-"PO-Revision-Date: 2026-11-04 00:00+0000\n"
+"POT-Creation-Date: 2026-11-04 09:40+0000\n"
+"PO-Revision-Date: 2026-11-04 09:40+0000\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
 "Language: en_GB\n"
@@ -97,7 +97,7 @@ msgstr "Sensitive information"
 #: src/Service/TimelineActionProvider.php:53
 #: src/Service/TimelineActionProvider.php:71 src/TimelineSecret.php:19
 #: src/Profile.php:62 src/Profile.php:81 src/SecretItem.php:74
-#: src/Config.php:42 setup.php:117 front/secret.php:17
+#: src/Config.php:42 setup.php:116 front/secret.php:17
 msgid "Secret"
 msgid_plural "Secrets"
 msgstr[0] "Secret"
@@ -429,7 +429,7 @@ msgstr[1] "Secret categories"
 msgid "Secret settings"
 msgstr "Secret settings"
 
-#: front/config.php:21
+#: front/config.php:19
 msgid "Secret settings saved."
 msgstr "Secret settings saved."
 

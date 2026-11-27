@@ -27,7 +27,7 @@ final class CreateSecretService
         $entityId = (int) ($item->fields['entities_id'] ?? -1);
         if (
             !$this->access->canCreateForItil($item)
-            || !in_array($item->getType(), SecretItem::supportedItemtypes(), true)
+            || !in_array($item::class, SecretItem::supportedItemtypes(), true)
         ) {
             throw new RuntimeException('Access denied.');
         }
@@ -75,14 +75,14 @@ final class CreateSecretService
             $relation = new SecretItem();
             if (!$relation->add([
                 'plugin_secret_secrets_id' => $secretId,
-                'itemtype' => $item->getType(),
+                'itemtype' => $item::class,
                 'items_id' => (int) $item->getID(),
             ])) {
                 throw new RuntimeException('The secret could not be linked to the ITIL object.');
             }
             if (!$this->audit->record($secretId, AuditLogger::CREATE, [
                 'source' => 'timeline',
-                'itemtype' => $item->getType(),
+                'itemtype' => $item::class,
                 'items_id' => (int) $item->getID(),
             ])) {
                 throw new RuntimeException('The creation audit could not be recorded.');
@@ -161,10 +161,10 @@ final class CreateSecretService
             ]);
             if (!$secretId || !(new SecretItem())->add([
                 'plugin_secret_secrets_id' => $secretId,
-                'itemtype' => $item->getType(),
+                'itemtype' => $item::class,
                 'items_id' => (int) $item->getID(),
             ]) || !$this->audit->record((int) $secretId, AuditLogger::CREATE, [
-                'source' => 'asset_tab', 'itemtype' => $item->getType(), 'items_id' => (int) $item->getID(),
+                'source' => 'asset_tab', 'itemtype' => $item::class, 'items_id' => (int) $item->getID(),
             ])) {
                 throw new RuntimeException('Asset secret creation failed.');
             }

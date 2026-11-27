@@ -127,7 +127,7 @@ final class PluginIntegrationContractTest extends TestCase
         $secret = (string) file_get_contents($root . '/src/Secret.php');
         $installer = (string) file_get_contents($root . '/src/Install/Installer.php');
 
-        self::assertStringContainsString('public $dohistory = false', $secret);
+        self::assertStringContainsString('public bool $dohistory = false', $secret);
         self::assertStringContainsString("CronTask::unregister('Secret')", $installer);
         self::assertStringNotContainsString("DROP TABLE", $installer);
     }

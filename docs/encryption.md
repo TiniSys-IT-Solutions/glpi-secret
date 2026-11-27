@@ -1,6 +1,6 @@
 # Encryption and backup
 
-GLPI 11.0.8 `GLPIKey` encrypts values using libsodium XChaCha20-Poly1305 with a
+GLPI 12.0.8 `GLPIKey` encrypts values using libsodium XChaCha20-Poly1305 with a
 fresh random nonce and the key stored in `glpicrypt.key`. The plugin registers
 `glpi_plugin_secret_secrets.encrypted_value` as a secured field so GLPI's key
 rotation migrates every ciphertext.

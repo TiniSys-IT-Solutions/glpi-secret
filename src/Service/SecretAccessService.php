@@ -95,7 +95,7 @@ final class SecretAccessService
     public function canCreateForAsset(CommonDBTM $item): bool
     {
         return Config::values()['asset_enabled'] && $this->canCreate() && $item->canViewItem()
-            && (new AssetTypeProvider())->supports($item->getType());
+            && (new AssetTypeProvider())->supports($item::class);
     }
 
     public function canReveal(Secret $secret, ?AclContext $context = null): bool
