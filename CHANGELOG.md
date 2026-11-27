@@ -2,15 +2,15 @@
 
 All notable changes are documented here.
 
-## 0.3.0 - 2026-11-04
+## 0.3.0-glpi12-beta.1 - 2026-11-27
 
-### Changed
+First version compatible with GLPI 12.
 
-- Target GLPI 12.0.x and PHP 8.3 or newer on the dedicated migration branch.
-- Match native typed model properties and use PHP class names for item types.
-- Validate native model loading, plugin lifecycle and synthetic regressions against GLPI 12.0.1.
+Préversion qualifiée sur GLPI 12.0.2. PHP 8.3 minimum.
 
-
+- Align the typed models, relations and timeline integration with GLPI 12 while preserving the existing secret access rules.
+- Use the GLPI kernel’s registered CSRF listener in the integration test to validate request origins on GLPI 12.0.2.
+- Verify rights, auditing, encryption, key rotation and preservation of encrypted data after upgrading from GLPI 11.
 
 ## [0.2.9] - 2026-11-04
 

@@ -111,7 +111,17 @@ foreach ([Secret::class, SecretItem::class, SecretLog::class] as $model) {
         verify($e->getMessage() === 'api-denied', "$model native API creation denied");
     }
 }
-$csrfListener = new Glpi\Kernel\Listener\ControllerListener\CheckCsrfListener(new Glpi\Http\SessionManager());
+$dispatcher = $kernel->getContainer()->get('event_dispatcher');
+$csrfListener = null;
+foreach ($dispatcher->getListeners(Symfony\Component\HttpKernel\KernelEvents::CONTROLLER) as $listener) {
+    if (is_array($listener) && $listener[0] instanceof Glpi\Kernel\Listener\ControllerListener\CheckCsrfListener) {
+        $csrfListener = $listener[0];
+        break;
+    }
+}
+if ($csrfListener === null) {
+    throw new RuntimeException('FAIL: native GLPI CSRF listener is registered in the kernel');
+}
 $csrfRequest = Symfony\Component\HttpFoundation\Request::create('/plugins/secret/Itil/Secret', 'POST');
 $csrfRequest->headers->set('Sec-Fetch-Site', 'cross-site');
 $csrfRequest->request->set('_glpi_csrf_token', Session::getNewCSRFToken());

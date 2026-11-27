@@ -1,6 +1,6 @@
 <p align="center">
 
-> Branche `glpi-v12` : version 0.3.0 pour GLPI 12.0.x et PHP 8.3+.
+> Branche `glpi-v12` : version 0.3.0-glpi12-beta.1 pour GLPI 12.0.x et PHP 8.3+.
 > Les versions GLPI 11 restent disponibles sur `main` et dans les tags précédents.
 > Migration en cours de revue ; voir `docs/GLPI12_MIGRATION.md` pour les contrôles et limites.
 
@@ -10,7 +10,7 @@
 <h1 align="center">GLPI Secret</h1>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.3.0-blue" alt="Version 0.3.0">
+  <img src="https://img.shields.io/badge/version-0.3.0-blue" alt="Version 0.3.0-glpi12-beta.1">
   <img src="https://img.shields.io/badge/GLPI-%3E%3D12.0.0_%3C12.1.0-blue" alt="GLPI 12.0.8 to 11.0.x">
   <img src="https://img.shields.io/badge/PHP-8.3%2B-777bb4" alt="PHP 8.3 or newer">
   <img src="https://img.shields.io/badge/license-GPL--3.0--or--later-green" alt="License GPL-3.0-or-later">
@@ -21,7 +21,7 @@ GLPI Secret provides native storage for operational credentials attached to
 GLPI ITIL workflows. Its purpose is to prevent passwords and tokens from being
 pasted into unprotected Ticket, Change or Problem text.
 
-Version 0.3.0 extends the production Ticket, Change, and Problem
+Version 0.3.0-glpi12-beta.1 extends the production Ticket, Change, and Problem
 workflow with asset tabs, shared links, entity-aware categories and a central
 metadata view.
 
@@ -61,7 +61,7 @@ GLPI's native gettext catalogs.
 
 ## Installation
 
-Download `secret-0.3.0.zip` from [Releases](https://github.com/TiniSys-IT-Solutions/glpi-secret/releases).
+Download `secret-0.3.0-glpi12-beta.1.zip` from [Releases](https://github.com/TiniSys-IT-Solutions/glpi-secret/releases).
 Back up the database and matching `glpicrypt.key`, then extract the archive so
 that `setup.php` is located at `plugins/secret/setup.php`. Install and enable
 **Secret** from GLPI's plugin management page. Marketplace installations use
@@ -132,7 +132,7 @@ invariants.
 ```
 
 The build validates code and translations and creates `dist/secret/` plus
-`dist/secret-0.3.0.zip`, rooted at `secret/`. It uses an explicit distribution
+`dist/secret-0.3.0-glpi12-beta.1.zip`, rooted at `secret/`. It uses an explicit distribution
 allow-list and excludes local files, tests and development dependencies.
 Composer, Node.js, PHP, ripgrep, rsync, Python 3 and GNU gettext are build tools;
 they are not additional services required by the installed plugin.
